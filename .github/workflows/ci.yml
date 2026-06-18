@@ -20,7 +20,7 @@ jobs:
           enable-cache: true
           python-version: "3.11"
       - name: Lint (Ruff)
-        run: uv run ruff check
+        run: uvx ruff check
 
   publish:
     needs: lint

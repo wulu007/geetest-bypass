@@ -23,15 +23,27 @@ jobs:
           enable-cache: true
           python-version: "3.11"
 
+      - name: Update config
+        id: update
+        run: uv run python scripts/update_config.py
+
+      - name: Check for changes
+        id: check_diff
+        run: |
+          if git diff --quiet src/wulu_geetest_bypass/config.py; then
+            echo "changed=false" >> $GITHUB_OUTPUT
+            echo "No changes detected in config.py"
+          else
+            echo "changed=true" >> $GITHUB_OUTPUT
+            echo "Changes detected, proceeding to bump version"
+          fi
+
       - name: Bump version
+        if: steps.check_diff.outputs.changed == 'true'
         id: bump
         run: |
           uv version --bump patch
           echo "version=$(uv version --short)" >> $GITHUB_OUTPUT
-
-      - name: Update config
-        id: update
-        run: uv run python scripts/update_config.py
 
       - name: Commit and push if changed
         uses: stefanzweifel/git-auto-commit-action@v5
