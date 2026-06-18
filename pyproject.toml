@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "wulu-geetest-bypass"
-version = "0.1.0"
+version = "0.1.1"
 description = "Geetest CAPTCHA v4 bypass library"
 readme = "README.md"
 requires-python = ">=3.11"
