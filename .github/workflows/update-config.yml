@@ -1,0 +1,43 @@
+name: Update Config
+
+on:
+  schedule:
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - uses: astral-sh/setup-uv@v8.1.0
+        with:
+          enable-cache: true
+          python-version: "3.11"
+
+      - name: Bump version
+        id: bump
+        run: |
+          uv version --bump patch
+          echo "version=$(uv version --short)" >> $GITHUB_OUTPUT
+
+      - name: Update config
+        id: update
+        run: uv run python scripts/update_config.py
+
+      - name: Commit and push if changed
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "chore: update geetest config to ${{ steps.update.outputs.GEETEST_VER }} [auto]"
+          file_pattern: 'src/wulu_geetest_bypass/config.py pyproject.toml'
+          commit_user_name: 'bot'
+          commit_user_email: 'dabaobeix@gmail.com'
+          tagging_message: 'v${{ steps.bump.outputs.version }}' 
