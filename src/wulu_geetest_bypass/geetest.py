@@ -2,11 +2,12 @@ import json
 import random
 import time
 import uuid
-from typing import Any, Unpack
+from typing import Unpack
 
 from wreq import Client, Emulation
 
-from ._models import GeetestOptions, WPayload
+from ._exceptions import VerifyError
+from ._type import GeetestOptions, Seccode, VerifyResponse, WPayload
 from .config import Config
 from .crypto import build_w
 from .parser import generate_pow, parse_abo_pair
@@ -30,7 +31,7 @@ class Geetest:
     IMG_BASE = 'https://static.geetest.com'
 
     def __init__(self, **kwargs: Unpack[GeetestOptions]):
-        self.captcha_id = kwargs.get('captcha_id')
+        self.captcha_id = kwargs['captcha_id']
         self.risk_type = kwargs.get('risk_type', 'ai')
         self.client_type = kwargs.get('client_type', 'web')
         self.proxy = kwargs.get('proxy')
@@ -77,7 +78,7 @@ class Geetest:
         except Exception as e:
             raise RuntimeError(f'load_img request failed: {e}') from e
 
-    async def verify(self, data) -> dict[str, Any]:
+    async def verify(self, data) -> VerifyResponse:
         if data['captcha_type'] == 'slide':
             data['bg'] = await self._load_img(data['bg'])
             data['slice'] = await self._load_img(data['slice'])
@@ -105,12 +106,15 @@ class Geetest:
 
         return data
 
-    async def resolve(self) -> dict[str, Any]:
-        data = await self.load()
-        data = (await self.verify(data))['data']
-        if data['result'] != 'success':
-            raise RuntimeError(f'verification failed: {data}')
-        return data['seccode']
+    async def resolve(self, retry: int = 3) -> Seccode:
+        for attempt in range(retry):
+            data = await self.load()
+            data = (await self.verify(data))['data']
+            if data['result'] == 'success':
+                return data['seccode']
+            if attempt < retry - 1:
+                continue
+            raise VerifyError(f'verification failed after {retry} attempts: {data}')
 
     @staticmethod
     def generate_w(**data: Unpack[WPayload]) -> str:

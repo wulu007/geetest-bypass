@@ -1,7 +1,5 @@
 from typing import Any, Literal, NotRequired, TypedDict
 
-from wreq import Client
-
 RiskType = Literal[
     'ai',
     'slide',
@@ -36,12 +34,35 @@ class WPayload(TypedDict):
     answer_path: NotRequired[str]
 
 
+class Seccode(TypedDict):
+    captcha_id: str
+    lot_number: str
+    pass_token: str
+    gen_time: str
+    captcha_output: str
+
+
+class VerifyData(TypedDict):
+    lot_number: str
+    result: str
+    fail_count: int
+    seccode: Seccode
+    score: str
+    payload: str
+    process_token: str
+    payload_protocol: int
+
+
+class VerifyResponse(TypedDict):
+    status: str
+    data: VerifyData
+
+
 class GeetestOptions(TypedDict):
     captcha_id: str
     risk_type: NotRequired[RiskType]
     client_type: NotRequired[ClientType]
     challenge: NotRequired[str]
     proxy: NotRequired[str]
-    client: NotRequired[Client]
     lang: NotRequired[Lang]
     user_info: NotRequired[Any]
