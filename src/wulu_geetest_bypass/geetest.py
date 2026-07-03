@@ -30,26 +30,30 @@ class Geetest:
     BASE_URL = 'https://gcaptcha4.geetest.com'
     IMG_BASE = 'https://static.geetest.com'
 
+    default_headers = {
+        'Connection': 'keep-alive',
+        'Accept': '*/*',
+        'Sec-Fetch-Site': 'same-site',
+        'Sec-Fetch-Mode': 'no-cors',
+        'Sec-Fetch-Dest': 'script',
+        'sec-ch-ua-mobile': '?0',
+        'Accept-Language': 'zh-CN,zh;q=0.9,en;q=0.8',
+        'referer': 'https://www.geetest.com/',
+    }
+
     def __init__(self, **kwargs: Unpack[GeetestOptions]):
         self.captcha_id = kwargs['captcha_id']
         self.risk_type = kwargs.get('risk_type', 'ai')
         self.client_type = kwargs.get('client_type', 'web')
-        self.proxy = kwargs.get('proxy')
-        self.client = kwargs.get(
-            'client',
-            Client(
-                emulation=Emulation.random(),
-                headers={
-                    'Accept': '*/*',
-                    'Sec-Fetch-Site': 'same-site',
-                    'Sec-Fetch-Mode': 'no-cors',
-                    'Sec-Fetch-Dest': 'script',
-                    'sec-ch-ua-mobile': '?0',
-                    'Accept-Language': 'zh-CN,zh;q=0.9,en;q=0.8',
-                },
-            ),
-        )
         self.lang = kwargs.get('lang', 'zh')
+        if 'client' in kwargs:
+            self.client = kwargs['client']
+        else:
+            client_options = kwargs.get('client_options', {}).copy()
+            user_headers = client_options.get('headers', {})
+            client_options['headers'] = {**self.default_headers, **user_headers}
+            client_options.setdefault('emulation', Emulation.Chrome147)
+            self.client = Client(**client_options)
 
     async def load(self):
         params = {

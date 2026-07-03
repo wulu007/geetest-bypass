@@ -1,4 +1,7 @@
-from typing import Any, Literal, NotRequired, TypedDict
+from typing import TYPE_CHECKING, Any, Literal, NotRequired, TypedDict
+
+if TYPE_CHECKING:
+    from wreq.wreq import ClientConfig
 
 RiskType = Literal[
     'ai',
@@ -63,6 +66,6 @@ class GeetestOptions(TypedDict):
     risk_type: NotRequired[RiskType]
     client_type: NotRequired[ClientType]
     challenge: NotRequired[str]
-    proxy: NotRequired[str]
     lang: NotRequired[Lang]
     user_info: NotRequired[Any]
+    client_options: NotRequired['ClientConfig']
