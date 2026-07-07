@@ -7,7 +7,7 @@
   <img src="https://img.shields.io/badge/risk_types-13-lightgrey" alt="13 risk types">
 </p>
 
-极验行为验证 v4 自动化通过库。自动处理 `ai` / `slide` / `match` / `winlinze` / `svg_seed` 五种风险类型，支持自定义重试、代理和 HTTP 客户端。
+纯 Python 实现的极验行为验证 v4 自动化通过库（无需 Node.js）。自动处理 `ai` / `slide` / `match` / `winlinze` / `svg_seed` 五种风险类型，支持自定义重试、代理和 HTTP 客户端。
 
 ## 安装
 
@@ -87,8 +87,10 @@ asyncio.run(main())
 | `risk_type` | `RiskType` | 风险类型，默认 `'ai'` |
 | `client_type` | `ClientType` | 客户端类型，`'web'` / `'web_mobile'` / `'android'` / `'ios'` |
 | `lang` | `Lang` | 语言，`'zh'` / `'en'` / `'zho'` / `'eng'` |
-| `proxy` | `str` | 代理 URL |
-| `client` | `wreq.Client` | 自定义 HTTP 客户端 |
+| `challenge` | `str` | 自定义 challenge（不传则自动生成）|
+| `user_info` | `Any` | 附加用户信息（预留）|
+| `client_options` | `wreq.ClientConfig` | HTTP 客户端配置（代理、headers、模拟等）|
+| `client` | `wreq.Client \| None` | 自定义 HTTP 客户端（优先级高于 `client_options`）|
 
 ### 方法
 
