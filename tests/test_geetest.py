@@ -1,3 +1,5 @@
+import asyncio
+
 import pytest
 
 from wulu_geetest_bypass import Geetest
@@ -18,11 +20,10 @@ async def test_slide():
     g = Geetest(captcha_id='54088bb07d2df3c46b79f80300b0abbe', risk_type='slide')
     total = 50
     success = 0
-    for _ in range(total):
-        try:
-            await g.resolve()
-            success += 1
-        except Exception as e:
-            print(f'Error: {e}')
-
+    tasks = [g.resolve() for _ in range(total)]
+    results = await asyncio.gather(*tasks, return_exceptions=True)
+    success = sum(1 for r in results if not isinstance(r, Exception))
+    for i, r in enumerate(results):
+        if isinstance(r, Exception):
+            print(f'Task {i} Error: {r}')
     print(f'Success: {success}/{total}')
