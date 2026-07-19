@@ -7,7 +7,7 @@
   <img src="https://img.shields.io/badge/risk_types-13-lightgrey" alt="13 risk types">
 </p>
 
-纯 Python 实现的极验行为验证 v4 自动化通过库（无需 Node.js）。自动处理 `ai` / `slide` / `match` / `winlinze` / `svg_seed` 五种风险类型，支持自定义重试、代理和 HTTP 客户端。
+纯 Python 实现的极验行为验证 v4 自动化通过库（无需 Node.js）。自动处理 `ai` / `slide` / `match` / `winlinze` / `svg_seed` / `svg_icon` 六种风险类型，支持自定义重试、代理和 HTTP 客户端。
 
 ## 安装
 
@@ -29,8 +29,8 @@ pip install "wulu-geetest-bypass[all]"
 # slide 滑块（需要 opencv）
 uv add "wulu-geetest-bypass[slide]"
 
-# svg-seed 图片选择 + slide
-uv add "wulu-geetest-bypass[svg-seed]"
+# svg SVG 图标选择 + slide
+uv add "wulu-geetest-bypass[svg]"
 
 # 全部安装
 uv add "wulu-geetest-bypass[all]"
@@ -67,15 +67,15 @@ asyncio.run(main())
 | `slide` | 滑块拼图 | `[slide]` | ✅ |
 | `match` | 3×3 连线 & 9宫格 | 无 | ✅ |
 | `winlinze` | 五子棋 | 无 | ✅ |
-| `svg_seed` | SVG 图片选择 | `[svg-seed]` | ✅ |
+| `svg_seed` | SVG 图片选择 | `[svg]` | ✅ |
+| `svg_icon` | SVG 图标选择 | `[svg]` | ✅ |
+| `voice` | 语音验证 | 无 | ❓ |
 | `icon` | 图标点选 | 无 | ❌ |
 | `word` | 文字点选 | 无 | ❌ |
 | `nine` | 九宫格 | 无 | ❌ |
 | `phrase` | 短语识别 | 无 | ❓ |
 | `space` | 空间推理 | 无 | ❓ |
 | `pencil` | 涂鸦 | 无 | ❓ |
-| `voice` | 语音验证 | 无 | ❓ |
-| `svg_icon` | SVG 图标 | 无 | ❓ |
 
 ## API
 

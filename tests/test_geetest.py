@@ -4,7 +4,7 @@ import pytest
 
 from wulu_geetest_bypass import Geetest
 
-test_risk = ['ai', 'slide', 'match', 'winlinze', 'svg_seed']
+test_risk = ['ai', 'slide', 'match', 'winlinze', 'svg_seed', 'svg_icon']
 
 
 @pytest.mark.asyncio

@@ -86,6 +86,9 @@ class Geetest:
         if data['captcha_type'] == 'slide':
             data['bg'] = await self._load_img(data['bg'])
             data['slice'] = await self._load_img(data['slice'])
+        elif data['captcha_type'] == 'svg_icon':
+            data['question_path'] = (await self._load_img(data['question_path'])).decode()
+            data['answer_path'] = await self._load_img(data['answer_path'])
 
         data.setdefault('captcha_id', self.captcha_id)
 
@@ -150,8 +153,8 @@ class Geetest:
             payload['setLeft'] = set_left
             payload['userresponse'] = set_left / 1.0059466666666665 + 2
             payload['passtime'] = random.randint(600, 1400)
-        elif ct == 'svg_seed':
-            from .solver.svg_seed import solve_svg
+        elif ct in ('svg_seed', 'svg_icon'):
+            from .solver.svg import solve_svg
 
             layer, point = solve_svg(data['question_path'], data['answer_path'])
             frame = [0, 2248, 4970, 7642]

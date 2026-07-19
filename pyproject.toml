@@ -20,10 +20,10 @@ Repository = "https://github.com/wulu007/geetest-bypass.git"
 Issues = "https://github.com/wulu007/geetest-bypass/issues"
 
 [project.optional-dependencies]
-svg-seed = ["pillow>=12.2.0", "resvg-py>=0.3.2", "wulu-geetest-bypass[image]"]
+svg = ["pillow>=12.2.0", "resvg-py>=0.3.2", "wulu-geetest-bypass[image]"]
 slide = ["wulu-geetest-bypass[image]"]
 image = ["opencv-python-headless>=4.13.0.92"]
-all = ["wulu-geetest-bypass[slide,svg-seed]"]
+all = ["wulu-geetest-bypass[slide,svg]"]
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/wulu_geetest_bypass"]
