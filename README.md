@@ -8,7 +8,7 @@
   <img src="https://static.pepy.tech/personalized-badge/wulu-geetest-bypass?period=total&units=INTERNATIONAL_SYSTEM&left_color=BLACK&right_color=GREEN&left_text=downloads" alt="downloads">
 </div>
 
-纯 Python 实现的极验行为验证 v4 自动化通过库（无需 Node.js）。自动处理 `ai` / `slide` / `match` / `winlinze` / `svg_seed` / `svg_icon` 六种风险类型，支持自定义重试、代理和 HTTP 客户端。
+纯 Python 实现的极验行为验证 v4 自动化通过库（无需 Node.js）。自动处理 `ai` / `slide` / `match` / `winlinze` / `svg_seed` / `svg_icon` / `voice` 七种风险类型，支持自定义重试、代理和 HTTP 客户端。
 
 ## 安装
 
@@ -27,6 +27,9 @@ pip install "wulu-geetest-bypass[all]"
 可选依赖：
 
 ```bash
+# voice 语音验证
+uv add "wulu-geetest-bypass[voice]"
+
 # slide 滑块（需要 opencv）
 uv add "wulu-geetest-bypass[slide]"
 
@@ -70,7 +73,7 @@ asyncio.run(main())
 | `winlinze` | 五子棋           | 无        | ✅    |
 | `svg_seed` | SVG 图片选择     | `[svg]`   | ✅    |
 | `svg_icon` | SVG 图标选择     | `[svg]`   | ✅    |
-| `voice`    | 语音验证         | 无        | ❓    |
+| `voice`    | 语音验证         | `[voice]` | ✅    |
 | `icon`     | 图标点选         | 无        | ❌    |
 | `word`     | 文字点选         | 无        | ❌    |
 | `nine`     | 九宫格           | 无        | ❌    |
@@ -90,6 +93,7 @@ asyncio.run(main())
 | `lang`           | `Lang`                | 语言，`'zh'` / `'en'` / `'zho'` / `'eng'`                    |
 | `challenge`      | `str`                 | 自定义 challenge（不传则自动生成）                           |
 | `user_info`      | `Any`                 | 附加用户信息（预留）                                         |
+| `voice`          | `bool`                | 启用无障碍语音验证（需要 `[voice]` 依赖）                    |
 | `client_options` | `wreq.ClientConfig`   | HTTP 客户端配置（代理、headers、模拟等）                     |
 | `client`         | `wreq.Client \| None` | 自定义 HTTP 客户端（优先级高于 `client_options`）            |
 
