@@ -5,6 +5,7 @@ if TYPE_CHECKING:
     from .match import solve_match
     from .slide import solve_slide
     from .svg import solve_svg
+    from .voice import solve_voice
     from .winlinze import solve_winlinze
 
 
@@ -12,6 +13,7 @@ __all__ = [
     'solve_match',
     'solve_slide',
     'solve_svg',
+    'solve_voice',
     'solve_winlinze',
 ]
 
