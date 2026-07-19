@@ -17,7 +17,7 @@ from ._type import (
 from .config import Config
 from .crypto import build_w
 from .parser import generate_pow, parse_abo_pair
-from .solver import solve_match, solve_slide, solve_svg, solve_winlinze
+from .solver import solve_match, solve_slide, solve_svg, solve_voice, solve_winlinze
 
 
 def _callback() -> str:
@@ -52,6 +52,7 @@ class Geetest:
         'svg_seed': solve_svg,
         'svg_icon': solve_svg,
         'match': solve_match,
+        'voice': solve_voice,
         'winlinze': solve_winlinze,
     }
 
@@ -60,6 +61,7 @@ class Geetest:
         self.risk_type = kwargs.get('risk_type', 'ai')
         self.client_type = kwargs.get('client_type', 'web')
         self.lang = kwargs.get('lang', 'zh')
+        self.voice = kwargs.get('voice')
         if 'client' in kwargs:
             self.client = kwargs['client']
         else:
@@ -78,6 +80,8 @@ class Geetest:
             'risk_type': self.risk_type,
             'lang': self.lang,
         }
+        if self.voice:
+            params['switch_to'] = 'voice'
         try:
             resp = await self.client.get(f'{self.BASE_URL}/load', query=params)
             data = _unwrap_jsonp(await resp.text())
@@ -89,29 +93,29 @@ class Geetest:
             raise RuntimeError('load response missing data field')
         return d
 
-    async def _load_img(self, path: str) -> bytes:
+    async def _load_resource(self, path: str) -> bytes:
         try:
             resp = await self.client.get(f'{self.IMG_BASE}/{path}')
             return await resp.bytes()
         except Exception as e:
-            raise RuntimeError(f'load_img request failed: {e}') from e
+            raise RuntimeError(f'load resource failed: {e}') from e
 
     async def verify(self, data) -> VerifyResponse:
         if data['captcha_type'] == 'slide':
-            data['bg'] = await self._load_img(data['bg'])
-            data['slice'] = await self._load_img(data['slice'])
+            data['bg'] = await self._load_resource(data['bg'])
+            data['slice'] = await self._load_resource(data['slice'])
         elif data['captcha_type'] == 'svg_icon':
             data['question_path'] = (
-                await self._load_img(data['question_path'])
+                await self._load_resource(data['question_path'])
             ).decode()
-            data['answer_path'] = await self._load_img(data['answer_path'])
+            data['answer_path'] = await self._load_resource(data['answer_path'])
         elif data['captcha_type'] in ('icon', 'word', 'nine'):
-            data['imgs'] = await self._load_img(data['imgs'])
-            data['ques'] = [await self._load_img(url) for url in data['ques']]
+            data['imgs'] = await self._load_resource(data['imgs'])
+            data['ques'] = [await self._load_resource(url) for url in data['ques']]
         elif data['captcha_type'] in ('phrase', 'space', 'pencil'):
-            data['imgs'] = await self._load_img(data['imgs'])
+            data['imgs'] = await self._load_resource(data['imgs'])
         elif data['captcha_type'] == 'voice':
-            data['voice_audio'] = await self._load_img(data['voice_path'])
+            data['voice_audio'] = await self._load_resource(data['voice_path'])
 
         data.setdefault('captcha_id', self.captcha_id)
 
@@ -119,7 +123,7 @@ class Geetest:
             'callback': _callback(),
             'captcha_id': self.captcha_id,
             'client_type': self.client_type,
-            'risk_type': data['captcha_type'],
+            'risk_type': self.risk_type,
             'lot_number': data['lot_number'],
             'payload': data['payload'],
             'process_token': data['process_token'],
