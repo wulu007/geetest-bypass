@@ -69,7 +69,7 @@ asyncio.run(main())
 | `winlinze` | 五子棋 | 无 | ✅ |
 | `svg_seed` | SVG 图片选择 | `[svg]` | ✅ |
 | `svg_icon` | SVG 图标选择 | `[svg]` | ✅ |
-| `voice` | 语音验证 | `[voice]` | ✅ |
+| `voice` | 语音验证 | 无 | ❓ |
 | `icon` | 图标点选 | 无 | ❌ |
 | `word` | 文字点选 | 无 | ❌ |
 | `nine` | 九宫格 | 无 | ❌ |

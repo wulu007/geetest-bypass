@@ -9,7 +9,7 @@ try:
     import resvg_py
     from PIL import Image
 except ImportError as e:
-    msg = f'missing optional dependency: {e.name}. Install with: pip install geetest-bypass[svg]'
+    msg = f'missing optional dependency: {e.name}. Install with: uv add "wulu-geetest-bypass[svg]"'
     raise ImportError(msg) from e
 
 _NS = 'http://www.w3.org/2000/svg'
@@ -100,6 +100,11 @@ def match(svg: str, hint: str | bytes) -> list[dict]:
         png = resvg_py.svg_to_bytes(grid_svg)
         grid_edge = cv2.Canny(_rgba_to_gray(png), 50, 150)
 
+        if grid_edge.shape[0] < hint_edge.shape[0] or grid_edge.shape[1] < hint_edge.shape[1]:
+            raise RuntimeError(
+                f'grid ({grid_edge.shape[1]}x{grid_edge.shape[0]}) smaller than hint ({hint_edge.shape[1]}x{hint_edge.shape[0]})'
+            )
+
         _, score, _, _ = cv2.minMaxLoc(
             cv2.matchTemplate(grid_edge, hint_edge, cv2.TM_CCORR_NORMED)
         )
@@ -111,8 +116,8 @@ def match(svg: str, hint: str | bytes) -> list[dict]:
 
 def solve_svg(svg: str, hint: str | bytes):
     results = match(svg, hint)
-    grids = _grid_svgs(svg)
-    cells_per_frame = len(grids) // 3
+    grid_count = svg.count('geetest_grid_hash')
+    cells_per_frame = grid_count // 3
     cols = 2 if cells_per_frame == 4 else 3
 
     best = results[0]['grid']
