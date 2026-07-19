@@ -537,7 +537,7 @@ wheels = [
 
 [[package]]
 name = "wulu-geetest-bypass"
-version = "0.1.3"
+version = "0.1.4"
 source = { editable = "." }
 dependencies = [
     { name = "pycryptodome" },
@@ -557,7 +557,7 @@ image = [
 slide = [
     { name = "opencv-python-headless" },
 ]
-svg-seed = [
+svg = [
     { name = "opencv-python-headless" },
     { name = "pillow" },
     { name = "resvg-py" },
@@ -572,16 +572,16 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "opencv-python-headless", marker = "extra == 'image'", specifier = ">=4.13.0.92" },
-    { name = "pillow", marker = "extra == 'svg-seed'", specifier = ">=12.2.0" },
+    { name = "pillow", marker = "extra == 'svg'", specifier = ">=12.2.0" },
     { name = "pycryptodome", specifier = ">=3.23.0" },
-    { name = "resvg-py", marker = "extra == 'svg-seed'", specifier = ">=0.3.2" },
+    { name = "resvg-py", marker = "extra == 'svg'", specifier = ">=0.3.2" },
     { name = "smcryptopy", specifier = ">=0.2.1" },
     { name = "wreq", specifier = ">=0.12.0" },
     { name = "wulu-geetest-bypass", extras = ["image"], marker = "extra == 'slide'", editable = "." },
-    { name = "wulu-geetest-bypass", extras = ["image"], marker = "extra == 'svg-seed'", editable = "." },
-    { name = "wulu-geetest-bypass", extras = ["slide", "svg-seed"], marker = "extra == 'all'", editable = "." },
+    { name = "wulu-geetest-bypass", extras = ["image"], marker = "extra == 'svg'", editable = "." },
+    { name = "wulu-geetest-bypass", extras = ["slide", "svg"], marker = "extra == 'all'", editable = "." },
 ]
-provides-extras = ["svg-seed", "slide", "image", "all"]
+provides-extras = ["svg", "slide", "image", "all"]
 
 [package.metadata.requires-dev]
 dev = [
