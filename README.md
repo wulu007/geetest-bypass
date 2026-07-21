@@ -1,11 +1,12 @@
 # wulu-geetest-bypass
 
-<p>
+<div align="center">
+  <img alt="GitHub Actions Workflow Status" src="https://img.shields.io/github/actions/workflow/status/wulu007/geetest-bypass/ci.yml?logo=github&link=https%3A%2F%2Fgithub.com%2Fwulu007%2Fgeetest-bypass%2Factions">
   <img src="https://img.shields.io/badge/python-3.11+-blue?logo=python&logoColor=white" alt="Python">
   <img src="https://img.shields.io/badge/license-MIT-green" alt="License">
   <img src="https://img.shields.io/badge/geetest-v4-orange" alt="Geetest v4">
-  <img src="https://img.shields.io/badge/risk_types-13-lightgrey" alt="13 risk types">
-</p>
+  <img src="https://static.pepy.tech/personalized-badge/wulu-geetest-bypass?period=total&units=INTERNATIONAL_SYSTEM&left_color=BLACK&right_color=GREEN&left_text=downloads" alt="downloads">
+</div>
 
 纯 Python 实现的极验行为验证 v4 自动化通过库（无需 Node.js）。自动处理 `ai` / `slide` / `match` / `winlinze` / `svg_seed` / `svg_icon` 六种风险类型，支持自定义重试、代理和 HTTP 客户端。
 
@@ -61,36 +62,36 @@ asyncio.run(main())
 
 ## 风险类型
 
-| 类型 | 说明 | 依赖 | 支持 |
-|------|------|------|------|
-| `ai` | 无感验证 | 无 | ✅ |
-| `slide` | 滑块拼图 | `[slide]` | ✅ |
-| `match` | 3×3 连线 & 9宫格 | 无 | ✅ |
-| `winlinze` | 五子棋 | 无 | ✅ |
-| `svg_seed` | SVG 图片选择 | `[svg]` | ✅ |
-| `svg_icon` | SVG 图标选择 | `[svg]` | ✅ |
-| `voice` | 语音验证 | 无 | ❓ |
-| `icon` | 图标点选 | 无 | ❌ |
-| `word` | 文字点选 | 无 | ❌ |
-| `nine` | 九宫格 | 无 | ❌ |
-| `phrase` | 短语识别 | 无 | ❓ |
-| `space` | 空间推理 | 无 | ❓ |
-| `pencil` | 涂鸦 | 无 | ❓ |
+| 类型       | 说明             | 依赖      | 支持 |
+| ---------- | ---------------- | --------- | ---- |
+| `ai`       | 无感验证         | 无        | ✅    |
+| `slide`    | 滑块拼图         | `[slide]` | ✅    |
+| `match`    | 3×3 连线 & 9宫格 | 无        | ✅    |
+| `winlinze` | 五子棋           | 无        | ✅    |
+| `svg_seed` | SVG 图片选择     | `[svg]`   | ✅    |
+| `svg_icon` | SVG 图标选择     | `[svg]`   | ✅    |
+| `voice`    | 语音验证         | 无        | ❓    |
+| `icon`     | 图标点选         | 无        | ❌    |
+| `word`     | 文字点选         | 无        | ❌    |
+| `nine`     | 九宫格           | 无        | ❌    |
+| `phrase`   | 短语识别         | 无        | ❓    |
+| `space`    | 空间推理         | 无        | ❓    |
+| `pencil`   | 涂鸦             | 无        | ❓    |
 
 ## API
 
 ### `Geetest(**options)`
 
-| 参数 | 类型 | 说明 |
-|------|------|------|
-| `captcha_id` | `str` | 验证 ID（必填）|
-| `risk_type` | `RiskType` | 风险类型，默认 `'ai'` |
-| `client_type` | `ClientType` | 客户端类型，`'web'` / `'web_mobile'` / `'android'` / `'ios'` |
-| `lang` | `Lang` | 语言，`'zh'` / `'en'` / `'zho'` / `'eng'` |
-| `challenge` | `str` | 自定义 challenge（不传则自动生成）|
-| `user_info` | `Any` | 附加用户信息（预留）|
-| `client_options` | `wreq.ClientConfig` | HTTP 客户端配置（代理、headers、模拟等）|
-| `client` | `wreq.Client \| None` | 自定义 HTTP 客户端（优先级高于 `client_options`）|
+| 参数             | 类型                  | 说明                                                         |
+| ---------------- | --------------------- | ------------------------------------------------------------ |
+| `captcha_id`     | `str`                 | 验证 ID（必填）                                              |
+| `risk_type`      | `RiskType`            | 风险类型，默认 `'ai'`                                        |
+| `client_type`    | `ClientType`          | 客户端类型，`'web'` / `'web_mobile'` / `'android'` / `'ios'` |
+| `lang`           | `Lang`                | 语言，`'zh'` / `'en'` / `'zho'` / `'eng'`                    |
+| `challenge`      | `str`                 | 自定义 challenge（不传则自动生成）                           |
+| `user_info`      | `Any`                 | 附加用户信息（预留）                                         |
+| `client_options` | `wreq.ClientConfig`   | HTTP 客户端配置（代理、headers、模拟等）                     |
+| `client`         | `wreq.Client \| None` | 自定义 HTTP 客户端（优先级高于 `client_options`）            |
 
 ### 方法
 
@@ -131,16 +132,16 @@ class Seccode:
     captcha_output: str
 ```
 
-| 参数 | 类型 | 说明 |
-|------|------|------|
+| 参数    | 类型  | 说明                   |
+| ------- | ----- | ---------------------- |
 | `retry` | `int` | 失败重试次数，默认 `3` |
 
 ### 异常
 
-| 异常 | 说明 |
-|------|------|
-| `GeetestError` | 所有自定义异常的基类 |
-| `VerifyError` | 验证失败（所有重试均未通过）|
+| 异常           | 说明                         |
+| -------------- | ---------------------------- |
+| `GeetestError` | 所有自定义异常的基类         |
+| `VerifyError`  | 验证失败（所有重试均未通过） |
 
 ## 免责声明
 
