@@ -12,13 +12,13 @@ jobs:
   update:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           token: ${{ secrets.PAT_TOKEN }}
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
-          node-version: '20'
+          node-version: '24'
 
       - uses: astral-sh/setup-uv@v8.1.0
         with:
@@ -48,7 +48,7 @@ jobs:
           echo "version=$(uv version --short)" >> $GITHUB_OUTPUT
 
       - name: Commit and push if changed
-        uses: stefanzweifel/git-auto-commit-action@v5
+        uses: stefanzweifel/git-auto-commit-action@v7
         with:
           commit_message: "chore: update geetest config to ${{ steps.update.outputs.GEETEST_VER }} [auto]"
           file_pattern: 'src/wulu_geetest_bypass/config.py pyproject.toml'
