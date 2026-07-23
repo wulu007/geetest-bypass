@@ -21,7 +21,7 @@ async def test_slide():
     g = Geetest(captcha_id=captcha_id, risk_type='slide')
     total = 50
     success = 0
-    tasks = [g.resolve() for _ in range(total)]
+    tasks = [g.resolve(1) for _ in range(total)]
     results = await asyncio.gather(*tasks, return_exceptions=True)
     success = sum(1 for r in results if not isinstance(r, Exception))
     for i, r in enumerate(results):
@@ -30,8 +30,25 @@ async def test_slide():
     print(f'Success: {success}/{total}')
 
 
+test_lang = [
+    'ara',
+    'deu',
+    'eng',
+    'fra',
+    'ind',
+    'jpn',
+    'kor',
+    'por',
+    'rus',
+    'spa',
+    'zho-hk',
+    'zho',
+]
+
+
 @pytest.mark.asyncio
-async def test_voice():
-    g = Geetest(captcha_id=captcha_id, risk_type='slide', voice=True)
-    result = await g.resolve()
+@pytest.mark.parametrize('lang', test_lang)
+async def test_voice(lang):
+    g = Geetest(captcha_id=captcha_id, risk_type='slide', lang=lang, voice=True)
+    result = await g.resolve(1)
     assert result is not None
