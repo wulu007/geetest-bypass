@@ -205,7 +205,8 @@ class Geetest:
                 payload['userresponse'] = solver(data['imgs'])
                 payload['passtime'] = random.randint(1000, 2000)
             case 'voice':
-                payload['userresponse'] = solver(data['voice_audio'])
+                lang = data['voice_path'].split('/')[-2]
+                payload['userresponse'] = solver(data['voice_audio'], lang)
                 payload['passtime'] = random.randint(20000, 30000)
             case _:
                 raise NotImplementedError(

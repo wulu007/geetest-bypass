@@ -12,6 +12,7 @@ wheels/
 
 # IDE
 .vscode/
+.shatter/
 
 # Generated / third-party resources
 resources/

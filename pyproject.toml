@@ -2,6 +2,9 @@
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
+[tool.uv.workspace]
+members = ["extensions/*"]
+
 [project]
 name = "wulu-geetest-bypass"
 version = "0.1.4"
@@ -24,7 +27,7 @@ Repository = "https://github.com/wulu007/geetest-bypass.git"
 Issues = "https://github.com/wulu007/geetest-bypass/issues"
 
 [project.optional-dependencies]
-voice = ["miniaudio>=1.71", "numpy>=1.24.0"]
+voice = ["miniaudio>=1.71", "wulu-geetest-bypass-voice"]
 svg = ["pillow>=12.2.0", "resvg-py>=0.3.2", "wulu-geetest-bypass[image]"]
 slide = ["wulu-geetest-bypass[image]"]
 image = ["opencv-python-headless>=4.13.0.92"]
@@ -36,11 +39,11 @@ default = true
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/wulu_geetest_bypass"]
-include = ["src/wulu_geetest_bypass/templates/voice_templates_*.npz"]
 exclude = ["tests/", "scripts/"]
 
 [tool.uv.sources]
 wulu-geetest-bypass = { workspace = true }
+wulu-geetest-bypass-voice = { workspace = true }
 
 [tool.ruff.format]
 quote-style = "single"

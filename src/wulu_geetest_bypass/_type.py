@@ -1,4 +1,12 @@
-from typing import TYPE_CHECKING, Any, Literal, NotRequired, Required, Sequence, TypedDict
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Literal,
+    NotRequired,
+    Required,
+    Sequence,
+    TypedDict,
+)
 
 Point = tuple[int, int]
 ClickPos = Sequence[Point]
@@ -102,6 +110,7 @@ class VoicePayload(BasePayload):
     captcha_type: Literal['voice']
     voice_path: str
     voice_audio: bytes
+    language: str
 
 
 WPayload = (
@@ -150,4 +159,5 @@ class GeetestOptions(TypedDict, total=False):
     user_info: Any
     voice: bool
     """ 是否转为语音验证 """
-    client_options: ClientConfig
+    client_options: Any
+    """ wreq.Client config dict """

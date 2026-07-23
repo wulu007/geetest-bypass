@@ -1,7 +1,6 @@
-from importlib.resources import files
-
 import miniaudio
 import numpy as np
+from wulu_geetest_bypass_voice import load_templates
 
 _cache: dict[str, tuple[np.ndarray, np.ndarray, int, str, np.ndarray]] = {}
 _prompts: dict[str, np.ndarray] | None = None
@@ -98,6 +97,7 @@ def _split_by_silence(y: np.ndarray, sr: int) -> list[np.ndarray]:
     frame_length = 2048
     top_db = 35
     min_samples = int(sr * 0.05)
+    min_energy = 0.02
     pad_len = frame_length // 2
     y_pad = np.pad(y, pad_len, mode='constant')
     n_frames = 1 + (len(y_pad) - frame_length) // hop_length
@@ -116,7 +116,17 @@ def _split_by_silence(y: np.ndarray, sr: int) -> list[np.ndarray]:
     changes = np.diff(padded.astype(int))
     starts = np.where(changes == 1)[0] * hop_length
     ends = np.where(changes == -1)[0] * hop_length
-    return [y[s:e] for s, e in zip(starts, ends) if e - s >= min_samples]
+    segs = [y[s:e] for s, e in zip(starts, ends) if e - s >= min_samples]
+    segs = [s for s in segs if np.sqrt(np.mean(s**2)) >= min_energy]
+    return segs
+
+
+def _load_one(lang: str):
+    if lang not in _cache:
+        X, y, sr, lang_name, prompt = load_templates(lang)
+        if _prompts is not None:
+            _prompts[lang] = prompt
+        _cache[lang] = (X, y, sr, lang_name, prompt)
 
 
 def _load_all():
@@ -124,24 +134,14 @@ def _load_all():
     if _prompts is not None:
         return
     _prompts = {}
-    for lang in ('zh', 'eng'):
-        path = files('wulu_geetest_bypass.templates').joinpath(
-            f'voice_templates_{lang}.npz'
-        )
-        data = np.load(path.open('rb'))
-        _prompts[lang] = data['prompt']
-        _cache[lang] = (
-            data['X'],
-            data['y'],
-            int(data['sr']),
-            str(data['lang']),
-            data['prompt'],
-        )
+    for lang in ('zho', 'eng'):
+        _load_one(lang)
+        _prompts[lang] = _cache[lang][4]
 
 
 def _detect_lang(prompt_feat: np.ndarray) -> str:
     _load_all()
-    best_lang = 'zh'
+    best_lang = 'zho'
     best_dist = float('inf')
     for lang, p in _prompts.items():
         dist = np.linalg.norm(prompt_feat - p)
@@ -163,15 +163,19 @@ def _mfcc_feature(seg: np.ndarray, sr: int) -> np.ndarray:
     return np.concatenate([m.mean(axis=1), d.mean(axis=1), d2.mean(axis=1)])
 
 
-def solve_voice(mp3_bytes: bytes) -> str:
+def solve_voice(mp3_bytes: bytes, lang: str = '') -> str:
     sr = 16000
     audio = _load_audio(mp3_bytes, sr)
     segs = _split_by_silence(audio, sr)
     if not segs:
         return ''
-    prompt_feat = _mfcc_feature(segs[0], sr)
-    lang = _detect_lang(prompt_feat)
-    centroids, labels, _, _, _ = _cache[lang]
+    if lang:
+        _load_one(lang)
+        centroids, labels, _, _, _ = _cache[lang]
+    else:
+        prompt_feat = _mfcc_feature(segs[0], sr)
+        lang = _detect_lang(prompt_feat)
+        centroids, labels, _, _, _ = _cache[lang]
     digits = []
     for seg in segs[1 : 1 + 6]:
         feat = _mfcc_feature(seg, sr)

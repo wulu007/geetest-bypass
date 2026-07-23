@@ -1,0 +1,13 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "wulu-geetest-bypass-voice"
+version = "0.1.0"
+description = "Voice template data for wulu-geetest-bypass"
+requires-python = ">=3.11"
+dependencies = ["numpy>=1.24.0"]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/wulu_geetest_bypass_voice"]
