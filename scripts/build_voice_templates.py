@@ -125,21 +125,21 @@ WORD_MAP = {
         'восемь': '8',
         'девять': '9',
     },
-    'jpn': {
-        'zero': '0',
-        'rei': '0',
-        'いち': '1',
-        'に': '2',
-        'さん': '3',
-        'よん': '4',
-        'し': '4',
-        'ご': '5',
-        'ろく': '6',
-        'なな': '7',
-        'しち': '7',
-        'はち': '8',
-        'きゅう': '9',
-        'く': '9',
+    'ara': {
+        'صفر': '0',
+        'واحد': '1',
+        'اثنان': '2',
+        'تو': '2',
+        'ثلاثة': '3',
+        'أربعة': '4',
+        'اربعة': '4',
+        'خمسة': '5',
+        'خامس': '5',
+        'ستة': '6',
+        'سبعة': '7',
+        'بسبعة': '7',
+        'ثمانية': '8',
+        'تسعة': '9',
     },
     'ind': {
         'nol': '0',
@@ -155,31 +155,6 @@ WORD_MAP = {
         'delapan': '8',
         'sembilan': '9',
     },
-    'kor': {
-        'yeong': '0',
-        'gong': '0',
-        'il': '1',
-        'i': '2',
-        'sam': '3',
-        'sa': '4',
-        'o': '5',
-        'yuk': '6',
-        'chil': '7',
-        'pal': '8',
-        'gu': '9',
-    },
-    'ara': {
-        'sifr': '0',
-        'wahid': '1',
-        'ithnan': '2',
-        'thalatha': '3',
-        'arbaa': '4',
-        'khamsa': '5',
-        'sitta': '6',
-        'sabaa': '7',
-        'thamania': '8',
-        'tissa': '9',
-    },
     'spa': {
         'cero': '0',
         'uno': '1',
@@ -191,6 +166,66 @@ WORD_MAP = {
         'siete': '7',
         'ocho': '8',
         'nueve': '9',
+    },
+    'jpn': {
+        'いち': '1',
+        'に': '2',
+        'さん': '3',
+        'よん': '4',
+        'し': '4',
+        'ご': '5',
+        'ろく': '6',
+        'なな': '7',
+        'しち': '7',
+        'はち': '8',
+        'きゅう': '9',
+        'く': '9',
+        'れい': '0',
+        'ゼロ': '0',
+        'イチ': '1',
+        'ニ': '2',
+        'サン': '3',
+        'ヨン': '4',
+        'ゴ': '5',
+        'ロク': '6',
+        'ナナ': '7',
+        'ハチ': '8',
+        'キュウ': '9',
+        'ク': '9',
+        'ロック': '6',
+        'オ': '5',
+        'イ': '1',
+        'マナ': '7',
+        'バナ': '7',
+        'ペロ': '0',
+        'お': '5',
+    },
+    'kor': {
+        '일': '1',
+        '이': '2',
+        '삼': '3',
+        '사': '4',
+        '오': '5',
+        '육': '6',
+        '칠': '7',
+        '팔': '8',
+        '구': '9',
+        '영': '0',
+        '공': '0',
+        '하나': '1',
+        '한': '1',
+        '둘': '2',
+        '두': '2',
+        '셋': '3',
+        '세': '3',
+        '넷': '4',
+        '네': '4',
+        '다섯': '5',
+        '하섯': '5',
+        '여섯': '6',
+        '일곱': '7',
+        '여덟': '8',
+        '아홉': '9',
     },
     'por': {
         'zero': '0',
@@ -206,29 +241,14 @@ WORD_MAP = {
     },
 }
 
-_re_digit = re.compile(r'\d')
 
-
-_PROMPTS = {
-    'deu': 'geben sie ein,',
-    'fra': 'veuillez saisir ce que vous entendez',
-    'rus': 'vidite to, chto slyshite',
-    'eng': 'enter what you hear',
-    'ind': 'masukkan apa yang anda dengar',
-}
-
-
-def extract(text: str, lang: str) -> str:
-    prompt = _PROMPTS.get(lang)
-    if prompt:
-        text = text.lower()
-        idx = text.find(prompt)
-        if idx >= 0:
-            text = text[idx + len(prompt) :].lstrip('.,!?;: ')
+def extract(text: str, wm: dict[str, str]) -> str:
+    text = text.lower()
     digits = []
-    wm = WORD_MAP.get(lang, {})
-    for token in text.lower().replace('-', ' ').split():
-        token = token.strip('.,!?;:')
+    for token in (
+        text.lower().replace('-', ' ').replace('.', ' ').replace(',', ' ').split()
+    ):
+        token = token.strip('!?;:')
         if token.isdigit():
             digits.extend(token)
         elif token in wm:
@@ -255,25 +275,64 @@ async def fetch(lang: str):
     print('Done fetching ' + lang)
 
 
+def _common_prefix(texts: list[str]) -> str:
+    if not texts:
+        return ''
+    prefix = texts[0].lower()
+    for t in texts[1:]:
+        t_lower = t.lower()
+        while not t_lower.startswith(prefix) and prefix:
+            prefix = prefix[:-1]
+        if not prefix:
+            break
+    return prefix.strip()
+
+
+def _transcribe_one(path: Path, whisper, wlang: str, kw: dict) -> str:
+    segs_w, _ = whisper.transcribe(str(path), **kw)
+    return ''.join(s.text for s in segs_w)
+
+
 def transcribe(lang: str):
     model_name = os.environ.get('WHISPER_MODEL', 'small')
-    whisper = WhisperModel(model_name, device='cpu', compute_type='int8')
-    wlang = WHISPER_LANG.get(lang, 'zh')
+    cpu_threads = int(os.environ.get('WHISPER_CPU_THREADS', '4'))
+    whisper = WhisperModel(
+        model_name,
+        device='cpu',
+        compute_type='int8',
+        cpu_threads=cpu_threads,
+    )
     files = sorted(RAW_DIR.glob(lang + '_*'))
-    results = []
+    wm = WORD_MAP.get(lang, {})
+    wlang = WHISPER_LANG.get(lang, 'zh')
+    kw = dict(
+        language=wlang, beam_size=5, vad_filter=True, condition_on_previous_text=False
+    )
+    if lang == 'jpn':
+        kw['initial_prompt'] = '0 1 2 3 4 5 6 7 8 9'
 
-    for path in files:
-        segs_w, _ = whisper.transcribe(str(path), language=wlang, beam_size=1)
-        text = ''.join(s.text for s in segs_w)
-        digits = extract(text, lang)
-        results.append(
-            {
-                'file': path.name,
-                'whisper': text.strip(),
-                'digits': digits,
-            }
-        )
-        print(path.name + ' -> ' + (digits if digits else '(empty)'))
+    results = []
+    print(f'开始识别 {len(files)} 个文件...')
+    for i, path in enumerate(files):
+        text = _transcribe_one(path, whisper, wlang, kw)
+        results.append({'file': path.name, 'whisper': text})
+        print(f'[{i + 1}/{len(files)}] {path.name} -> {text[:60]}')
+
+    prefix = _common_prefix([r['whisper'] for r in results])
+    prefix_lower = prefix.lower()
+    print(f'检测到公共前缀: {prefix!r}')
+
+    for r in results:
+        text = r['whisper']
+        if prefix_lower and text.lower().startswith(prefix_lower):
+            text = text[len(prefix) :].lstrip('.,!?;: ')
+        if lang == 'jpn':
+            for particle in ('を入力', '入力', 'お'):
+                if text.startswith(particle):
+                    text = text[len(particle) :].lstrip('.,!?;: ')
+                    break
+        r['digits'] = extract(text, wm)
+        print(r['file'] + ' 最终提取 -> ' + (r['digits'] if r['digits'] else '(empty)'))
 
     TRANS_DIR.mkdir(parents=True, exist_ok=True)
     with open(str(TRANS_DIR / (lang + '.json')), 'w', encoding='utf-8') as f:

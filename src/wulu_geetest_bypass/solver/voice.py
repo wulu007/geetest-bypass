@@ -9,16 +9,14 @@ _dct_mat = None
 
 
 def _load_audio(data: bytes, sr: int = 16000) -> np.ndarray:
-    decoded = miniaudio.decode(data, output_format=miniaudio.SampleFormat.FLOAT32)
+    decoded = miniaudio.decode(
+        data,
+        output_format=miniaudio.SampleFormat.FLOAT32,
+        sample_rate=sr,
+    )
     audio = np.frombuffer(decoded.samples, dtype=np.float32)
     if decoded.nchannels > 1:
         audio = audio.reshape(-1, decoded.nchannels).mean(axis=1)
-    if decoded.sample_rate != sr:
-        ratio = sr / decoded.sample_rate
-        n = int(len(audio) * ratio)
-        x_old = np.linspace(0, len(audio), len(audio), endpoint=False)
-        x_new = np.linspace(0, len(audio), n, endpoint=False)
-        audio = np.interp(x_new, x_old, audio).astype(np.float32)
     return audio
 
 
@@ -116,6 +114,18 @@ def _split_by_silence(y: np.ndarray, sr: int) -> list[np.ndarray]:
     changes = np.diff(padded.astype(int))
     starts = np.where(changes == 1)[0] * hop_length
     ends = np.where(changes == -1)[0] * hop_length
+
+    min_silence = int(sr * 0.18)
+    if len(starts) > 1:
+        ms, me = [starts[0]], []
+        for i in range(1, len(starts)):
+            if starts[i] - ends[i - 1] < min_silence:
+                continue
+            me.append(ends[i - 1])
+            ms.append(starts[i])
+        me.append(ends[-1])
+        starts, ends = np.array(ms), np.array(me)
+
     segs = [y[s:e] for s, e in zip(starts, ends) if e - s >= min_samples]
     segs = [s for s in segs if np.sqrt(np.mean(s**2)) >= min_energy]
     return segs
