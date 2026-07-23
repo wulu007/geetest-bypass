@@ -567,6 +567,7 @@ svg = [
 dev = [
     { name = "pytest" },
     { name = "pytest-asyncio" },
+    { name = "wulu-geetest-bypass", extra = ["all"] },
 ]
 
 [package.metadata]
@@ -587,4 +588,5 @@ provides-extras = ["svg", "slide", "image", "all"]
 dev = [
     { name = "pytest", specifier = ">=9.1.0" },
     { name = "pytest-asyncio", specifier = ">=1.4.0" },
+    { name = "wulu-geetest-bypass", extras = ["all"], editable = "." },
 ]

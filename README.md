@@ -136,6 +136,36 @@ class Seccode:
 | ------- | ----- | ---------------------- |
 | `retry` | `int` | 失败重试次数，默认 `3` |
 
+### 注册自定义 Solver
+
+对于未内置支持的风险类型，可通过 `register_solver` 注入自定义求解器：
+
+```python
+from wulu_geetest_bypass import Geetest
+
+
+def solve_icon(imgs: bytes, ques: list[bytes]) -> list[list[int]]:
+    ...
+
+
+Geetest.register_solver('icon', solve_icon)
+```
+
+注册后 `generate_w()` 会自动调用，传入对应的 payload 字段：
+
+| 类型 | Solver 签名 |
+|------|------------|
+| `icon` / `word` / `phrase` | `(imgs: bytes, ques: list[bytes]) -> list[list[int]]` |
+| `nine` | `(imgs: bytes, ques: list[bytes], nine_nums: int) -> list[list[int]]` |
+| `pencil` | `(imgs: bytes) -> list` |
+| `space` | 同 SVG，由内置 solver 兜底 |
+
+内置 solver 也可被覆盖：
+
+```python
+Geetest.register_solver('slide', my_custom_slide_solver)
+```
+
 ### 异常
 
 | 异常           | 说明                         |

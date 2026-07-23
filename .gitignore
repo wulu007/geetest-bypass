@@ -9,3 +9,9 @@ wheels/
 # Virtual environments
 .venv
 .ruff_cache
+
+# IDE
+.vscode/
+
+# Generated / third-party resources
+resources/

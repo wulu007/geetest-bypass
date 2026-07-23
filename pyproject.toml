@@ -49,4 +49,4 @@ split-on-trailing-comma = true
 addopts = "-s"
 
 [dependency-groups]
-dev = ["pytest>=9.1.0", "pytest-asyncio>=1.4.0"]
+dev = ["pytest>=9.1.0", "pytest-asyncio>=1.4.0", "wulu-geetest-bypass[all]"]
