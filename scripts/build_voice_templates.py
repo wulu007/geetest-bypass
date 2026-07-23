@@ -1,8 +1,9 @@
 """Voice template builder.
 Usage:
-  uv run python scripts/build_voice_templates.py fetch   <lang>  # 下载20个样本
-  uv run python scripts/build_voice_templates.py verify  <lang>  # Whisper + 分割验证
-  uv run python scripts/build_voice_templates.py train   <lang>  # 训练模板
+  uv run python scripts/build_voice_templates.py fetch      <lang>  # 下载20个样本
+  uv run python scripts/build_voice_templates.py transcribe <lang>  # Whisper 转写（一次）
+  uv run python scripts/build_voice_templates.py verify     <lang>  # 分割验证（不用模型）
+  uv run python scripts/build_voice_templates.py train      <lang>  # 训练模板
 """
 
 import asyncio
@@ -140,6 +141,20 @@ WORD_MAP = {
         'きゅう': '9',
         'く': '9',
     },
+    'ind': {
+        'nol': '0',
+        'no': '0',
+        'satu': '1',
+        'dua': '2',
+        'tiga': '3',
+        'empat': '4',
+        'lima': '5',
+        'enam': '6',
+        'endnam': '6',
+        'tujuh': '7',
+        'delapan': '8',
+        'sembilan': '9',
+    },
     'kor': {
         'yeong': '0',
         'gong': '0',
@@ -199,6 +214,7 @@ _PROMPTS = {
     'fra': 'veuillez saisir ce que vous entendez',
     'rus': 'vidite to, chto slyshite',
     'eng': 'enter what you hear',
+    'ind': 'masukkan apa yang anda dengar',
 }
 
 
@@ -211,7 +227,7 @@ def extract(text: str, lang: str) -> str:
             text = text[idx + len(prompt) :].lstrip('.,!?;: ')
     digits = []
     wm = WORD_MAP.get(lang, {})
-    for token in text.lower().split():
+    for token in text.lower().replace('-', ' ').split():
         token = token.strip('.,!?;:')
         if token.isdigit():
             digits.extend(token)
@@ -239,21 +255,49 @@ async def fetch(lang: str):
     print('Done fetching ' + lang)
 
 
-def verify(lang: str):
+def transcribe(lang: str):
     model_name = os.environ.get('WHISPER_MODEL', 'small')
     whisper = WhisperModel(model_name, device='cpu', compute_type='int8')
     wlang = WHISPER_LANG.get(lang, 'zh')
     files = sorted(RAW_DIR.glob(lang + '_*'))
     results = []
-    digit_count = {}
-    seg_ok, seg_total = 0, 0
 
     for path in files:
-        mp3 = path.read_bytes()
         segs_w, _ = whisper.transcribe(str(path), language=wlang, beam_size=1)
         text = ''.join(s.text for s in segs_w)
         digits = extract(text, lang)
+        results.append(
+            {
+                'file': path.name,
+                'whisper': text.strip(),
+                'digits': digits,
+            }
+        )
+        print(path.name + ' -> ' + (digits if digits else '(empty)'))
 
+    TRANS_DIR.mkdir(parents=True, exist_ok=True)
+    with open(str(TRANS_DIR / (lang + '.json')), 'w', encoding='utf-8') as f:
+        json.dump(results, f, ensure_ascii=False, indent=2)
+    print('Saved ' + lang + '.json')
+
+
+def verify(lang: str):
+    trans_path = TRANS_DIR / (lang + '.json')
+    if not trans_path.exists():
+        print('No transcript found, run transcribe first')
+        return
+
+    with open(str(trans_path)) as f:
+        trans = json.load(f)
+
+    digit_count = {}
+    seg_ok, seg_total = 0, 0
+
+    for r in trans:
+        path = RAW_DIR / r['file']
+        if not path.exists():
+            continue
+        mp3 = path.read_bytes()
         y = _load_audio(mp3, SR)
         segs = _split_by_silence(y, SR)
         seg_total += 1
@@ -261,28 +305,19 @@ def verify(lang: str):
         if seg_ok_flag:
             seg_ok += 1
 
-        has_6 = len(digits) == 6
-        for c in digits:
+        has_6 = len(r['digits']) == 6
+        for c in r['digits']:
             digit_count[c] = digit_count.get(c, 0) + 1
+        r['segments'] = len(segs)
+        r['seg_ok'] = seg_ok_flag
+        r['digits_ok'] = has_6
 
-        results.append(
-            {
-                'file': path.name,
-                'whisper': text.strip(),
-                'digits': digits,
-                'digits_ok': has_6,
-                'segments': len(segs),
-                'seg_ok': seg_ok_flag,
-            }
-        )
-
-    TRANS_DIR.mkdir(parents=True, exist_ok=True)
-    with open(str(TRANS_DIR / (lang + '.json')), 'w', encoding='utf-8') as f:
-        json.dump(results, f, ensure_ascii=False, indent=2)
+    with open(str(trans_path), 'w', encoding='utf-8') as f:
+        json.dump(trans, f, ensure_ascii=False, indent=2)
 
     covered = [str(i) for i in range(10) if digit_count.get(str(i), 0) > 0]
-    valid = [r for r in results if r['digits_ok'] and r['seg_ok']]
-    w_ok = len([r for r in results if r['digits_ok']])
+    valid = [r for r in trans if r['digits_ok'] and r['seg_ok']]
+    w_ok = len([r for r in trans if r['digits_ok']])
 
     print()
     print('=== ' + lang + ' ===')
@@ -297,7 +332,7 @@ def verify(lang: str):
     )
     print()
 
-    for r in results:
+    for r in trans:
         d = r['digits'] if r['digits'] else '(empty)'
         seg_label = 'OK' if r['seg_ok'] else 'FAIL(' + str(r['segments']) + ')'
         ok_label = 'OK' if r['digits_ok'] else 'SKIP'
@@ -387,6 +422,8 @@ def main():
     cmd, lang = sys.argv[1], sys.argv[2]
     if cmd == 'fetch':
         asyncio.run(fetch(lang))
+    elif cmd == 'transcribe':
+        transcribe(lang)
     elif cmd == 'verify':
         verify(lang)
     elif cmd == 'train':
