@@ -6,7 +6,7 @@ import numpy as np
 def load_templates(
     lang: str,
 ) -> tuple[np.ndarray, np.ndarray, int, str, np.ndarray]:
-    path = files('wulu_geetest_bypass_voice').joinpath(f'voice_templates_{lang}.npz')
+    path = files('wulu_geetest_bypass_voice').joinpath(f'{lang}.npz')
     data = np.load(str(path))
     return (
         data['X'],

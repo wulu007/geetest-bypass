@@ -367,7 +367,7 @@ def train(lang: str):
 
     prompt = np.array(all_prompts).mean(axis=0)
     OUT_DIR.mkdir(parents=True, exist_ok=True)
-    out_path = OUT_DIR / ('voice_templates_' + lang + '.npz')
+    out_path = OUT_DIR / (lang + '.npz')
     np.savez(
         str(out_path),
         X=centroids.astype(np.float32),

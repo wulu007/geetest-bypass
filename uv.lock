@@ -7,6 +7,12 @@ resolution-markers = [
     "python_full_version < '3.12'",
 ]
 
+[manifest]
+members = [
+    "wulu-geetest-bypass",
+    "wulu-geetest-bypass-voice",
+]
+
 [[package]]
 name = "anyio"
 version = "4.14.2"
@@ -972,10 +978,10 @@ dependencies = [
 [package.optional-dependencies]
 all = [
     { name = "miniaudio" },
-    { name = "numpy" },
     { name = "opencv-python-headless" },
     { name = "pillow" },
     { name = "resvg-py" },
+    { name = "wulu-geetest-bypass-voice" },
 ]
 image = [
     { name = "opencv-python-headless" },
@@ -990,7 +996,7 @@ svg = [
 ]
 voice = [
     { name = "miniaudio" },
-    { name = "numpy" },
+    { name = "wulu-geetest-bypass-voice" },
 ]
 
 [package.dev-dependencies]
@@ -1004,7 +1010,6 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "miniaudio", marker = "extra == 'voice'", specifier = ">=1.71" },
-    { name = "numpy", marker = "extra == 'voice'", specifier = ">=1.24.0" },
     { name = "opencv-python-headless", marker = "extra == 'image'", specifier = ">=4.13.0.92" },
     { name = "pillow", marker = "extra == 'svg'", specifier = ">=12.2.0" },
     { name = "pycryptodome", specifier = ">=3.23.0" },
@@ -1014,6 +1019,7 @@ requires-dist = [
     { name = "wulu-geetest-bypass", extras = ["image"], marker = "extra == 'slide'", editable = "." },
     { name = "wulu-geetest-bypass", extras = ["image"], marker = "extra == 'svg'", editable = "." },
     { name = "wulu-geetest-bypass", extras = ["voice", "slide", "svg"], marker = "extra == 'all'", editable = "." },
+    { name = "wulu-geetest-bypass-voice", marker = "extra == 'voice'", editable = "extensions/wulu-geetest-bypass-voice" },
 ]
 provides-extras = ["voice", "svg", "slide", "image", "all"]
 
@@ -1024,3 +1030,14 @@ dev = [
     { name = "pytest-asyncio", specifier = ">=1.4.0" },
     { name = "wulu-geetest-bypass", extras = ["all"], editable = "." },
 ]
+
+[[package]]
+name = "wulu-geetest-bypass-voice"
+version = "0.1.0"
+source = { editable = "extensions/wulu-geetest-bypass-voice" }
+dependencies = [
+    { name = "numpy" },
+]
+
+[package.metadata]
+requires-dist = [{ name = "numpy", specifier = ">=1.24.0" }]

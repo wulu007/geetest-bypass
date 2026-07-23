@@ -77,9 +77,9 @@ asyncio.run(main())
 | `icon`     | 图标点选         | 无        | ❌    |
 | `word`     | 文字点选         | 无        | ❌    |
 | `nine`     | 九宫格           | 无        | ❌    |
-| `phrase`   | 短语识别         | 无        | ❓    |
+| `phrase`   | 短语识别         | 无        | ❌    |
+| `pencil`   | 涂鸦             | 无        | ❌    |
 | `space`    | 空间推理         | 无        | ❓    |
-| `pencil`   | 涂鸦             | 无        | ❓    |
 
 ## API
 
