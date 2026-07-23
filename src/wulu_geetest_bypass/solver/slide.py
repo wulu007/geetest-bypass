@@ -1,9 +1,5 @@
-try:
-    import cv2
-    import numpy as np
-except ImportError as e:
-    msg = f'missing optional dependency: {e.name}. Install with: pip install geetest-bypass[slide]'
-    raise ImportError(msg) from e
+import cv2
+import numpy as np
 
 
 def solve_slide(bg_bytes: bytes, slice_bytes: bytes, ypos: int = 0) -> int:

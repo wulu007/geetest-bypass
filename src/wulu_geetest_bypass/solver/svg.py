@@ -3,14 +3,10 @@ import re
 import xml.etree.ElementTree as ET
 from io import BytesIO
 
-try:
-    import cv2
-    import numpy as np
-    import resvg_py
-    from PIL import Image
-except ImportError as e:
-    msg = f'missing optional dependency: {e.name}. Install with: uv add "wulu-geetest-bypass[svg]"'
-    raise ImportError(msg) from e
+import cv2
+import numpy as np
+import resvg_py
+from PIL import Image
 
 _NS = 'http://www.w3.org/2000/svg'
 ET.register_namespace('', _NS)
@@ -28,7 +24,8 @@ def _rgba_to_gray(png: bytes) -> np.ndarray:
 def _grid_svgs(svg: str) -> list[str]:
     root = ET.fromstring(svg)
     frames = [
-        g for g in root.iter(f'{{{_NS}}}g')
+        g
+        for g in root.iter(f'{{{_NS}}}g')
         if 'geetest_frame_hash' in (g.get('class') or '')
     ]
     if not frames:
@@ -100,7 +97,10 @@ def match(svg: str, hint: str | bytes) -> list[dict]:
         png = resvg_py.svg_to_bytes(grid_svg)
         grid_edge = cv2.Canny(_rgba_to_gray(png), 50, 150)
 
-        if grid_edge.shape[0] < hint_edge.shape[0] or grid_edge.shape[1] < hint_edge.shape[1]:
+        if (
+            grid_edge.shape[0] < hint_edge.shape[0]
+            or grid_edge.shape[1] < hint_edge.shape[1]
+        ):
             raise RuntimeError(
                 f'grid ({grid_edge.shape[1]}x{grid_edge.shape[0]}) smaller than hint ({hint_edge.shape[1]}x{hint_edge.shape[0]})'
             )
@@ -114,7 +114,7 @@ def match(svg: str, hint: str | bytes) -> list[dict]:
     return results
 
 
-def solve_svg(svg: str, hint: str | bytes):
+def solve_svg(svg: str, hint: str | bytes) -> tuple[int, tuple[int, int]]:
     results = match(svg, hint)
     grid_count = svg.count('geetest_grid_hash')
     cells_per_frame = grid_count // 3
