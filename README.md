@@ -92,7 +92,7 @@ asyncio.run(main())
 | `captcha_id`     | `str`                 | 验证 ID（必填）                                              |
 | `risk_type`      | `RiskType`            | 风险类型，默认 `'ai'`                                        |
 | `client_type`    | `ClientType`          | 客户端类型，`'web'` / `'web_mobile'` / `'android'` / `'ios'` |
-| `lang`           | `Lang`                | 语言，`'zh'` / `'en'` / `'zho'` / `'eng'`                    |
+| `lang`           | `Lang`                | 语言，`'zho'` / `'eng'` / `'fra'` / `'deu'` 等 13 种           |
 | `challenge`      | `str`                 | 自定义 challenge（不传则自动生成）                           |
 | `user_info`      | `Any`                 | 附加用户信息（预留）                                         |
 | `voice`          | `bool`                | 启用无障碍语音验证（需要 `[voice]` 依赖）                    |

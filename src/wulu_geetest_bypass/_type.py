@@ -39,7 +39,21 @@ RiskType = Literal[
     'winlinze',
 ]
 ClientType = Literal['web', 'web_mobile', 'android', 'ios']
-Lang = Literal['zh', 'zho', 'eng']
+Lang = Literal[
+    'ara',
+    'deu',
+    'eng',
+    'fra',
+    'ind',
+    'jpn',
+    'kor',
+    'por',
+    'rus',
+    'spa',
+    'zh',
+    'zho',
+    'zho-hk',
+]
 
 
 # class WPayload(TypedDict):

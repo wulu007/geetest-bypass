@@ -49,6 +49,8 @@ test_lang = [
 @pytest.mark.asyncio
 @pytest.mark.parametrize('lang', test_lang)
 async def test_voice(lang):
+    pytest.importorskip('miniaudio')
+    pytest.importorskip('wulu_geetest_bypass_voice')
     g = Geetest(captcha_id=captcha_id, risk_type='slide', lang=lang, voice=True)
     result = await g.resolve(1)
     assert result is not None

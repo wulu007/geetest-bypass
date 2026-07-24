@@ -2,6 +2,8 @@ import miniaudio
 import numpy as np
 from wulu_geetest_bypass_voice import load_templates
 
+from .._exceptions import VerifyError
+
 _cache: dict[str, tuple[np.ndarray, np.ndarray, int, str, np.ndarray]] = {}
 _prompts: dict[str, np.ndarray] | None = None
 _mel_basis = None
@@ -177,8 +179,10 @@ def solve_voice(mp3_bytes: bytes, lang: str = '') -> str:
     sr = 16000
     audio = _load_audio(mp3_bytes, sr)
     segs = _split_by_silence(audio, sr)
-    if not segs:
-        return ''
+    if len(segs) != 7:
+        raise VerifyError(
+            f'voice segmentation failed: expected 7 segments (prompt + 6 digits), got {len(segs)}'
+        )
     if lang:
         _load_one(lang)
         centroids, labels, _, _, _ = _cache[lang]

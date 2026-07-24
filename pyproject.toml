@@ -33,10 +33,6 @@ slide = ["wulu-geetest-bypass[image]"]
 image = ["opencv-python-headless>=4.13.0.92"]
 all = ["wulu-geetest-bypass[voice,slide,svg]"]
 
-[[tool.uv.index]]
-url = "https://pypi.tuna.tsinghua.edu.cn/simple"
-default = true
-
 [tool.hatch.build.targets.wheel]
 packages = ["src/wulu_geetest_bypass"]
 exclude = ["tests/", "scripts/"]
