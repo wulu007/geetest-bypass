@@ -11,9 +11,6 @@ permissions:
 jobs:
   publish-voice:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: extensions/wulu-geetest-bypass-voice
 
     steps:
       - uses: actions/checkout@v7
@@ -23,7 +20,7 @@ jobs:
           python-version: '3.11'
 
       - name: Build voice package
-        run: uv build
+        run: uv build extensions/wulu-geetest-bypass-voice
 
       - name: Publish to PyPI
         run: uv publish
