@@ -5,9 +5,26 @@ build-backend = "hatchling.build"
 [project]
 name = "wulu-geetest-bypass-voice"
 version = "0.1.0"
-description = "Voice template data for wulu-geetest-bypass"
+description = "Voice digit recognition templates for wulu-geetest-bypass"
+readme = "README.md"
 requires-python = ">=3.11"
+license = { text = "MIT" }
+authors = [{ name = "wulu007", email = "dabaobeix@gmail.com" }]
+keywords = [
+    "geetest",
+    "bypass",
+    "captcha",
+    "voice",
+    "mfcc",
+    'wulu-geetest-bypass',
+]
 dependencies = ["numpy>=1.24.0"]
+
+[project.urls]
+Homepage = "https://github.com/wulu007/geetest-bypass"
+Documentation = "https://github.com/wulu007/geetest-bypass#readme"
+Repository = "https://github.com/wulu007/geetest-bypass.git"
+Issues = "https://github.com/wulu007/geetest-bypass/issues"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/wulu_geetest_bypass_voice"]

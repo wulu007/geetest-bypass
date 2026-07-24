@@ -38,7 +38,7 @@ uv publish
 - **Solvers** in `solver/`: lazy-loaded via `__getattr__` — missing optional deps return a stub raising `ImportError`. Solvers: `match.py` (3×3), `slide.py` (opencv gradient morphology + TM_CCOEFF_NORMED), `svg.py` (svg_seed + svg_icon, auto grid detection), `winlinze.py` (goban).
 - **`crypto.py`**: `build_w()` encrypts payload. `pt=0` → base64, `pt=1` → AES-128-CBC + RSA-1024, `pt=2` → SM4-CBC + SM2.
 - **`config.py`**: auto-updated daily by cron CI (`scripts/update_config.py` runs `scripts/extract-config.mjs` with Node.js). Patrol config values change; `em`, `gee_guard`, and constants do not.
-- **Voice templates** (`.npz`): not bundled in the main wheel. Stored in `extensions/wulu-geetest-bypass-voice/src/wulu_geetest_bypass_voice/` as a separate installable package (files named `{lang}.npz`). The `voice` extra pulls in `wulu-geetest-bypass-voice`. Run `scripts/build_voice_templates.py` to regenerate.
+- **Voice templates** (`.npz`): not bundled in the main wheel. Stored in `extensions/wulu-geetest-bypass-voice/src/wulu_geetest_bypass_voice/` as a separate installable package (files named `{lang}.npz`). The `voice` extra pulls in `wulu-geetest-bypass-voice`. Run `scripts/build_voice_templates.py` to regenerate. Package metadata and README in `extensions/wulu-geetest-bypass-voice/pyproject.toml`.
 
 ## Key gotchas
 

@@ -1,0 +1,29 @@
+name: Publish Voice Package
+
+on:
+  push:
+    tags: ['voice-v*']
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  publish-voice:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: extensions/wulu-geetest-bypass-voice
+
+    steps:
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v8.1.0
+        with:
+          enable-cache: true
+          python-version: '3.11'
+
+      - name: Build voice package
+        run: uv build
+
+      - name: Publish to PyPI
+        run: uv publish
