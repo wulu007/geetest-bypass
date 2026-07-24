@@ -46,6 +46,7 @@ uv add "wulu-geetest-bypass[all]"
 import asyncio
 from wulu_geetest_bypass import Geetest
 
+
 async def main():
     g = Geetest(captcha_id='your_captcha_id', risk_type='slide')
     result = await g.resolve()
@@ -57,6 +58,7 @@ async def main():
     #     "gen_time": "xxx",
     #     "captcha_output": "xxx"
     # }
+
 
 asyncio.run(main())
 ```
@@ -109,12 +111,13 @@ asyncio.run(main())
 
 ```python
 class VerifyResponse:
-    status: str                          # "success" / "fail" / "error"
-    data: VerifyData                     # 验证结果数据
+    status: str  # "success" / "fail" / "error"
+    data: VerifyData  # 验证结果数据
+
 
 class VerifyData:
     lot_number: str
-    result: str                          # "success" / "fail"
+    result: str  # "success" / "fail"
     fail_count: int
     seccode: Seccode
     score: str
@@ -148,8 +151,7 @@ class Seccode:
 from wulu_geetest_bypass import Geetest
 
 
-def solve_icon(imgs: bytes, ques: list[bytes]) -> list[list[int]]:
-    ...
+def solve_icon(imgs: bytes, ques: list[bytes]) -> list[list[int]]: ...
 
 
 Geetest.register_solver('icon', solve_icon)
