@@ -3,7 +3,7 @@ name: CI
 on:
   push:
     branches: [main]
-    tags: ['v*']
+    tags: ['v[0-9]*']
   pull_request:
     branches: [main]
 
@@ -19,12 +19,14 @@ jobs:
         with:
           enable-cache: true
           python-version: "3.11"
-      - name: Lint (Ruff)
-        run: uvx ruff check
+      - name: Lint and Format (Ruff)
+        run: |
+          uvx ruff check
+          uvx ruff format --check
 
   publish:
     needs: lint
-    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')
     runs-on: ubuntu-latest
     
     permissions:

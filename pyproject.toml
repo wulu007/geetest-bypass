@@ -2,13 +2,20 @@
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
+[tool.uv.workspace]
+members = ["extensions/*"]
+
 [project]
 name = "wulu-geetest-bypass"
 version = "0.1.4"
 description = "Geetest CAPTCHA v4 bypass library"
 readme = "README.md"
 requires-python = ">=3.11"
-dependencies = ["pycryptodome>=3.23.0", "smcryptopy>=0.2.1", "wreq>=0.12.0"]
+dependencies = [
+    "pycryptodome>=3.23.0",
+    "smcryptopy>=0.2.1",
+    "wreq>=0.12.0",
+]
 license = { text = "MIT" }
 authors = [{ name = "wulu007", email = "dabaobeix@gmail.com" }]
 keywords = ["geetest", "bypass", "captcha", "reverse-engineering", "pow"]
@@ -20,17 +27,19 @@ Repository = "https://github.com/wulu007/geetest-bypass.git"
 Issues = "https://github.com/wulu007/geetest-bypass/issues"
 
 [project.optional-dependencies]
+voice = ["miniaudio>=1.71", "wulu-geetest-bypass-voice"]
 svg = ["pillow>=12.2.0", "resvg-py>=0.3.2", "wulu-geetest-bypass[image]"]
 slide = ["wulu-geetest-bypass[image]"]
 image = ["opencv-python-headless>=4.13.0.92"]
-all = ["wulu-geetest-bypass[slide,svg]"]
+all = ["wulu-geetest-bypass[voice,slide,svg]"]
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/wulu_geetest_bypass"]
-exclude = ["*.png", "*.jpg", "tests/", "scripts/"]
+exclude = ["tests/", "scripts/"]
 
 [tool.uv.sources]
 wulu-geetest-bypass = { workspace = true }
+wulu-geetest-bypass-voice = { workspace = true }
 
 [tool.ruff.format]
 quote-style = "single"
@@ -49,4 +58,9 @@ split-on-trailing-comma = true
 addopts = "-s"
 
 [dependency-groups]
-dev = ["pytest>=9.1.0", "pytest-asyncio>=1.4.0", "wulu-geetest-bypass[all]"]
+dev = [
+    "pytest>=9.1.0",
+    "pytest-asyncio>=1.4.0",
+    "faster-whisper>=1.2.1",
+    "wulu-geetest-bypass[all]",
+]

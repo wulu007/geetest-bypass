@@ -1,4 +1,12 @@
-from typing import TYPE_CHECKING, Any, Literal, NotRequired, Sequence, TypedDict
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Literal,
+    NotRequired,
+    Required,
+    Sequence,
+    TypedDict,
+)
 
 Point = tuple[int, int]
 ClickPos = Sequence[Point]
@@ -31,7 +39,21 @@ RiskType = Literal[
     'winlinze',
 ]
 ClientType = Literal['web', 'web_mobile', 'android', 'ios']
-Lang = Literal['zh', 'en', 'zho', 'eng']
+Lang = Literal[
+    'ara',
+    'deu',
+    'eng',
+    'fra',
+    'ind',
+    'jpn',
+    'kor',
+    'por',
+    'rus',
+    'spa',
+    'zh',
+    'zho',
+    'zho-hk',
+]
 
 
 # class WPayload(TypedDict):
@@ -55,6 +77,7 @@ class BasePayload(TypedDict):
     pow_detail: dict[str, Any]
     guard: bool
     pt: str
+    language: NotRequired[str]
 
 
 class AiPayload(BasePayload):
@@ -101,6 +124,7 @@ class VoicePayload(BasePayload):
     captcha_type: Literal['voice']
     voice_path: str
     voice_audio: bytes
+    language: str
 
 
 WPayload = (
@@ -139,11 +163,15 @@ class VerifyResponse(TypedDict):
     data: VerifyData
 
 
-class GeetestOptions(TypedDict):
-    captcha_id: str
-    risk_type: NotRequired[RiskType]
-    client_type: NotRequired[ClientType]
-    challenge: NotRequired[str]
-    lang: NotRequired[Lang]
-    user_info: NotRequired[Any]
-    client_options: NotRequired['ClientConfig']
+class GeetestOptions(TypedDict, total=False):
+    captcha_id: Required[str]
+    risk_type: RiskType
+    client_type: ClientType
+    challenge: str
+    lang: Lang
+    """ 语言，默认zh """
+    user_info: Any
+    voice: bool
+    """ 是否转为语音验证 """
+    client_options: Any
+    """ wreq.Client config dict """

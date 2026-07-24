@@ -8,7 +8,7 @@
   <img src="https://static.pepy.tech/personalized-badge/wulu-geetest-bypass?period=total&units=INTERNATIONAL_SYSTEM&left_color=BLACK&right_color=GREEN&left_text=downloads" alt="downloads">
 </div>
 
-纯 Python 实现的极验行为验证 v4 自动化通过库（无需 Node.js）。自动处理 `ai` / `slide` / `match` / `winlinze` / `svg_seed` / `svg_icon` 六种风险类型，支持自定义重试、代理和 HTTP 客户端。
+纯 Python 实现的极验行为验证 v4 自动化通过库（无需 Node.js）。自动处理 `ai` / `slide` / `match` / `winlinze` / `svg_seed` / `svg_icon` / `voice` 七种风险类型，支持自定义重试、代理和 HTTP 客户端。
 
 ## 安装
 
@@ -27,6 +27,9 @@ pip install "wulu-geetest-bypass[all]"
 可选依赖：
 
 ```bash
+# voice 语音验证
+uv add "wulu-geetest-bypass[voice]"
+
 # slide 滑块（需要 opencv）
 uv add "wulu-geetest-bypass[slide]"
 
@@ -43,6 +46,7 @@ uv add "wulu-geetest-bypass[all]"
 import asyncio
 from wulu_geetest_bypass import Geetest
 
+
 async def main():
     g = Geetest(captcha_id='your_captcha_id', risk_type='slide')
     result = await g.resolve()
@@ -54,6 +58,7 @@ async def main():
     #     "gen_time": "xxx",
     #     "captcha_output": "xxx"
     # }
+
 
 asyncio.run(main())
 ```
@@ -70,13 +75,13 @@ asyncio.run(main())
 | `winlinze` | 五子棋           | 无        | ✅    |
 | `svg_seed` | SVG 图片选择     | `[svg]`   | ✅    |
 | `svg_icon` | SVG 图标选择     | `[svg]`   | ✅    |
-| `voice`    | 语音验证         | 无        | ❓    |
+| `voice`    | 语音验证         | `[voice]` | ✅    |
 | `icon`     | 图标点选         | 无        | ❌    |
 | `word`     | 文字点选         | 无        | ❌    |
 | `nine`     | 九宫格           | 无        | ❌    |
-| `phrase`   | 短语识别         | 无        | ❓    |
+| `phrase`   | 短语识别         | 无        | ❌    |
+| `pencil`   | 涂鸦             | 无        | ❌    |
 | `space`    | 空间推理         | 无        | ❓    |
-| `pencil`   | 涂鸦             | 无        | ❓    |
 
 ## API
 
@@ -87,9 +92,10 @@ asyncio.run(main())
 | `captcha_id`     | `str`                 | 验证 ID（必填）                                              |
 | `risk_type`      | `RiskType`            | 风险类型，默认 `'ai'`                                        |
 | `client_type`    | `ClientType`          | 客户端类型，`'web'` / `'web_mobile'` / `'android'` / `'ios'` |
-| `lang`           | `Lang`                | 语言，`'zh'` / `'en'` / `'zho'` / `'eng'`                    |
+| `lang`           | `Lang`                | 语言，`'zho'` / `'eng'` / `'fra'` / `'deu'` 等 13 种           |
 | `challenge`      | `str`                 | 自定义 challenge（不传则自动生成）                           |
 | `user_info`      | `Any`                 | 附加用户信息（预留）                                         |
+| `voice`          | `bool`                | 启用无障碍语音验证（需要 `[voice]` 依赖）                    |
 | `client_options` | `wreq.ClientConfig`   | HTTP 客户端配置（代理、headers、模拟等）                     |
 | `client`         | `wreq.Client \| None` | 自定义 HTTP 客户端（优先级高于 `client_options`）            |
 
@@ -105,12 +111,13 @@ asyncio.run(main())
 
 ```python
 class VerifyResponse:
-    status: str                          # "success" / "fail" / "error"
-    data: VerifyData                     # 验证结果数据
+    status: str  # "success" / "fail" / "error"
+    data: VerifyData  # 验证结果数据
+
 
 class VerifyData:
     lot_number: str
-    result: str                          # "success" / "fail"
+    result: str  # "success" / "fail"
     fail_count: int
     seccode: Seccode
     score: str
@@ -144,8 +151,7 @@ class Seccode:
 from wulu_geetest_bypass import Geetest
 
 
-def solve_icon(imgs: bytes, ques: list[bytes]) -> list[list[int]]:
-    ...
+def solve_icon(imgs: bytes, ques: list[bytes]) -> list[list[int]]: ...
 
 
 Geetest.register_solver('icon', solve_icon)
