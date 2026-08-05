@@ -1,5 +1,4 @@
 import base64
-import os
 
 import cv2
 import numpy as np
@@ -8,9 +7,6 @@ import resvg_py
 
 from wulu_geetest_bypass import Geetest
 from wulu_geetest_bypass.solver.svg import _grid_svgs, _rgba_to_gray, match
-
-out_dir = 'resources/match_demo'
-os.makedirs(out_dir, exist_ok=True)
 
 
 def _composite(imgs, scores, best_i, hint_edge, n_cols):
@@ -75,8 +71,9 @@ async def test_svg_seed(cid, out_dir):
     best_i = max(scores, key=lambda k: scores[k])
 
     canvas = _composite(imgs, scores, best_i, hint_edge, n_cols=7)
-    cv2.imwrite(out_dir / 'seed_grids.png', canvas)
-    print(f'seed: best=grid {best_i} score={scores[best_i]}')
+    out = out_dir / 'seed_grids.png'
+    cv2.imwrite(out, canvas)
+    print(f'seed: best=grid {best_i} score={scores[best_i]} {out}')
 
 
 @pytest.mark.asyncio
@@ -95,5 +92,6 @@ async def test_svg_icon(cid, out_dir):
     imgs = _edges(grids)
 
     canvas = _composite(imgs, scores, best_i, hint_edge, n_cols=4)
-    cv2.imwrite(out_dir / 'icon_grids.png', canvas)
-    print(f'icon: best=grid {best_i} score={scores[best_i]}')
+    out = out_dir / 'icon_grids.png'
+    cv2.imwrite(out, canvas)
+    print(f'icon: best=grid {best_i} score={scores[best_i]} {out}')

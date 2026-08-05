@@ -10,4 +10,6 @@ def cid() -> str:
 
 @pytest.fixture
 def out_dir():
-    return Path(__file__).parent / 'resources'
+    path = Path(__file__).resolve().parents[1] / 'resources'
+    path.mkdir(parents=True, exist_ok=True)
+    return path
