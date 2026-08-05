@@ -46,7 +46,7 @@ def _composite(imgs, scores, best_i, hint_edge, n_cols):
             cv2.rectangle(canvas, (x, y), (x + w - 1, y + h - 1), 255, 2)
         cv2.putText(
             canvas,
-            f'{scores[i + 1]:.3f}',
+            f'{scores[i + 1]}',
             (x, y + h + 15),
             cv2.FONT_HERSHEY_SIMPLEX,
             0.4,
@@ -62,8 +62,8 @@ def _edges(grids):
 
 
 @pytest.mark.asyncio
-async def test_svg_seed():
-    g = Geetest(captcha_id='54088bb07d2df3c46b79f80300b0abbe', risk_type='svg_seed')
+async def test_svg_seed(cid, out_dir):
+    g = Geetest(captcha_id=cid, risk_type='svg_seed')
     data = await g.load()
     svg = data['question_path']
     hint_raw = base64.b64decode(data['answer_path'])
@@ -72,28 +72,28 @@ async def test_svg_seed():
     imgs = _edges(grids)
     results = match(svg, data['answer_path'])
     scores = {r['grid']: r['score'] for r in results}
-    best_i = max(scores, key=scores.get)
+    best_i = max(scores, key=lambda k: scores[k])
 
     canvas = _composite(imgs, scores, best_i, hint_edge, n_cols=7)
-    cv2.imwrite(os.path.join(out_dir, 'seed_grids.png'), canvas)
-    print(f'seed: best=grid {best_i} score={scores[best_i]:.3f}')
+    cv2.imwrite(out_dir / 'seed_grids.png', canvas)
+    print(f'seed: best=grid {best_i} score={scores[best_i]}')
 
 
 @pytest.mark.asyncio
-async def test_svg_icon():
-    g = Geetest(captcha_id='54088bb07d2df3c46b79f80300b0abbe', risk_type='svg_icon')
+async def test_svg_icon(cid, out_dir):
+    g = Geetest(captcha_id=cid, risk_type='svg_icon')
     data = await g.load()
-    svg = (await g._load_img(data['question_path'])).decode()
-    hint_raw = await g._load_img(data['answer_path'])
+    svg = (await g._load_resource(data['question_path'])).decode()
+    hint_raw = await g._load_resource(data['answer_path'])
 
     results = match(svg, hint_raw)
     scores = {r['grid']: r['score'] for r in results}
-    best_i = max(scores, key=scores.get)
+    best_i = max(scores, key=lambda k: scores[k])
 
     hint_edge = cv2.Canny(_rgba_to_gray(hint_raw), 50, 150)
     grids = _grid_svgs(svg)
     imgs = _edges(grids)
 
     canvas = _composite(imgs, scores, best_i, hint_edge, n_cols=4)
-    cv2.imwrite(os.path.join(out_dir, 'icon_grids.png'), canvas)
-    print(f'icon: best=grid {best_i} score={scores[best_i]:.3f}')
+    cv2.imwrite(out_dir / 'icon_grids.png', canvas)
+    print(f'icon: best=grid {best_i} score={scores[best_i]}')
