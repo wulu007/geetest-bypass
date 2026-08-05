@@ -52,13 +52,26 @@ def _grid_svgs(svg: str) -> list[str]:
             cx, cy = w / 2, h / 2
 
             g_attrib = dict(g_child.attrib)
+            styled = any(sub.get('style') for sub in g_child.iter())
+            scale = 1 if styled else 2
             t = g_attrib.get('transform', '')
             if 'translate(' in t:
                 idx = t.index('translate(')
                 end = t.index(')', idx)
                 after = t[end:]
-                after = re.sub(r'scale\([\d.]+\)', 'scale(1)', after)
+                after = re.sub(r'scale\([\d.]+\)', f'scale({scale})', after)
                 g_attrib['transform'] = t[:idx] + f'translate({cx},{cy}' + after
+
+            if not styled:
+                g_attrib['fill'] = 'none'
+                g_attrib['stroke'] = '#000'
+                g_attrib['stroke-width'] = '2'
+                g_attrib['stroke-linecap'] = 'round'
+                g_attrib['stroke-linejoin'] = 'round'
+
+            bg_attrib = dict(child.attrib)
+            bg_attrib.pop('x', None)
+            bg_attrib.pop('y', None)
 
             new_svg = ET.Element(
                 f'{{{_NS}}}svg',
@@ -85,7 +98,7 @@ def _decode_hint(hint: str | bytes) -> bytes:
     raise TypeError('hint must be str or bytes')
 
 
-def match(svg: str, hint: str | bytes) -> list[dict]:
+def match(svg: str, hint: str | bytes) -> list[dict[str, int]]:
     if not isinstance(svg, str) or not svg.strip():
         raise TypeError('svg must be a non-empty string')
 
@@ -108,7 +121,7 @@ def match(svg: str, hint: str | bytes) -> list[dict]:
         _, score, _, _ = cv2.minMaxLoc(
             cv2.matchTemplate(grid_edge, hint_edge, cv2.TM_CCORR_NORMED)
         )
-        results.append({'grid': len(results) + 1, 'score': round(float(score), 6)})
+        results.append({'grid': len(results) + 1, 'score': int(score * 1000000)})
 
     results.sort(key=lambda r: r['score'], reverse=True)
     return results
