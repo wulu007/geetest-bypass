@@ -187,7 +187,7 @@ class GeetestOptions(TypedDict, total=False):
     user_info: Any
     voice: bool
     """ 是否转为语音验证 """
-    client_options: ClientConfig
+    client_options: 'ClientConfig'
     """ wreq.Client config dict """
     pt: Encryption | None
     """
