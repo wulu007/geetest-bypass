@@ -31,10 +31,11 @@ Issues = "https://github.com/wulu007/geetest-bypass/issues"
 
 [project.optional-dependencies]
 voice = ["wulu-geetest-bypass-voice"]
+nine = ["wulu-geetest-bypass-nine"]
 svg = ["pillow>=12.2.0", "resvg-py>=0.3.2", "wulu-geetest-bypass[image]"]
 slide = ["wulu-geetest-bypass[image]"]
 image = ["opencv-python-headless>=4.13.0.92"]
-all = ["wulu-geetest-bypass[voice,slide,svg]"]
+all = ["wulu-geetest-bypass[voice,nine,slide,svg]"]
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/wulu_geetest_bypass"]
@@ -43,6 +44,7 @@ exclude = ["tests/", "scripts/"]
 [tool.uv.sources]
 wulu-geetest-bypass = { workspace = true }
 wulu-geetest-bypass-voice = { workspace = true }
+wulu-geetest-bypass-nine = { workspace = true }
 
 [tool.ruff.format]
 quote-style = "single"
