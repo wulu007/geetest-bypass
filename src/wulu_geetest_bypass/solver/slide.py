@@ -42,7 +42,7 @@ def solve_slide(bg_bytes: bytes, slice_bytes: bytes, ypos: int = 0) -> int:
 #     else:
 #         sl_gray = cv2.cvtColor(sl, cv2.COLOR_BGR2GRAY)
 
-#     # 按 ypos 裁剪背景搜索区域（覆盖滑块高度 + 少量余量）
+#     # 按 ypos 裁剪背景搜索区域
 #     h_sl = sl_gray.shape[0]
 #     margin = 10
 #     ys = max(0, ypos - margin)
