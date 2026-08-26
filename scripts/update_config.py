@@ -47,7 +47,7 @@ def main():
         vals[k.strip()] = v.strip()
 
     if not CONFIG_PY.exists():
-        print(f'[error] 找不到目标配置文件: {CONFIG_PY}，请先创建它')
+        print(f'[error] 找不到目标配置文件: {CONFIG_PY}, 请先创建它')
         return
 
     origin_content = CONFIG_PY.read_text('utf-8')
@@ -56,7 +56,7 @@ def main():
     is_modified = False
     for out_key, py_var in FIELD_MAP.items():
         if out_key not in vals:
-            print(f'[warn] 字段 {out_key} 未在 Node 输出中找到，跳过')
+            print(f'[warn] 字段 {out_key} 未在 Node 输出中找到, 跳过')
             continue
 
         new_val = vals[out_key]
@@ -64,7 +64,7 @@ def main():
         replacement = rf"\1'{new_val}'"
 
         if not re.search(pattern, content):
-            print(f'[warn] 变量 {py_var} 未在 config.py 中定义，无法替换')
+            print(f'[warn] 变量 {py_var} 未在 config.py 中定义, 无法替换')
             continue
 
         updated_content = re.sub(pattern, replacement, content)

@@ -152,7 +152,7 @@ def _split_by_silence(y: np.ndarray, sr: int) -> list[np.ndarray]:
         me.append(ends[-1])
         starts, ends = np.array(ms), np.array(me)
 
-    segs = [y[s:e] for s, e in zip(starts, ends) if e - s >= min_samples]
+    segs = [y[s:e] for s, e in zip(starts, ends, strict=False) if e - s >= min_samples]
     segs = [s for s in segs if np.sqrt(np.mean(s**2)) >= min_energy]
     return segs
 

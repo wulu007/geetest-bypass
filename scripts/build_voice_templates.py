@@ -9,7 +9,6 @@ Usage:
 import asyncio
 import json
 import os
-import re
 import sys
 from pathlib import Path
 
@@ -260,8 +259,9 @@ def extract(text: str, wm: dict[str, str]) -> str:
 
 async def fetch(lang: str):
     RAW_DIR.mkdir(parents=True, exist_ok=True)
-    seen, count = set(), 0
+    _seen, count = set(), 0
     while count < 20:
+        # pyrefly: ignore [bad-argument-type]
         g = Geetest(captcha_id=CAPTCHA_ID, lang=lang, voice=True)
         data = await g.load()
         mp3 = await g._load_resource(data['voice_path'])
@@ -305,9 +305,12 @@ def transcribe(lang: str):
     files = sorted(RAW_DIR.glob(lang + '_*'))
     wm = WORD_MAP.get(lang, {})
     wlang = WHISPER_LANG.get(lang, 'zh')
-    kw = dict(
-        language=wlang, beam_size=5, vad_filter=True, condition_on_previous_text=False
-    )
+    kw = {
+        'language': wlang,
+        'beam_size': 5,
+        'vad_filter': True,
+        'condition_on_previous_text': False,
+    }
     if lang == 'jpn':
         kw['initial_prompt'] = '0 1 2 3 4 5 6 7 8 9'
 
@@ -430,7 +433,7 @@ def train(lang: str):
         y = _load_audio(mp3, SR)
         segs = _split_by_silence(y, SR)
         all_prompts.append(_mfcc_feature(segs[0], SR))
-        for seg, d in zip(segs[1:7], r['digits']):
+        for seg, d in zip(segs[1:7], r['digits'], strict=False):
             all_feats.append(_mfcc_feature(seg, SR))
             all_labels.append(int(d))
 
@@ -441,8 +444,8 @@ def train(lang: str):
 
     correct = sum(
         1
-        for f, l in zip(feats, labels)
-        if digits_arr[np.linalg.norm(centroids - f, axis=1).argmin()] == l
+        for f, label in zip(feats, labels, strict=False)
+        if digits_arr[np.linalg.norm(centroids - f, axis=1).argmin()] == label
     )
     acc = correct / len(labels)
     print(

@@ -2,7 +2,7 @@ import json
 import random
 import time
 import uuid
-from typing import Unpack
+from typing import ClassVar, Unpack
 
 from wreq import Client, Emulation
 
@@ -42,7 +42,7 @@ class Geetest:
     BASE_URL = 'https://gcaptcha4.geetest.com'
     IMG_BASE = 'https://static.geetest.com'
 
-    default_headers = {
+    default_headers: ClassVar = {
         'Connection': 'keep-alive',
         'Accept': '*/*',
         'Sec-Fetch-Site': 'same-site',
@@ -53,7 +53,7 @@ class Geetest:
         'referer': 'https://www.geetest.com/',
     }
 
-    _solvers = {
+    _solvers: ClassVar = {
         'ai': lambda: None,
         'slide': solve_slide,
         'svg_seed': solve_svg,

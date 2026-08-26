@@ -13,7 +13,7 @@ from typing import (
 
 Point = tuple[int, int]
 ClickPos = Sequence[Point]
-""" [[x, y], ...]   icon/word/phrase: 位置百分比×100 """
+""" [[x, y], ...]   icon/word/phrase: 位置百分比"""
 GridIndices = Sequence[Point]
 """ [[row, col], ...]   nine: 网格索引 """
 CoordPair = Sequence[Point]
@@ -183,11 +183,11 @@ class GeetestOptions(TypedDict, total=False):
     client_type: ClientType
     challenge: str
     lang: Lang
-    """ 语言，默认zh """
+    """ 语言, 默认zh """
     user_info: Any
     voice: bool
     """ 是否转为语音验证 """
-    client_options: 'ClientConfig'
+    client_options: ClientConfig
     """ wreq.Client config dict """
     pt: Encryption | None
     """
