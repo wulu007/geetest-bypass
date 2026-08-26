@@ -1,7 +1,5 @@
 import importlib.metadata
 
-import pytest
-
 from wulu_geetest_bypass import Geetest
 from wulu_geetest_bypass.solver import discover_plugins
 
@@ -73,6 +71,7 @@ def test_plugins_merged_into_solvers(monkeypatch):
     )
     discover_plugins.cache_clear()
     Geetest._solvers.update(discover_plugins())
+    # pyrefly: ignore [bad-argument-count, bad-argument-type, missing-argument]
     assert Geetest._solvers['icon'](1) == 42
     Geetest._solvers.pop('icon', None)
     discover_plugins.cache_clear()
