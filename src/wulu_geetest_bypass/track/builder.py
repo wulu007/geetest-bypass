@@ -172,6 +172,24 @@ class TrackBuilder:
         self._events[-1] = (*e[:3], TrackType.END)
         return self
 
+    def click(self, release_delay: int = 90) -> Self:
+        """Press (DOWN) at the current position, then auto-release (END) after ``release_delay`` ms.
+
+        Produces the auto-submit click trailing pattern: a DOWN event immediately
+        followed by an END event at the same position, with no movement in between.
+        """
+        self.down()
+        self._events.append(
+            (
+                self._events[-1][0] + release_delay,
+                *_percent_round(self._cur),
+                TrackType.END,
+            )
+        )
+        self.end_point = self._cur
+        self.duration += release_delay
+        return self
+
     def build(self) -> Sequence[PointerEvent]:
         if self.start_point is None or self.end_point is None or self.duration <= 0:
             raise ValueError('Must set start, end, and duration before building')
