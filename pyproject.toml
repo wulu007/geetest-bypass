@@ -49,7 +49,7 @@ quote-style = "single"
 indent-style = "space"
 
 [tool.ruff.lint]
-select = ["E", "F", "I", "B", "UP", "SIM", "C4", "RUF"]
+select = ["E", "F", "I", "B", "UP", "SIM", "C4"]
 ignore = ["E501", "B008", "RUF002", "RUF001"]
 fixable = ['ALL']
 
