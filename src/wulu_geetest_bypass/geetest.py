@@ -10,7 +10,13 @@ from typing import ClassVar, Unpack
 from wreq import Client, Emulation
 
 from wulu_geetest_bypass.crypto import gen_td_sign
-from wulu_geetest_bypass.track import gen_slide_track, gen_svg_track, track_zip
+from wulu_geetest_bypass.track import (
+    gen_match_track,
+    gen_slide_track,
+    gen_svg_track,
+    gen_winlinze_track,
+    track_zip,
+)
 
 from ._exceptions import VerifyError
 from ._type import (
@@ -219,9 +225,18 @@ class Geetest:
                 ans['passtime'] = random.randint(start + 50, end - 50)
                 cols = 2 if data['captcha_type'] == 'svg_icon' else 3
                 ans['track'] = gen_svg_track(point, cols, ans['passtime'])
-            case 'match' | 'winlinze':
-                ans['userresponse'] = solver(data['ques'])
-                ans['passtime'] = random.randint(600, 1400)
+            case 'match':
+                cells = solver(data['ques'])
+                if cells is None:
+                    raise NotImplementedError('match: no matching-swap found')
+                ans['userresponse'] = cells
+                ans['track'], ans['passtime'] = gen_match_track(cells)
+            case 'winlinze':
+                cells = solver(data['ques'])
+                if cells is None:
+                    raise NotImplementedError('winlinze: no winning move found')
+                ans['userresponse'] = cells
+                ans['track'], ans['passtime'] = gen_winlinze_track(cells)
             case 'icon' | 'word':
                 ans['userresponse'] = solver(data['imgs'], data['ques'])
                 ans['passtime'] = random.randint(1000, 2000)
