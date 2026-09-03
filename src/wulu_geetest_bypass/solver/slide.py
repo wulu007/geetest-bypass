@@ -5,13 +5,18 @@ import numpy as np
 def solve_slide(bg_bytes: bytes, slice_bytes: bytes, ypos: int = 0) -> int:
     bg = cv2.imdecode(np.frombuffer(bg_bytes, np.uint8), cv2.IMREAD_COLOR)
     sl = cv2.imdecode(np.frombuffer(slice_bytes, np.uint8), cv2.IMREAD_UNCHANGED)
+    # pyrefly: ignore [no-matching-overload]
     bg_gray = cv2.cvtColor(bg, cv2.COLOR_BGR2GRAY)
 
+    # pyrefly: ignore [missing-attribute]
     if sl.shape[2] == 4:
+        # pyrefly: ignore [unsupported-operation]
         alpha_channel = sl[:, :, 3]
+        # pyrefly: ignore [no-matching-overload]
         sl_gray = cv2.cvtColor(sl, cv2.COLOR_BGR2GRAY)
         sl_gray[alpha_channel == 0] = 0  # 将透明部分强制置黑
     else:
+        # pyrefly: ignore [no-matching-overload]
         sl_gray = cv2.cvtColor(sl, cv2.COLOR_BGR2GRAY)
 
     kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))

@@ -1,10 +1,16 @@
+from __future__ import annotations
+
 import json
 import random
 import time
 import uuid
+from collections.abc import Callable
 from typing import ClassVar, Unpack
 
 from wreq import Client, Emulation
+
+from wulu_geetest_bypass.crypto import gen_td_sign
+from wulu_geetest_bypass.track import gen_slide_track, track_zip
 
 from ._exceptions import VerifyError
 from ._type import (
@@ -53,7 +59,7 @@ class Geetest:
         'referer': 'https://www.geetest.com/',
     }
 
-    _solvers: ClassVar = {
+    _solvers: dict = {
         'ai': lambda: None,
         'slide': solve_slide,
         'svg_seed': solve_svg,
@@ -130,7 +136,9 @@ class Geetest:
         if self.pt is not None:
             data['pt'] = self.pt.value
 
-        base = {
+        ans = self.auto_solve(data)
+        ans['track'] = td = track_zip(ans['track']) if 'track' in ans else None
+        query = {
             'callback': _callback(),
             'captcha_id': self.captcha_id,
             'client_type': self.client_type,
@@ -140,11 +148,13 @@ class Geetest:
             'process_token': data['process_token'],
             'payload_protocol': data['payload_protocol'],
             'pt': data['pt'],
-            'w': Geetest.generate_w(data),
+            'w': self.generate_w(data, ans),
         }
+        if td is not None:
+            query['td'] = td
 
         try:
-            resp = await self.client.get(f'{self.BASE_URL}/verify', query=base)
+            resp = await self.client.get(f'{self.BASE_URL}/verify', query=query)
             data = _unwrap_jsonp(await resp.text())
         except Exception as e:
             raise RuntimeError(f'verify request failed: {e}') from e
@@ -159,10 +169,11 @@ class Geetest:
                 return data['seccode']
             if attempt < retry - 1:
                 continue
+        # pyrefly: ignore [unbound-name]
         raise VerifyError(f'verification failed after {retry} attempts: {data}')
 
     @staticmethod
-    def generate_w(data: WPayload) -> str:
+    def generate_w(data: WPayload, ans: dict) -> str:
         lot_number = data['lot_number']
         pow_detail = data['pow_detail']
         payload = {
@@ -176,54 +187,74 @@ class Geetest:
             'geetest': 'captcha',
             'lang': 'zh',
             'lot_number': lot_number,
+            **{k: v for k, v in ans.items() if k != 'track'},
         }
-
+        if 'track' in ans and ans['track'] is not None:
+            payload['td_sign'] = gen_td_sign(lot_number, ans['track'])
         if data['guard']:
             payload.update(Config.gee_guard)
 
+        return build_w(json.dumps(payload, separators=(',', ':')), int(data['pt']))
+
+    @classmethod
+    def auto_solve(cls, data: WPayload):
         ct = data['captcha_type']
-        solver = Geetest._solvers.get(ct)
+        solver = cls._solvers.get(ct)
         if solver is None:
             raise NotImplementedError(f'risk_type {ct} not implemented')
 
+        ans = {}
         match data['captcha_type']:
             case 'ai':
                 pass
             case 'slide':
-                set_left = solver(data['bg'], data['slice'], int(data['ypos']))
-                payload['setLeft'] = set_left
-                payload['userresponse'] = set_left / 1.0059466666666665 + 2
-                payload['passtime'] = random.randint(600, 1400)
+                set_left = solver(data['bg'], data['slice'], data['ypos'])
+                ans['setLeft'] = set_left
+                ans['userresponse'] = set_left / 1.0059466666666665 + 2
+                ans['track'], ans['passtime'] = gen_slide_track(set_left)
             case 'svg_seed' | 'svg_icon':
                 layer, point = solver(data['question_path'], data['answer_path'])
                 start, end = frame_times(data['question_path'])[layer]
-                payload['userresponse'] = point
-                payload['passtime'] = random.randint(start + 50, end - 50)
+                ans['userresponse'] = point
+                ans['passtime'] = random.randint(start + 50, end - 50)
             case 'match' | 'winlinze':
-                payload['userresponse'] = solver(data['ques'])
-                payload['passtime'] = random.randint(600, 1400)
+                ans['userresponse'] = solver(data['ques'])
+                ans['passtime'] = random.randint(600, 1400)
             case 'icon' | 'word':
-                payload['userresponse'] = solver(data['imgs'], data['ques'])
-                payload['passtime'] = random.randint(1000, 2000)
+                ans['userresponse'] = solver(data['imgs'], data['ques'])
+                ans['passtime'] = random.randint(1000, 2000)
             case 'nine':
-                payload['userresponse'] = solver(
+                ans['userresponse'] = solver(
                     data['imgs'], data['ques'], data['nine_nums']
                 )
-                payload['passtime'] = random.randint(1000, 2000)
+                ans['passtime'] = random.randint(1000, 2000)
             case 'phrase' | 'space' | 'pencil':
-                payload['userresponse'] = solver(data['imgs'])
-                payload['passtime'] = random.randint(1000, 2000)
+                ans['userresponse'] = solver(data['imgs'])
+                ans['passtime'] = random.randint(1000, 2000)
             case 'voice':
                 lang = data['voice_path'].split('/')[-2]
-                payload['userresponse'] = solver(data['voice_audio'], lang)
-                payload['passtime'] = random.randint(20000, 30000)
+                ans['userresponse'] = solver(data['voice_audio'], lang)
+                ans['passtime'] = random.randint(20000, 30000)
             case _:
                 raise NotImplementedError(
                     f'risk_type {data["captcha_type"]} not implemented'
                 )
 
-        return build_w(json.dumps(payload, separators=(',', ':')), int(data['pt']))
+        return ans
 
     @classmethod
-    def register_solver(cls, risk: RiskType, solver):
-        cls._solvers[risk] = solver
+    def register_solver(cls, risk: RiskType, solver: Callable | None = None):
+        """
+        用法 1: Geetest.register_solver('slide', my_slide_func)
+        用法 2:
+            @Geetest.register_solver('slide')
+            def my_slide_func(bg, slice, ypos): ...
+        """
+
+        def decorator(fn: Callable):
+            cls._solvers[risk] = fn
+            return fn
+
+        if solver is None:
+            return decorator
+        return decorator(solver)

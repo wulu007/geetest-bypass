@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from collections.abc import Sequence
+from collections.abc import Callable, Sequence
 from enum import Enum
 from typing import (
     TYPE_CHECKING,
@@ -24,6 +24,7 @@ SvgGridPos = tuple[int, Point]
 """ (frame, (row, col))   svg/space: 帧+网格 """
 
 if TYPE_CHECKING:
+    from wreq import Client
     from wreq.wreq import ClientConfig
 
 RiskType = Literal[
@@ -187,6 +188,7 @@ class GeetestOptions(TypedDict, total=False):
     user_info: Any
     voice: bool
     """ 是否转为语音验证 """
+    client: Client
     client_options: ClientConfig
     """ wreq.Client config dict """
     pt: Encryption | None
@@ -201,3 +203,21 @@ class GeetestOptions(TypedDict, total=False):
     - `Encryption.NONE` means no encryption (direct `urlsafe_encode`).
     - `Encryption.AES_RSA` and `Encryption.SM4_SM2` enable hybrid encryption.
     """
+
+
+AiSolver = Callable[[], None]
+"""ai: no-op placeholder, never invoked."""
+SlideSolver = Callable[[bytes, bytes, int], int]
+"""slide: (bg, slice, ypos) -> setLeft px"""
+SvgSolver = Callable[[str, str | bytes], SvgGridPos]
+"""svg_seed/svg_icon: (question_path, answer_path) -> (frame, (row, col))"""
+MatchSolver = Callable[[list[list[int]]], CoordPair | None]
+"""match/winlinze: (ques) -> swap pairs"""
+ClickSolver = Callable[[bytes, list[bytes]], ClickPos]
+"""icon/word: (imgs, ques) -> click positions in percent"""
+NineSolver = Callable[[bytes, list[bytes], int], GridIndices]
+"""nine: (imgs, ques, nine_nums) -> grid indices"""
+DrawSolver = Callable[[bytes], ClickPos | TracePoints]
+"""phrase/space/pencil: (imgs) -> click positions or trace points"""
+VoiceSolver = Callable[[bytes, str], str]
+"""voice: (voice_audio, lang) -> digit sequence"""
