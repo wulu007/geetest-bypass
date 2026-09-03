@@ -11,6 +11,7 @@ from wreq import Client, Emulation
 
 from wulu_geetest_bypass.crypto import gen_td_sign
 from wulu_geetest_bypass.track import (
+    gen_click_track,
     gen_match_track,
     gen_slide_track,
     gen_svg_track,
@@ -202,6 +203,16 @@ class Geetest:
 
         return build_w(json.dumps(payload, separators=(',', ':')), int(data['pt']))
 
+    @staticmethod
+    def _clicks_to_userresponse(clicks) -> list[list[int]]:
+        """Convert normalized (0~1) click coordinates to the wire integer format.
+
+        The frontend stores marks as ``Math.round(100 * percent)`` where percent
+        is ``0~100`` relative to the image, i.e. each component equals the
+        normalized value times 10000.
+        """
+        return [[round(x * 10000), round(y * 10000)] for x, y in clicks]
+
     @classmethod
     def auto_solve(cls, data: WPayload):
         ct = data['captcha_type']
@@ -238,14 +249,24 @@ class Geetest:
                 ans['userresponse'] = cells
                 ans['track'], ans['passtime'] = gen_winlinze_track(cells)
             case 'icon' | 'word':
-                ans['userresponse'] = solver(data['imgs'], data['ques'])
-                ans['passtime'] = random.randint(1000, 2000)
+                clicks = solver(data['imgs'], data['ques'])
+                ans['userresponse'] = cls._clicks_to_userresponse(clicks)
+                ans['track'], ans['passtime'] = gen_click_track(clicks)
             case 'nine':
                 ans['userresponse'] = solver(
                     data['imgs'], data['ques'], data['nine_nums']
                 )
                 ans['passtime'] = random.randint(1000, 2000)
-            case 'phrase' | 'space' | 'pencil':
+            case 'phrase':
+                ret = solver(data['imgs'])
+                if ret and isinstance(ret[0], (list, tuple)) and len(ret[0]) == 2:
+                    clicks = ret
+                    ans['userresponse'] = cls._clicks_to_userresponse(clicks)
+                    ans['track'], ans['passtime'] = gen_click_track(clicks)
+                else:
+                    ans['userresponse'] = ret
+                    ans['passtime'] = random.randint(1000, 2000)
+            case 'space' | 'pencil':
                 ans['userresponse'] = solver(data['imgs'])
                 ans['passtime'] = random.randint(1000, 2000)
             case 'voice':

@@ -26,6 +26,20 @@ _TWO_CLICK_BASE: dict[str, Any] = {
     # 第一段移动到第一格的耗时占比区间
     'move_ratio': (0.35, 0.55),
 }
+# 图片点击类（icon/word/phrase）：答案坐标基于验证图片的归一化值，
+# 再按 图片尺寸/元素尺寸 缩放到容器坐标（容器包含提交按钮区）。
+_MULTI_CLICK_BASE: dict[str, Any] = {
+    **_CLICK_BASE,
+    # 验证图片尺寸（归一化基准）
+    'img_w': 300.0,
+    'img_h': 200.0,
+    # 提交按钮中心（容器坐标）
+    'submit_xy': (0.5, 0.92),
+    # 全程总耗时区间（ms）
+    'passtime': (2500, 4000),
+    # 是否在答案点击后追加一次提交按钮点击
+    'with_submit': True,
+}
 
 
 class TrackConfig:
@@ -48,6 +62,7 @@ class TrackConfig:
     svg: ClassVar[dict[str, Any]] = {**_CLICK_BASE, 'jitter': 0.01}
     winlinze: ClassVar[dict[str, Any]] = {**_TWO_CLICK_BASE, 'jitter': 0.04}
     match: ClassVar[dict[str, Any]] = {**_TWO_CLICK_BASE, 'jitter': 0.05}
+    click: ClassVar[dict[str, Any]] = {**_MULTI_CLICK_BASE, 'jitter': 0.02}
 
 
 def _random_origin(cfg: dict[str, Any]) -> Point:
@@ -191,3 +206,56 @@ def gen_match_track(
         )
 
     return _gen_two_click_track(cfg, cells, center)
+
+
+def gen_click_track(
+    clicks: Sequence[Point],
+    with_submit: bool | None = None,
+) -> tuple[TrackPayload, int]:
+    """Build a multi-click track for image-click captchas (icon/word/phrase).
+
+    ``clicks`` is an ordered list of normalized ``(x, y)`` points, each in
+    [0, 1] relative to the verification image (NOT the element). Internally they
+    are scaled to element coordinates via ``img_w/img_h``, so custom solvers
+    only need to return image-relative positions. The track moves to each click,
+    auto-submits the trailing ``DOWN``+``END`` pair, then finally clicks the
+    submit button (unless ``with_submit`` is disabled). Returns ``(payload,
+    duration)``.
+    """
+    if not clicks:
+        raise ValueError('clicks must not be empty')
+
+    cfg = TrackConfig.click
+    img_w, img_h = cfg['img_w'], cfg['img_h']
+    el_w, el_h = cfg['w'], cfg['h']
+
+    def to_element(pt: Point) -> Point:
+        return (pt[0] * img_w / el_w, pt[1] * img_h / el_h)
+
+    targets = [_jitter_inside(to_element(pt), cfg['jitter']) for pt in clicks]
+
+    if with_submit is None:
+        with_submit = cfg['with_submit']
+
+    passtime = random.randint(*cfg['passtime'])
+    n = len(targets) + int(with_submit)
+    release_delays = [random.randint(*cfg['release_delay']) for _ in range(n)]
+    total_release = sum(release_delays)
+    move_total = max(passtime - total_release, 1)
+
+    weights = [random.random() for _ in range(n)]
+    denom = sum(weights)
+    moves = [max(int(move_total * w / denom), 1) for w in weights]
+    moves[-1] = max(move_total - sum(moves[:-1]), 1)
+
+    tb = TrackBuilder(_random_origin(cfg))
+    for target, delay in zip(targets, release_delays, strict=False):
+        tb.move_to(*target, moves.pop(0)).click(delay)
+
+    if with_submit:
+        submit = _jitter_inside(cfg['submit_xy'], cfg['jitter'] * 0.5)
+        tb.move_to(*submit, moves.pop(0)).click(release_delays[-1])
+
+    events = tb.build()
+
+    return _build_payload(cfg, events), events[-1][0]

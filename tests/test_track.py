@@ -140,3 +140,39 @@ def test_gen_time():
     for _, x, y, _track_type in t:
         assert x == round(x, _PERCENT_PRECISION)
         assert y == round(y, _PERCENT_PRECISION)
+
+
+def test_gen_click_track():
+    from wulu_geetest_bypass.track import TrackConfig, gen_click_track
+
+    clicks = [(0.7483, 0.2174), (0.1417, 0.5472), (0.3050, 0.4473)]
+    payload, duration = gen_click_track(clicks)
+
+    assert duration == payload['e'] - payload['s']
+    assert payload['m'] == 1
+    assert payload['w'] == TrackConfig.click['w']
+    assert payload['h'] == TrackConfig.click['h']
+    assert duration > 0
+
+    types = [e[3] for e in payload['p']]
+    # 3 answers + 1 submit click, each DOWN followed by END
+    assert types.count(3) == 4
+    assert types.count(2) == 4
+
+    img_w, img_h = TrackConfig.click['img_w'], TrackConfig.click['img_h']
+    el_w, el_h = TrackConfig.click['w'], TrackConfig.click['h']
+    expected = [(x * img_w / el_w, y * img_h / el_h) for x, y in clicks]
+
+    downs = [e for e in payload['p'] if e[3] == 3]
+    for (ex, ey), down in zip(expected, downs, strict=False):
+        assert abs(down[1] - ex) <= TrackConfig.click['jitter'] + 0.01
+        assert abs(down[2] - ey) <= TrackConfig.click['jitter'] + 0.01
+
+
+def test_gen_click_track_no_submit():
+    from wulu_geetest_bypass.track import gen_click_track
+
+    payload, _ = gen_click_track([(0.1, 0.1)], with_submit=False)
+    types = [e[3] for e in payload['p']]
+    assert types.count(3) == 1
+    assert types.count(2) == 1

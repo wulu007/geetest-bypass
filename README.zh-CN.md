@@ -155,18 +155,19 @@ class Seccode:
 from wulu_geetest_bypass import Geetest
 
 
-def solve_icon(imgs: bytes, ques: list[bytes]) -> list[list[int]]: ...
+def solve_icon(imgs: bytes, ques: list[bytes]) -> list[tuple[float, float]]: ...
 
 
 Geetest.register_solver('icon', solve_icon)
 ```
 
-注册后 `generate_w()` 会自动调用，传入对应的 payload 字段：
+注册后 `generate_w()` 会自动调用，传入对应的 payload 字段。**点击/绘制类 solver 返回相对验证图片的归一化坐标（取值 `[0, 1]`）**，库内部负责换算到窗口/协议格式（如 `userresponse` 使用基于图片的百分比×10000），并为 `icon` / `word` / `phrase` 自动生成点击轨迹（含末尾提交按钮点击）：
 
 | 类型 | Solver 签名 |
 |------|------------|
-| `icon` / `word` / `phrase` | `(imgs: bytes, ques: list[bytes]) -> list[list[int]]` |
-| `nine` | `(imgs: bytes, ques: list[bytes], nine_nums: int) -> list[list[int]]` |
+| `icon` / `word` | `(imgs: bytes, ques: list[bytes]) -> list[tuple[float, float]]` |
+| `phrase` | `(imgs: bytes) -> list[tuple[float, float]]` |
+| `nine` | `(imgs: bytes, ques: list[bytes], nine_nums: int) -> list[tuple[int, int]]` |
 | `pencil` | `(imgs: bytes) -> list` |
 | `space` | 同 SVG，由内置 solver 兜底 |
 

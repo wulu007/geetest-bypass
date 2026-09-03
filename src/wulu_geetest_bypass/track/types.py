@@ -22,6 +22,7 @@ class PointerType(IntEnum):
 PointerEvent = tuple[int, float, float, TrackType | int]
 """ A pointer event is represented as a tuple of four elements"""
 Point = tuple[float, float]
+""" A normalized (x, y) coordinate in [0, 1], relative to the element"""
 
 
 def _percent_round(point: Point) -> Point:

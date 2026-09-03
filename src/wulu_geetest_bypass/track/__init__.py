@@ -2,6 +2,7 @@ from .builder import TrackBuilder, bezier_point, gen_timestamps, generate_contro
 from .compress import track_unzip, track_zip
 from .generators import (
     TrackConfig,
+    gen_click_track,
     gen_match_track,
     gen_slide_track,
     gen_svg_track,
@@ -26,6 +27,7 @@ __all__ = [
     'TrackPayload',
     'TrackType',
     'bezier_point',
+    'gen_click_track',
     'gen_match_track',
     'gen_slide_track',
     'gen_svg_track',

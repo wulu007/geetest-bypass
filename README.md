@@ -155,22 +155,27 @@ For risk types without built-in support, inject a custom solver via `register_so
 from wulu_geetest_bypass import Geetest
 
 
-def solve_icon(imgs: bytes, ques: list[bytes]) -> list[list[int]]: ...
+def solve_icon(imgs: bytes, ques: list[bytes]) -> list[tuple[float, float]]: ...
 
 
 Geetest.register_solver('icon', solve_icon)
 ```
 
-Once registered, `generate_w()` calls it automatically with the corresponding payload fields:
+Once registered, `generate_w()` calls it automatically with the corresponding payload fields. **Click/draw solvers return normalized coordinates in `[0, 1]` relative to the verification image** — the library takes care of scaling them to the window/payload formats (e.g. `userresponse` uses image-based percent × 10000) and of generating the click tracks (including the final submit-button click for `icon`/`word`/`phrase`):
 
-| Type                          | Solver signature                                      |
-| ----------------------------- | ----------------------------------------------------- |
-| `icon` / `word` / `phrase`    | `(imgs: bytes, ques: list[bytes]) -> list[list[int]]` |
-| `nine`                        | `(imgs: bytes, ques: list[bytes], nine_nums: int) -> list[list[int]]` |
-| `pencil`                      | `(imgs: bytes) -> list`                               |
-| `space`                       | Same as SVG, handled by built-in solver as fallback   |
+| Type                          | Solver signature                                              |
+| ----------------------------- | ------------------------------------------------------------- |
+| `icon` / `word`               | `(imgs: bytes, ques: list[bytes]) -> list[tuple[float, float]]` |
+| `phrase`                      | `(imgs: bytes) -> list[tuple[float, float]]`                  |
+| `nine`                        | `(imgs: bytes, ques: list[bytes], nine_nums: int) -> list[tuple[int, int]]` |
+| `pencil`                      | `(imgs: bytes) -> list`                                       |
+| `space`                       | Same as SVG, handled by built-in solver as fallback           |
 
 Built-in solvers can also be overridden:
+
+```python
+Geetest.register_solver('slide', my_custom_slide_solver)
+```
 
 ```python
 Geetest.register_solver('slide', my_custom_slide_solver)
