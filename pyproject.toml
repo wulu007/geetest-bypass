@@ -71,4 +71,5 @@ dev = [
     "faster-whisper>=1.2.1",
     "wulu-geetest-bypass[all]",
     "pyrefly>=1.2.0",
+    "ruff==0.16.4",
 ]
