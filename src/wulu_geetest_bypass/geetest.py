@@ -169,7 +169,8 @@ class Geetest:
 
         return data  # type: ignore
 
-    async def resolve(self, retry: int = 3) -> Seccode:  # type: ignore
+    async def resolve(self, retry: int = 3) -> Seccode:
+        data = None
         for attempt in range(retry):
             data = await self.load()
             data = (await self.verify(data))['data']
@@ -177,7 +178,6 @@ class Geetest:
                 return data['seccode']
             if attempt < retry - 1:
                 continue
-        # pyrefly: ignore [unbound-name]
         raise VerifyError(f'verification failed after {retry} attempts: {data}')
 
     @staticmethod
@@ -286,9 +286,14 @@ class Geetest:
 
     @classmethod
     def register_solver(cls, risk: RiskType, solver: Callable | None = None):
-        """
-        用法 1: Geetest.register_solver('slide', my_slide_func)
-        用法 2:
+        """Register ``solver`` for the given ``risk`` type.
+
+        Usage 1 (direct call)::
+
+            Geetest.register_solver('slide', my_slide_func)
+
+        Usage 2 (decorator factory)::
+
             @Geetest.register_solver('slide')
             def my_slide_func(bg, slice, ypos): ...
         """
