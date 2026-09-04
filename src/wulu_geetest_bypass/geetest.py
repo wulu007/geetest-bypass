@@ -13,6 +13,7 @@ from wulu_geetest_bypass.crypto import gen_td_sign
 from wulu_geetest_bypass.track import (
     gen_click_track,
     gen_match_track,
+    gen_nine_track,
     gen_slide_track,
     gen_svg_track,
     gen_winlinze_track,
@@ -223,7 +224,7 @@ class Geetest:
         ans = {}
         match data['captcha_type']:
             case 'ai':
-                pass
+                pass  # Ai not need to solve, just return empty answer
             case 'slide':
                 set_left = solver(data['bg'], data['slice'], data['ypos'])
                 ans['setLeft'] = set_left
@@ -253,10 +254,11 @@ class Geetest:
                 ans['userresponse'] = cls._clicks_to_userresponse(clicks)
                 ans['track'], ans['passtime'] = gen_click_track(clicks)
             case 'nine':
-                ans['userresponse'] = solver(
-                    data['imgs'], data['ques'], data['nine_nums']
-                )
-                ans['passtime'] = random.randint(1000, 2000)
+                cells = solver(data['imgs'], data['ques'], data['nine_nums'])
+                if not cells:
+                    raise NotImplementedError('nine: no cells found')
+                ans['userresponse'] = cells
+                ans['track'], ans['passtime'] = gen_nine_track(cells)
             case 'phrase':
                 ret = solver(data['imgs'])
                 if ret and isinstance(ret[0], (list, tuple)) and len(ret[0]) == 2:
@@ -269,6 +271,8 @@ class Geetest:
             case 'space' | 'pencil':
                 ans['userresponse'] = solver(data['imgs'])
                 ans['passtime'] = random.randint(1000, 2000)
+                # TODO: add track generation for space/pencil captchas
+                # Currently, the track is not generated for these captcha types, but it can be implemented in the future if needed.
             case 'voice':
                 lang = data['voice_path'].split('/')[-2]
                 ans['userresponse'] = solver(data['voice_audio'], lang)

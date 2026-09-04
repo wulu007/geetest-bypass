@@ -176,3 +176,27 @@ def test_gen_click_track_no_submit():
     types = [e[3] for e in payload['p']]
     assert types.count(3) == 1
     assert types.count(2) == 1
+
+
+def test_gen_nine_track():
+    from wulu_geetest_bypass.track import TrackConfig, gen_nine_track
+
+    cells = [(1, 2), (3, 3), (2, 2)]
+    payload, duration = gen_nine_track(cells)
+
+    assert duration == payload['e'] - payload['s']
+    assert payload['m'] == 1
+    assert payload['w'] == TrackConfig.nine['w']
+    assert payload['h'] == TrackConfig.nine['h']
+    assert duration > 0
+
+    types = [e[3] for e in payload['p']]
+    # 3 cells, no submit button -> 3 DOWN + 3 END
+    assert types.count(3) == 3
+    assert types.count(2) == 3
+
+    downs = [e for e in payload['p'] if e[3] == 3]
+    for (row, col), down in zip(cells, downs, strict=False):
+        ex, ey = (col - 0.5) / 3, (row - 0.5) / 3
+        assert abs(down[1] - ex) <= TrackConfig.nine['jitter'] + 0.01
+        assert abs(down[2] - ey) <= TrackConfig.nine['jitter'] + 0.01

@@ -26,6 +26,14 @@ _TWO_CLICK_BASE: dict[str, Any] = {
     # 第一段移动到第一格的耗时占比区间
     'move_ratio': (0.35, 0.55),
 }
+# 九宫格类（nine）：3x3 铺满窗口，每次点击自动触发提交，无提交按钮。
+_NINE_BASE: dict[str, Any] = {
+    **_CLICK_BASE,
+    # 9 宫格大小（3x3）
+    'cols': 3,
+    # 全程总耗时区间（ms）
+    'passtime': (2500, 4000),
+}
 # 图片点击类（icon/word/phrase）：答案坐标基于验证图片的归一化值，
 # 再按 图片尺寸/元素尺寸 缩放到容器坐标（容器包含提交按钮区）。
 _MULTI_CLICK_BASE: dict[str, Any] = {
@@ -63,6 +71,7 @@ class TrackConfig:
     winlinze: ClassVar[dict[str, Any]] = {**_TWO_CLICK_BASE, 'jitter': 0.04}
     match: ClassVar[dict[str, Any]] = {**_TWO_CLICK_BASE, 'jitter': 0.05}
     click: ClassVar[dict[str, Any]] = {**_MULTI_CLICK_BASE, 'jitter': 0.02}
+    nine: ClassVar[dict[str, Any]] = {**_NINE_BASE, 'jitter': 0.05}
 
 
 def _random_origin(cfg: dict[str, Any]) -> Point:
@@ -256,6 +265,45 @@ def gen_click_track(
         submit = _jitter_inside(cfg['submit_xy'], cfg['jitter'] * 0.5)
         tb.move_to(*submit, moves.pop(0)).click(release_delays[-1])
 
+    events = tb.build()
+
+    return _build_payload(cfg, events), events[-1][0]
+
+
+def gen_nine_track(cells: Sequence[Point], cols: int = 3) -> tuple[TrackPayload, int]:
+    """Build a multi-click track for the nine (3x3 grid) captcha.
+
+    ``cells`` is an ordered list of 1-based ``(row, col)`` grid positions that
+    the user clicks. The grid fully fills the window (no submit button — nine
+    auto-submits when ``nine_nums`` cells are reached), so each click pair is a
+    ``DOWN`` + ``END`` with no separate submit click. Returns ``(payload,
+    duration)`` where ``col``-width grid cell centers are at
+    ``((col - 0.5) / cols, (row - 0.5) / cols)``.
+    """
+    if not cells:
+        raise ValueError('cells must not be empty')
+
+    cfg = TrackConfig.nine
+
+    targets = [
+        _jitter_inside(((col - 0.5) / cols, (row - 0.5) / cols), cfg['jitter'])
+        for row, col in cells
+    ]
+
+    passtime = random.randint(*cfg['passtime'])
+    n = len(targets)
+    release_delays = [random.randint(*cfg['release_delay']) for _ in range(n)]
+    total_release = sum(release_delays)
+    move_total = max(passtime - total_release, 1)
+
+    weights = [random.random() for _ in range(n)]
+    denom = sum(weights)
+    moves = [max(int(move_total * w / denom), 1) for w in weights]
+    moves[-1] = max(move_total - sum(moves[:-1]), 1)
+
+    tb = TrackBuilder(_random_origin(cfg))
+    for target, delay in zip(targets, release_delays, strict=False):
+        tb.move_to(*target, moves.pop(0)).click(delay)
     events = tb.build()
 
     return _build_payload(cfg, events), events[-1][0]
