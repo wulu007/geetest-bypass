@@ -9,12 +9,45 @@
 </p>
 
 <p align="center">
-| <b>English</b> | <a href="./README.zh-CN.md"><b>简体中文</b></a> |
+ <b>English</b> | <a href="./README.zh-CN.md"><b>简体中文</b></a>
 </p>
 
-A pure Python library to pass Geetest behavioral CAPTCHA v4 automatically (no Node.js required). Handles seven risk types: `ai` / `slide` / `match` / `winlinze` / `svg_seed` / `svg_icon` / `voice`, with support for custom retry, proxies, and HTTP clients.
+> A lightweight, pure Python library to automatically solve **Geetest Behavioral CAPTCHA v4** without Node.js or headless browsers. Features dynamic mouse trajectory simulation, 7 built-in risk type solvers, accessible voice bypass, and an extensible custom solver registry.
 
-## Installation
+## ✨ Features
+
+- 🚀 **Pure Python 3.11+** — Zero Node.js, headless browsers, or external runtime dependencies required.
+- 🛡️ **Multi-Risk Type Support** — Out-of-the-box solvers for 7 risk types ([see full table](#supported-risk-types)).
+- 🎯 **Human-like Track Simulation** — Dynamically generated mouse trajectories for every run (no fixed replays).
+- 🔁 **Smart Auto-Retry** — One-call `resolve()` automatically retries up to 3 times on transient failures.
+- 🕹️ **Granular Step-by-Step Flow** — Separate `load()` and `verify()` steps for intercepting payloads and tokens.
+- ♿ **Accessible Voice Bypass** — Seamlessly switch to offline speech recognition when the voice channel is enabled.
+- 🔌 **Extensible Solver Registry** — Easily plug in custom OCR / Vision models, or override built-in solvers.
+- 🌐 **Advanced Networking** — Native support for proxy chains, browser TLS fingerprint emulation, and custom headers.
+
+<a id="supported-risk-types"></a>
+## 🧩 Supported Risk Types
+
+| Type       | Description              | Dependency | Support |
+| ---------- | ------------------------ | ---------- | ------- |
+| `ai`       | Silent verification      | none       | ✅      |
+| `slide`    | Slider puzzle            | `[slide]`  | ✅      |
+| `match`    | 3×3 connect              | none       | ✅      |
+| `winlinze` | Gomoku                   | none       | ✅      |
+| `svg_seed` | SVG 3x3 image selection  | `[svg]`    | ✅      |
+| `svg_icon` | SVG 2x2 icon selection   | `[svg]`    | ✅      |
+| `voice`    | Voice verification       | `[voice]`  | ✅      |
+| `icon`     | Icon click               | none       | ❌      |
+| `word`     | Word click               | none       | ❌      |
+| `nine`     | Nine-grid                | none       | ❌      |
+| `phrase`   | Phrase recognition       | none       | ❌      |
+| `pencil`   | Doodle                   | none       | ❌      |
+| `space`    | Spatial reasoning        | none       | ❌      |
+
+The `Dependency` column refers to the [dependency groups](#installation) below. Types marked ❌ have no built-in solver — register your own via [custom solvers](#register-custom-solvers).
+
+<a id="installation"></a>
+## 📦 Installation
 
 `uv` is recommended (faster, more modern Python package manager):
 
@@ -28,7 +61,7 @@ You can also use `pip`:
 pip install "wulu-geetest-bypass[all]"
 ```
 
-Optional dependencies:
+Dependency groups (install only what you need):
 
 ```bash
 # voice verification
@@ -37,14 +70,14 @@ uv add "wulu-geetest-bypass[voice]"
 # slide puzzle (requires opencv)
 uv add "wulu-geetest-bypass[slide]"
 
-# svg SVG icon selection + slide
+# SVG icon & seed selection
 uv add "wulu-geetest-bypass[svg]"
 
-# everything
+# Install everything
 uv add "wulu-geetest-bypass[all]"
 ```
 
-## Quick Start
+## 🚀 Quick Start
 
 ```python
 import asyncio
@@ -67,87 +100,52 @@ async def main():
 asyncio.run(main())
 ```
 
-Each verification retries up to 3 times automatically (adjustable via the `retry` parameter), and raises `VerifyError` on failure.
+That is all you need for the common case. See [Advanced Usage](#advanced-usage) for retry control, the step-by-step flow, voice mode, custom solvers, and HTTP configuration.
 
-## Risk Types
+<a id="advanced-usage"></a>
+## 💡 Advanced Usage
 
-| Type       | Description              | Dependency | Support |
-| ---------- | ------------------------ | ---------- | ------- |
-| `ai`       | Silent verification      | none       | ✅      |
-| `slide`    | Slider puzzle            | `[slide]`  | ✅      |
-| `match`    | 3×3 connect              | none       | ✅      |
-| `winlinze` | Gomoku                   | none       | ✅      |
-| `svg_seed` | SVG 3x3 image selection  | `[svg]`    | ✅      |
-| `svg_icon` | SVG 2x2 icon selection   | `[svg]`    | ✅      |
-| `voice`    | Voice verification       | `[voice]`  | ✅      |
-| `icon`     | Icon click               | none       | ❌      |
-| `word`     | Word click               | none       | ❌      |
-| `nine`     | Nine-grid                | none       | ❌      |
-| `phrase`   | Phrase recognition       | none       | ❌      |
-| `pencil`   | Doodle                   | none       | ❌      |
-| `space`    | Spatial reasoning        | none       | ❌      |
+### Automatic retry and one-call `resolve()`
 
-## API
-
-### `Geetest(**options)`
-
-| Parameter         | Type                  | Description                                                  |
-| ----------------- | --------------------- | ------------------------------------------------------------ |
-| `captcha_id`      | `str`                 | Verification ID (required)                                   |
-| `risk_type`       | `RiskType`            | Risk type, default `'ai'`                                    |
-| `client_type`     | `ClientType`          | Client type, `'web'` / `'web_mobile'` / `'android'` / `'ios'` |
-| `lang`            | `Lang`                | Language, `'zho'` / `'eng'` / `'fra'` / `'deu'` and 13 more  |
-| `challenge`       | `str`                 | Custom challenge (auto-generated if omitted)                 |
-| `user_info`       | `Any`                 | Extra user info (reserved)                                   |
-| `voice`           | `bool`                | Enable accessible voice verification (requires `[voice]`)    |
-| `client_options`  | `wreq.ClientConfig`   | HTTP client config (proxy, headers, emulation, etc.)         |
-| `client`          | `wreq.Client \| None` | Custom HTTP client (takes priority over `client_options`)    |
-
-### Methods
-
-#### `load() -> dict`
-
-Fetches verification init data. The return value includes `captcha_type`, `lot_number`, `payload`, `process_token`, `pow_detail` and other fields, which can be passed directly to `verify()`.
-
-#### `verify(data) -> VerifyResponse`
-
-Submits the verification and returns the full response:
+`resolve()` is `load()` + `verify()` in one call, with automatic retry on failure:
 
 ```python
-class VerifyResponse:
-    status: str  # "success" / "fail" / "error"
-    data: VerifyData  # verification result data
-
-
-class VerifyData:
-    lot_number: str
-    result: str  # "success" / "fail"
-    fail_count: int
-    seccode: Seccode
-    score: str
-    payload: str
-    process_token: str
-    payload_protocol: int
+g = Geetest(captcha_id='your_captcha_id', risk_type='slide')
+result = await g.resolve()  # default: up to 3 attempts
+result = await g.resolve(retry=5)  # override the attempt count
 ```
 
-#### `resolve(retry=3) -> Seccode`
+On the final failure it raises `VerifyError` instead of returning a partial result.
 
-One-call `load()` + `verify()`, retries automatically on failure, returns `Seccode`:
+### Step-by-step flow: `load()` → `verify()`
+
+When you need to intervene between the two stages (log, inspect the payload, run your own recognition), call them separately:
 
 ```python
-class Seccode:
-    captcha_id: str
-    lot_number: str
-    pass_token: str
-    gen_time: str
-    captcha_output: str
+g = Geetest(captcha_id='your_captcha_id', risk_type='slide')
+data = (
+    await g.load()
+)  # init data: captcha_type, lot_number, payload, process_token, pow_detail, ...
+response = await g.verify(data)  # full response: status + data
 ```
 
-| Parameter | Type  | Description                          |
-| --------- | ----- | ------------------------------------ |
-| `retry`   | `int` | Retry count on failure, default `3`  |
+`load()` returns a dict whose fields can be passed directly into `verify()`. The return types are listed under [Data Models](#data-models).
 
-### Registering Custom Solvers
+### Accessible (voice) mode
+
+Some Geetest v4 sites enable the voice channel (accessible mode) server-side. When a site supports it, **regardless of the original risk type**, you can force voice verification via `voice=True`, bypassing the original slider / click behavioral checks:
+
+```python
+# Originally a slide verification, but the site supports accessible mode
+g = Geetest(captcha_id='your_captcha_id', risk_type='slide', voice=True)
+result = await g.resolve()
+```
+
+The flow becomes: load voice captcha → download audio → recognize digits offline → submit verification. No browser environment or image recognition needed.
+
+> **Note**: Not all sites enable the accessible channel. If unsupported, the `show_voice` field in `load()` returns `false`, and setting `voice=True` has no effect — the original `risk_type` is still used.
+
+### Register custom solvers
 
 For risk types without built-in support, inject a custom solver via `register_solver`:
 
@@ -171,29 +169,84 @@ Once registered, `generate_w()` calls it automatically with the corresponding pa
 | `pencil`                      | `(imgs: bytes) -> list`                                       |
 | `space`                       | Not built-in separately; Geetest routes `space` to `svg_icon` (solved by the SVG solver) |
 
-Built-in solvers can also be overridden:
+Built-in solvers can also be overridden, either by passing the solver directly or as a decorator:
 
 ```python
 Geetest.register_solver('slide', my_custom_slide_solver)
 ```
 
 ```python
-Geetest.register_solver('slide', my_custom_slide_solver)
+@Geetest.register_solver('slide')
+def my_custom_slide_solver(bg, slice, ypos): ...
 ```
 
-### Accessible Mode
+### Proxy and HTTP client configuration
 
-Some Geetest v4 sites enable the voice channel (accessible mode) server-side. When a site supports it, **regardless of the original risk type**, you can force voice verification via `voice=True`, bypassing the original slider / click behavioral checks.
+`Geetest` forwards all HTTP concerns to `wreq`, so proxies, custom headers, and client emulation are configured once at construction time. Pass a `ClientConfig` via `client_options`, or an already-constructed client via `client` (which takes priority):
 
 ```python
-# Originally a slide verification, but the site supports accessible mode
-g = Geetest(captcha_id='your_captcha_id', risk_type='slide', voice=True)
-result = await g.resolve()
+from wreq import Client, ClientConfig
+
+config = ClientConfig(...)  # proxy chains, headers, emulation, timeouts, ...
+
+g = Geetest(captcha_id='your_captcha_id', risk_type='slide', client_options=config)
+# equivalent, when you need to build the client yourself first:
+g = Geetest(captcha_id='your_captcha_id', risk_type='slide', client=Client(config))
 ```
 
-The flow becomes: load voice captcha → download audio → recognize digits offline → submit verification. No browser environment or image recognition needed.
+## 📖 API Reference
 
-> **Note**: Not all sites enable the accessible channel. If unsupported, the `show_voice` field in `load()` returns `false`, and setting `voice=True` has no effect — the original `risk_type` is still used.
+### Configuration — `Geetest(**options)`
+
+| Parameter         | Type                  | Description                                                  |
+| ----------------- | --------------------- | ------------------------------------------------------------ |
+| `captcha_id`      | `str`                 | Verification ID (required)                                   |
+| `risk_type`       | `RiskType`            | Risk type, default `'ai'`                                    |
+| `client_type`     | `ClientType`          | Client type, `'web'` / `'web_mobile'` / `'android'` / `'ios'` |
+| `lang`            | `Lang`                | Language, `'zho'` / `'eng'` / `'fra'` / `'deu'` and 13 more  |
+| `challenge`       | `str`                 | Custom challenge (auto-generated if omitted)                 |
+| `user_info`       | `Any`                 | Extra user info (reserved)                                   |
+| `voice`           | `bool`                | Enable accessible voice verification (requires `[voice]`)    |
+| `client_options`  | `wreq.ClientConfig`   | HTTP client config (proxy, headers, emulation, etc.)         |
+| `client`          | `wreq.Client \| None` | Custom HTTP client (takes priority over `client_options`)    |
+
+### Data models
+
+`load() -> dict` returns init data containing `captcha_type`, `lot_number`, `payload`, `process_token`, `pow_detail` and other fields, passable directly into `verify()`.
+
+`verify(data) -> VerifyResponse`:
+
+```python
+class VerifyResponse:
+    status: str  # "success" / "fail" / "error"
+    data: VerifyData  # verification result data
+
+
+class VerifyData:
+    lot_number: str
+    result: str  # "success" / "fail"
+    fail_count: int
+    seccode: Seccode
+    score: str
+    payload: str
+    process_token: str
+    payload_protocol: int
+```
+
+`resolve(retry=3) -> Seccode`:
+
+```python
+class Seccode:
+    captcha_id: str
+    lot_number: str
+    pass_token: str
+    gen_time: str
+    captcha_output: str
+```
+
+| Parameter | Type  | Description                          |
+| --------- | ----- | ------------------------------------ |
+| `retry`   | `int` | Retry count on failure, default `3`  |
 
 ### Exceptions
 
@@ -202,12 +255,16 @@ The flow becomes: load voice captcha → download audio → recognize digits off
 | `GeetestError`   | Base class of all custom exceptions                    |
 | `VerifyError`    | Verification failed (all retries exhausted)            |
 
-## Support & Updates
+## ⚖️ Disclaimer
+
+This project is for learning and research purposes only. Users should comply with applicable laws and platform terms of service; any illegal use is prohibited. The author assumes no responsibility for any legal issues arising from the use of this project.
+
+## 🤝 Support & Updates
 
 - This project continuously tracks Geetest v4 behavioral verification changes and updates the bypass logic and solvers promptly.
 - Please open an [Issue](https://github.com/wulu007/geetest-bypass/issues) if you encounter problems, and PRs are welcome.
 - If this project helps you, feel free to give it a ⭐ Star to encourage continued development.
 
-## Disclaimer
+## 📄 License
 
-This project is for learning and research purposes only. Users should comply with applicable laws and platform terms of service; any illegal use is prohibited. The author assumes no responsibility for any legal issues arising from the use of this project.
+Released under the MIT License — see [LICENSE](./LICENSE).
