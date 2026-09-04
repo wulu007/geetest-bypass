@@ -150,8 +150,8 @@ def test_gen_click_track():
 
     assert duration == payload['e'] - payload['s']
     assert payload['m'] == 1
-    assert payload['w'] == TrackConfig.click['w']
-    assert payload['h'] == TrackConfig.click['h']
+    assert payload['w'] == TrackConfig.click.w
+    assert payload['h'] == TrackConfig.click.h
     assert duration > 0
 
     types = [e[3] for e in payload['p']]
@@ -159,14 +159,14 @@ def test_gen_click_track():
     assert types.count(3) == 4
     assert types.count(2) == 4
 
-    img_w, img_h = TrackConfig.click['img_w'], TrackConfig.click['img_h']
-    el_w, el_h = TrackConfig.click['w'], TrackConfig.click['h']
+    img_w, img_h = TrackConfig.click.img_w, TrackConfig.click.img_h
+    el_w, el_h = TrackConfig.click.w, TrackConfig.click.h
     expected = [(x * img_w / el_w, y * img_h / el_h) for x, y in clicks]
 
     downs = [e for e in payload['p'] if e[3] == 3]
     for (ex, ey), down in zip(expected, downs, strict=False):
-        assert abs(down[1] - ex) <= TrackConfig.click['jitter'] + 0.01
-        assert abs(down[2] - ey) <= TrackConfig.click['jitter'] + 0.01
+        assert abs(down[1] - ex) <= TrackConfig.click.jitter + 0.01
+        assert abs(down[2] - ey) <= TrackConfig.click.jitter + 0.01
 
 
 def test_gen_click_track_no_submit():
@@ -186,8 +186,8 @@ def test_gen_nine_track():
 
     assert duration == payload['e'] - payload['s']
     assert payload['m'] == 1
-    assert payload['w'] == TrackConfig.nine['w']
-    assert payload['h'] == TrackConfig.nine['h']
+    assert payload['w'] == TrackConfig.nine.w
+    assert payload['h'] == TrackConfig.nine.h
     assert duration > 0
 
     types = [e[3] for e in payload['p']]
@@ -198,5 +198,5 @@ def test_gen_nine_track():
     downs = [e for e in payload['p'] if e[3] == 3]
     for (row, col), down in zip(cells, downs, strict=False):
         ex, ey = (col - 0.5) / 3, (row - 0.5) / 3
-        assert abs(down[1] - ex) <= TrackConfig.nine['jitter'] + 0.01
-        assert abs(down[2] - ey) <= TrackConfig.nine['jitter'] + 0.01
+        assert abs(down[1] - ex) <= TrackConfig.nine.jitter + 0.01
+        assert abs(down[2] - ey) <= TrackConfig.nine.jitter + 0.01
