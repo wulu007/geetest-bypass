@@ -85,7 +85,7 @@ asyncio.run(main())
 | `nine`     | 九宫格           | 无        | ❌    |
 | `phrase`   | 短语识别         | 无        | ❌    |
 | `pencil`   | 涂鸦             | 无        | ❌    |
-| `space`    | 空间推理         | 无        | ❓    |
+| `space`    | 空间推理         | 无        | ❌    |
 
 ## API
 
@@ -169,7 +169,7 @@ Geetest.register_solver('icon', solve_icon)
 | `phrase` | `(imgs: bytes) -> list[tuple[float, float]]` |
 | `nine` | `(imgs: bytes, ques: list[bytes], nine_nums: int) -> list[tuple[int, int]]` |
 | `pencil` | `(imgs: bytes) -> list` |
-| `space` | 同 SVG，由内置 solver 兜底 |
+| `space` | 未单独内置；极验将 `space` 路由为 `svg_icon`（由 SVG solver 处理） |
 
 内置 solver 也可被覆盖：
 

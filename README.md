@@ -85,7 +85,7 @@ Each verification retries up to 3 times automatically (adjustable via the `retry
 | `nine`     | Nine-grid                | none       | ❌      |
 | `phrase`   | Phrase recognition       | none       | ❌      |
 | `pencil`   | Doodle                   | none       | ❌      |
-| `space`    | Spatial reasoning        | none       | ❓      |
+| `space`    | Spatial reasoning        | none       | ❌      |
 
 ## API
 
@@ -169,7 +169,7 @@ Once registered, `generate_w()` calls it automatically with the corresponding pa
 | `phrase`                      | `(imgs: bytes) -> list[tuple[float, float]]`                  |
 | `nine`                        | `(imgs: bytes, ques: list[bytes], nine_nums: int) -> list[tuple[int, int]]` |
 | `pencil`                      | `(imgs: bytes) -> list`                                       |
-| `space`                       | Same as SVG, handled by built-in solver as fallback           |
+| `space`                       | Not built-in separately; Geetest routes `space` to `svg_icon` (solved by the SVG solver) |
 
 Built-in solvers can also be overridden:
 
