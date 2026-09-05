@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from collections.abc import Sequence
+from collections.abc import Callable, Sequence
 from enum import Enum
 from typing import (
     TYPE_CHECKING,
@@ -12,18 +12,22 @@ from typing import (
 )
 
 Point = tuple[int, int]
-ClickPos = Sequence[Point]
-""" [[x, y], ...]   icon/word/phrase: 位置百分比×100 """
+""" (a, b)  网格/帧索引等无单位整数坐标"""
+NormPoint = tuple[float, float]
+""" (x, y) 归一化坐标, 取值 [0, 1]（相对于验证图片）"""
+ClickPos = Sequence[NormPoint]
+""" [(x, y), ...] 归一化位置   icon/word/phrase: 点击顺序坐标 (0~1)"""
 GridIndices = Sequence[Point]
 """ [[row, col], ...]   nine: 网格索引 """
 CoordPair = Sequence[Point]
 """ [[row1, col1], [row2, col2]]   match/winlinze: 交换对 """
 TracePoints = Sequence[tuple[float, float, int]]
-""" [[x, y, t], ...]   pencil: 绘制轨迹 """
+""" [(x, y, t), ...] 归一化坐标+毫秒   pencil: 绘制轨迹 """
 SvgGridPos = tuple[int, Point]
 """ (frame, (row, col))   svg/space: 帧+网格 """
 
 if TYPE_CHECKING:
+    from wreq import Client
     from wreq.wreq import ClientConfig
 
 RiskType = Literal[
@@ -183,10 +187,11 @@ class GeetestOptions(TypedDict, total=False):
     client_type: ClientType
     challenge: str
     lang: Lang
-    """ 语言，默认zh """
+    """ 语言, 默认zh """
     user_info: Any
     voice: bool
     """ 是否转为语音验证 """
+    client: Client
     client_options: ClientConfig
     """ wreq.Client config dict """
     pt: Encryption | None
@@ -201,3 +206,21 @@ class GeetestOptions(TypedDict, total=False):
     - `Encryption.NONE` means no encryption (direct `urlsafe_encode`).
     - `Encryption.AES_RSA` and `Encryption.SM4_SM2` enable hybrid encryption.
     """
+
+
+AiSolver = Callable[[], None]
+"""ai: no-op placeholder, never invoked."""
+SlideSolver = Callable[[bytes, bytes, int], int]
+"""slide: (bg, slice, ypos) -> setLeft px"""
+SvgSolver = Callable[[str, str | bytes], SvgGridPos]
+"""svg_seed/svg_icon: (question_path, answer_path) -> (frame, (row, col))"""
+MatchSolver = Callable[[list[list[int]]], CoordPair | None]
+"""match/winlinze: (ques) -> swap pairs"""
+ClickSolver = Callable[[bytes, list[bytes]], ClickPos]
+"""icon/word: (imgs, ques) -> normalized click coords (0~1, relative to image)"""
+NineSolver = Callable[[bytes, list[bytes], int], GridIndices]
+"""nine: (imgs, ques, nine_nums) -> grid indices"""
+DrawSolver = Callable[[bytes], ClickPos | TracePoints]
+"""phrase/space/pencil: (imgs) -> normalized click coords or trace points"""
+VoiceSolver = Callable[[bytes, str], str]
+"""voice: (voice_audio, lang) -> digit sequence"""

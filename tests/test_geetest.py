@@ -15,6 +15,31 @@ async def test_risk_type(risk_type, cid):
     assert result is not None
 
 
+def test_clicks_to_userresponse():
+    clicks = [(0.7483, 0.2174), (0.1417, 0.5472), (0.305, 0.4473)]
+    assert Geetest._clicks_to_userresponse(clicks) == [
+        [7483, 2174],
+        [1417, 5472],
+        [3050, 4473],
+    ]
+
+
+def test_auto_solve_icon_click():
+    Geetest._solvers['icon'] = lambda imgs, ques: [(0.75, 0.2), (0.3, 0.5), (0.1, 0.8)]
+    try:
+        data = {
+            'captcha_type': 'icon',
+            'imgs': b'x',
+            'ques': [b'a', b'b', b'c'],
+        }
+        ans = Geetest.auto_solve(data)
+        assert ans['userresponse'] == [[7500, 2000], [3000, 5000], [1000, 8000]]
+        assert 'track' in ans and 'passtime' in ans
+        assert ans['passtime'] > 0
+    finally:
+        del Geetest._solvers['icon']
+
+
 @pytest.mark.asyncio
 async def test_slide(cid):
     g = Geetest(captcha_id=cid, risk_type='slide')

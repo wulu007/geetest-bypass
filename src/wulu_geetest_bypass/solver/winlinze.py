@@ -10,9 +10,7 @@ def solve_winlinze(grid):
             return True
         if g[0][0] == g[1][1] == g[2][2] == g[3][3] == g[4][4] != 0:
             return True
-        if g[0][4] == g[1][3] == g[2][2] == g[3][1] == g[4][0] != 0:
-            return True
-        return False
+        return g[0][4] == g[1][3] == g[2][2] == g[3][1] == g[4][0] != 0
 
     pieces = [(r, c) for r in range(5) for c in range(5) if grid[r][c] != 0]
     empty = [(r, c) for r in range(5) for c in range(5) if grid[r][c] == 0]

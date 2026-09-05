@@ -1,4 +1,6 @@
 import base64
+import hashlib
+import hmac
 import os
 
 from Crypto.Cipher import AES, PKCS1_v1_5
@@ -51,3 +53,11 @@ def build_w(plaintext: str, pt: int) -> str:
     elif pt == 2:
         return encrypt_pt2(plaintext)
     raise ValueError(f'unknown pt: {pt}')
+
+
+def gen_td_sign(lot_number: str, track_data: str) -> str:
+    return hmac.new(
+        lot_number.encode(),
+        track_data.encode(),
+        hashlib.sha256,
+    ).hexdigest()

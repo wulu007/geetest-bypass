@@ -49,6 +49,8 @@ quote-style = "single"
 indent-style = "space"
 
 [tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "SIM", "C4"]
+ignore = ["E501", "B008", "RUF002", "RUF001"]
 fixable = ['ALL']
 
 [tool.ruff.lint.isort]
@@ -60,10 +62,7 @@ split-on-trailing-comma = true
 addopts = "-s"
 
 [tool.pyrefly]
-project-includes = [
-    "**/*.py*",
-    "**/*.ipynb",
-]
+project-includes = ["**/*.py*", "**/*.ipynb"]
 
 [dependency-groups]
 dev = [
@@ -72,4 +71,5 @@ dev = [
     "faster-whisper>=1.2.1",
     "wulu-geetest-bypass[all]",
     "pyrefly>=1.2.0",
+    "ruff==0.16.4",
 ]

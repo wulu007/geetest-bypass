@@ -5,6 +5,8 @@ import numpy as np
 def solve_slide(bg_bytes: bytes, slice_bytes: bytes, ypos: int = 0) -> int:
     bg = cv2.imdecode(np.frombuffer(bg_bytes, np.uint8), cv2.IMREAD_COLOR)
     sl = cv2.imdecode(np.frombuffer(slice_bytes, np.uint8), cv2.IMREAD_UNCHANGED)
+    if bg is None or sl is None:
+        raise ValueError('Failed to decode images. Please check the input bytes.')
     bg_gray = cv2.cvtColor(bg, cv2.COLOR_BGR2GRAY)
 
     if sl.shape[2] == 4:
@@ -42,7 +44,7 @@ def solve_slide(bg_bytes: bytes, slice_bytes: bytes, ypos: int = 0) -> int:
 #     else:
 #         sl_gray = cv2.cvtColor(sl, cv2.COLOR_BGR2GRAY)
 
-#     # 按 ypos 裁剪背景搜索区域（覆盖滑块高度 + 少量余量）
+#     # 按 ypos 裁剪背景搜索区域
 #     h_sl = sl_gray.shape[0]
 #     margin = 10
 #     ys = max(0, ypos - margin)

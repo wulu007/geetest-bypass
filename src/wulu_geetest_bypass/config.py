@@ -1,5 +1,8 @@
+from typing import ClassVar
+
+
 class Config:
-    gee_guard = {
+    gee_guard: ClassVar = {
         'roe': {
             'aup': '3',
             'sep': '3',
@@ -12,7 +15,7 @@ class Config:
         }
     }
 
-    em = {
+    em: ClassVar = {
         'cp': 0,
         'ek': '11',
         'nt': 0,

@@ -1,5 +1,5 @@
 import base64
-import re
+import itertools
 
 import cv2
 import numpy as np
@@ -80,7 +80,7 @@ async def test_frame_times(cid, risk_type):
     svg, _ = await _load_svg_resources(cid, risk_type)
     frames = frame_times(svg)
     assert len(frames) == 3
-    for (s1, e1), (s2, e2) in zip(frames, frames[1:]):
+    for (s1, e1), (s2, e2) in itertools.pairwise(frames):
         assert s2 - e1 <= 1
         assert s2 > s1
         assert e2 > e1
