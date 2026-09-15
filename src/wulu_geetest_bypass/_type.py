@@ -187,10 +187,25 @@ class GeetestOptions(TypedDict, total=False):
     client_type: ClientType
     challenge: str
     lang: Lang
-    """ 语言, 默认zh """
+    """ Language, default ``"zh"`` """
     user_info: Any
+    track_enable: bool
+    """
+    Whether to enable tracking.
+
+    When enabled, Geetest will collect and submit interaction/tracking data
+    (e.g., mouse movement, click, and timing traces) during the verification
+    process.
+
+    Implementation note:
+    - In Geetest 1.9.7, additional parameters for tracking were observed.
+    - The latest production version has been reverted to 1.9.6, so those
+      additional parameters are not used in the current implementation.
+    - Defaults to False.
+    """
+
     voice: bool
-    """ 是否转为语音验证 """
+    """ Whether to use voice verification """
     client: Client
     client_options: ClientConfig
     """ wreq.Client config dict """

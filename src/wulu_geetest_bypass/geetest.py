@@ -85,6 +85,7 @@ class Geetest:
         self.lang = kwargs.get('lang', 'zh')
         self.voice = kwargs.get('voice')
         self.pt = kwargs.get('pt')
+        self.track_enable = kwargs.get('track_enable', False)
         if 'client' in kwargs:
             self.client = kwargs['client']
         else:
@@ -145,6 +146,8 @@ class Geetest:
             data['pt'] = self.pt.value
 
         ans = self.auto_solve(data)
+        if not self.track_enable:
+            ans.pop('track')
         ans['track'] = td = track_zip(ans['track']) if 'track' in ans else None
         query = {
             'callback': _callback(),
