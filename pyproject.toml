@@ -7,8 +7,8 @@ members = ["extensions/*"]
 
 [project]
 name = "wulu-geetest-bypass"
-version = "0.3.4"
-description = "Geetest CAPTCHA v4 bypass library"
+version = "0.3.5"
+description = "Pure Python Geetest v4 CAPTCHA solver with human-like track simulation, no Node.js or browser"
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = ["pycryptodome>=3.23.0", "smcryptopy>=0.2.1", "wreq>=0.12.0"]
@@ -18,6 +18,7 @@ keywords = [
     "geetest",
     "bypass",
     "captcha",
+    "captcha-solver",
     "reverse-engineering",
     "pow",
     'crack',
