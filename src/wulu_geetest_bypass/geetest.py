@@ -147,7 +147,7 @@ class Geetest:
 
         ans = self.auto_solve(data)
         if not self.track_enable:
-            ans.pop('track')
+            ans.pop('track', None)
         ans['track'] = td = track_zip(ans['track']) if 'track' in ans else None
         query = {
             'callback': _callback(),
