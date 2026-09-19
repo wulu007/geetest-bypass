@@ -1,3 +1,6 @@
+from functools import cache
+
+
 def parse_lot_string(pattern: str) -> list:
     result = []
     for part in pattern.split('+.+'):
@@ -24,9 +27,15 @@ def get_string_by_indexes(indexes: list, s: str) -> str:
     return '.'.join(parts)
 
 
+@cache
+def _parse_indexes(key: str, value: str):
+    return parse_lot_string(key), parse_lot_string(value)
+
+
 def parse_abo_pair(key: str, value: str, lot_number: str) -> dict:
-    key_str = get_string_by_indexes(parse_lot_string(key), lot_number)
-    val_str = get_string_by_indexes(parse_lot_string(value), lot_number)
+    key_indexes, val_indexes = _parse_indexes(key, value)
+    key_str = get_string_by_indexes(key_indexes, lot_number)
+    val_str = get_string_by_indexes(val_indexes, lot_number)
 
     parts = key_str.split('.')
     obj = {}
