@@ -30,3 +30,4 @@ class Config:
     lib_val = 'BoHp'
     abo_key = '(n[5:7]+n[7:9])+.+(n[20:27])+.+(n[10:10]+n[12:12]+n[3:3]+n[7:7])'
     abo_val = 'n[7:14]'
+    track_enable = True

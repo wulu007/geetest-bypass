@@ -85,7 +85,7 @@ class Geetest:
         self.lang = kwargs.get('lang', 'zh')
         self.voice = kwargs.get('voice')
         self.pt = kwargs.get('pt')
-        self.track_enable = kwargs.get('track_enable', False)
+        self.track_enable = kwargs.get('track_enable', Config.track_enable)
         if 'client' in kwargs:
             self.client = kwargs['client']
         else:
