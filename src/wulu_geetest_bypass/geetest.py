@@ -20,7 +20,7 @@ from wulu_geetest_bypass.track import (
     track_zip,
 )
 
-from ._exceptions import VerifyError
+from ._exceptions import RateLimitError, VerifyError
 from ._type import (
     GeetestOptions,
     RiskType,
@@ -106,11 +106,8 @@ class Geetest:
         }
         if self.voice:
             params['switch_to'] = 'voice'
-        try:
-            resp = await self.client.get(f'{self.BASE_URL}/load', query=params)
-            data = _unwrap_jsonp(await resp.text())
-        except Exception as e:
-            raise RuntimeError(f'load request failed: {e}') from e
+
+        data = await self._get_jsonp('/load', params, 'load')
 
         d = data.get('data')
         if not isinstance(d, dict):
@@ -123,6 +120,18 @@ class Geetest:
             return await resp.bytes()
         except Exception as e:
             raise RuntimeError(f'load resource failed: {e}') from e
+
+    async def _get_jsonp(self, path: str, query: dict, what: str) -> dict:
+        try:
+            resp = await self.client.get(f'{self.BASE_URL}{path}', query=query)
+        except Exception as e:
+            raise RuntimeError(f'{what} request failed: {e}') from e
+        if resp.status == 429:
+            raise RateLimitError(f'{what} request rate limited (HTTP 429)')
+        try:
+            return _unwrap_jsonp(await resp.text())
+        except Exception as e:
+            raise RuntimeError(f'{what} request failed: {e}') from e
 
     async def verify(self, data) -> VerifyResponse:
         if data['captcha_type'] == 'slide':
@@ -164,13 +173,7 @@ class Geetest:
         if td is not None:
             query['td'] = td
 
-        try:
-            resp = await self.client.get(f'{self.BASE_URL}/verify', query=query)
-            data = _unwrap_jsonp(await resp.text())
-        except Exception as e:
-            raise RuntimeError(f'verify request failed: {e}') from e
-
-        return data  # type: ignore
+        return await self._get_jsonp('/verify', query, 'verify')  # type: ignore
 
     async def resolve(self, retry: int = 3) -> Seccode:
         data = None
