@@ -60,6 +60,7 @@ def _grid_svgs(svg: str) -> list[str]:
                 end = t.index(')', idx)
                 after = t[end:]
                 after = re.sub(r'scale\([\d.]+\)', f'scale({scale})', after)
+                after = re.sub(r'rotate\([\d.]+\)', 'rotate(0)', after)
                 g_attrib['transform'] = t[:idx] + f'translate({cx},{cy}' + after
 
             if not styled:
@@ -98,12 +99,20 @@ def _decode_hint(hint: str | bytes) -> bytes:
     raise TypeError('hint must be str or bytes')
 
 
+def _hint_to_edge(hint: str | bytes) -> np.ndarray:
+    hint_png = _decode_hint(hint)
+    # Geetest has enhanced the interference of Hint
+    # Apply denoising and smoothing to the hint
+    denoised = cv2.medianBlur(_rgba_to_gray(hint_png), 3)
+    smooth = cv2.bilateralFilter(denoised, d=5, sigmaColor=50, sigmaSpace=50)
+    return cv2.Canny(smooth, 50, 150)
+
+
 def match(svg: str, hint: str | bytes) -> list[dict]:
     if not isinstance(svg, str) or not svg.strip():
         raise TypeError('svg must be a non-empty string')
 
-    hint_png = _decode_hint(hint)
-    hint_edge = cv2.Canny(_rgba_to_gray(hint_png), 50, 150)
+    hint_edge = _hint_to_edge(hint)
     results = []
 
     for grid_svg in _grid_svgs(svg):
