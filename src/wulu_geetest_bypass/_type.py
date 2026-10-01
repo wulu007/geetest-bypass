@@ -163,15 +163,29 @@ class Seccode(TypedDict):
     captcha_output: str
 
 
-class VerifyData(TypedDict):
+VerifyResult = Literal['success', 'fail', 'continue', 'forbidden']
+"""``/verify`` ``result`` values recognised by the client SDK; anything else is an error."""
+
+
+class _VerifyDataBase(TypedDict):
     lot_number: str
-    result: str
     fail_count: int
-    seccode: Seccode
     score: str
     payload: str
     process_token: str
     payload_protocol: int
+
+
+class VerifyDataSuccess(_VerifyDataBase):
+    result: Literal['success']
+    seccode: Seccode
+
+
+class VerifyDataFail(_VerifyDataBase):
+    result: Literal['fail', 'forbidden', 'continue']
+
+
+VerifyData = VerifyDataSuccess | VerifyDataFail
 
 
 class VerifyResponse(TypedDict):

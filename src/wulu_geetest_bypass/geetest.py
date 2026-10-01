@@ -172,15 +172,16 @@ class Geetest:
         return await self._get_jsonp('/verify', query, 'verify')  # type: ignore
 
     async def resolve(self, retry: int = 3) -> Seccode:
-        data = None
-        for attempt in range(retry):
+        """``load`` + ``verify``, retrying ``fail``; ``forbidden`` aborts at once."""
+        for attempt in range(1, retry + 1):
             data = await self.load()
             data = (await self.verify(data))['data']
             if data['result'] == 'success':
                 return data['seccode']
-            if attempt < retry - 1:
-                continue
-        raise VerifyError(f'verification failed after {retry} attempts: {data}')
+            if data['result'] == 'forbidden' or attempt == retry:
+                # pyrefly: ignore [bad-argument-type]
+                raise VerifyError(data, attempt)
+        raise ValueError('retry must be >= 1')
 
     @staticmethod
     def generate_w(data: WPayload, ans: dict) -> str:

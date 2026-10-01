@@ -4,15 +4,13 @@ from importlib.resources import files
 import miniaudio
 import numpy as np
 
-from wulu_geetest_bypass._exceptions import VerifyError
-
 
 def solve_voice(mp3_bytes: bytes, lang: str = '') -> str:
     sr = 16000
     audio = _load_audio(mp3_bytes, sr)
     segs = _split_by_silence(audio, sr)
     if len(segs) != 7:
-        raise VerifyError(
+        raise RuntimeError(
             f'voice segmentation failed: expected 7 segments (prompt + 6 digits), got {len(segs)}'
         )
     if lang:
