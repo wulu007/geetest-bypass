@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "wulu-geetest-bypass-voice"
-version = "0.1.1"
+version = "0.1.2"
 description = "Offline voice solver (MFCC) for wulu-geetest-bypass"
 readme = "README.md"
 requires-python = ">=3.11"

@@ -1078,7 +1078,7 @@ dev = [
 
 [[package]]
 name = "wulu-geetest-bypass-voice"
-version = "0.1.1"
+version = "0.1.2"
 source = { editable = "extensions/wulu-geetest-bypass-voice" }
 dependencies = [
     { name = "miniaudio" },

@@ -31,7 +31,7 @@ Repository = "https://github.com/wulu007/geetest-bypass.git"
 Issues = "https://github.com/wulu007/geetest-bypass/issues"
 
 [project.optional-dependencies]
-voice = ["wulu-geetest-bypass-voice"]
+voice = ["wulu-geetest-bypass-voice>=0.1.2"]
 svg = ["pillow>=12.2.0", "resvg-py>=0.3.2", "wulu-geetest-bypass[image]"]
 slide = ["wulu-geetest-bypass[image]"]
 image = ["opencv-python-headless>=4.13.0.92"]
