@@ -1,52 +1,67 @@
 # wulu-geetest-bypass
 
-Geetest CAPTCHA v4 bypass library. Pure Python 3.11+, no Node.js.
+Geetest CAPTCHA v4 bypass library. Pure Python 3.11+ at runtime — no Node.js, no browser.
 
 ## Commands
 
 ```bash
-# install
-uv sync --dev
-uv sync --extra svg        # svg solver (pillow, resvg-py, opencv)
-uv sync --extra slide      # slide solver (opencv)
+# install: dev group + every workspace member (extensions/*)
+uv sync
 
 # run all tests
 uv run pytest tests/
 
 # focused test
-uv run pytest tests/ -k test_svg_seed  -v
+uv run pytest tests/ -k test_svg_seed -v
 
-# lint (ruff — only import sorting)
-uv run ruff check --fix src/
-uv run ruff format src/
+# extension tests
+uv run pytest extensions/wulu-geetest-bypass-voice/tests/
+
+# lint, then format — order matters, --fix rewrites imports
+uv run ruff check --fix
+uv run ruff format
+
+# type check (local only, not in CI)
+uv run pyrefly check
 
 # build
 uv build
+uv build extensions/wulu-geetest-bypass-voice
 
-# publish (requires PyPI token)
+# publish (requires a PyPI token)
 uv publish
 ```
 
-- Ruff config: single quotes, `I` rule only (import sorting).
-- `ruff check` → `ruff format` — order matters when `--fix` rewrites imports.
-- pytest has `addopts = "-s"` (stdout not captured).
-- CI lint runs `uvx ruff check` (no install needed), publish on tag push only.
+- Ruff: `select = [E, F, I, B, UP, SIM, C4]`, `ignore = [E501, B008, RUF001, RUF002]`, single quotes.
+- pytest: `addopts = "-s"` (stdout not captured).
+- pyrefly suppressions are inline: `# pyrefly: ignore [code]`.
+- Git hooks are `prek` (`prek.toml`): trailing-whitespace, end-of-file-fixer, check-added-large-files, `ruff-check --fix`, `ruff-format`.
+- CI (`ci.yml`) runs **only** `uvx ruff check` + `uvx ruff format --check` on Python 3.11 — no tests. Publishing runs on `v[0-9]*` tags; `publish-voice.yml` publishes the extension on `voice-v*` tags.
 
 ## Architecture
 
-- **`Geetest`** (`geetest.py:34`): main class. Flow: `load()` → `verify()` (calls `generate_w()` internally) → returns `Seccode`. User-facing: `resolve(retry=3)` wraps both.
-- **Solvers** in `solver/`: lazy-loaded via `__getattr__` — missing optional deps return a stub raising `ImportError`. Solvers: `match.py` (3×3), `slide.py` (opencv gradient morphology + TM_CCOEFF_NORMED), `svg.py` (svg_seed + svg_icon, auto grid detection), `winlinze.py` (goban). Third-party solvers register via the `wulu_geetest_bypass.solvers` entry point group (see `discover_plugins()`), merged into `Geetest._solvers` at import time.
-- **`crypto.py`**: `build_w()` encrypts payload. `pt=0` → base64, `pt=1` → AES-128-CBC + RSA-1024, `pt=2` → SM4-CBC + SM2.
-- **`config.py`**: auto-updated daily by cron CI (`scripts/update_config.py` runs `scripts/extract-config.mjs` with Node.js). Patrol config values change; `em`, `gee_guard`, and constants do not.
-- **Voice solver**: fully externalized to `extensions/wulu-geetest-bypass-voice/` (package `wulu-geetest-bypass-voice`, installed via the `voice` extra). Contains the entire MFCC digit recognition engine (`solver.py`: `solve_voice`, MFCC/delta/silence-split pipeline), `.npz` templates (files named `{lang}.npz`) for 12 languages, and the `wulu_geetest_bypass.solvers` entry point `voice = "wulu_geetest_bypass_voice.solver:solve_voice"`. Run `scripts/build_voice_templates.py` to regenerate templates. Package metadata and README in `extensions/wulu-geetest-bypass-voice/`.
+- **`Geetest`** (`geetest.py:55`): the whole client. `load()` → `auto_solve()` → `generate_w()` → `verify()`; `resolve(retry=3)` wraps that loop. `_solvers` maps `captcha_type` → solver, `register_solver()` overrides entries.
+- **`_type.py`**: every TypedDict and Literal — `RiskType` / `ClientType` / `Lang`, one payload shape per captcha type unioned into `WPayload`, `Seccode`, `VerifyData` / `VerifyResponse`, `Encryption`, `GeetestOptions`, and the solver `Callable` aliases.
+- **`parser/`**: `generate_pow()` (proof-of-work) and `parse_abo_pair()` (the per-build `abo` key/value pair). Pure stdlib.
+- **`crypto.py`**: `build_w()` encrypts the payload — `pt=0` base64url, `pt=1` AES-128-CBC + RSA-1024, `pt=2` SM4-CBC + SM2. `gen_td_sign()` is HMAC-SHA256 over the track.
+- **`config.py`**: `Config.from_static_path()` turns the `/load` `static_path` into a `Patrol` (`biht`, `lib_key`/`lib_val`, `abo_key`/`abo_val`, `track_enable`) read from `data/<major>-config.json`. There is deliberately no fallback — an unrecorded build raises `ConfigError`. `register_patrol()` adds or overrides an entry. `Config.em` and `Config.gee_guard` are constants and are not in the JSON.
+- **`solver/`**: lazy-loaded through module `__getattr__` — a missing optional dep returns a stub raising `ImportError` that names the extra to install. `match.py` and `winlinze.py` are pure Python; `slide.py` needs the `slide` extra (opencv); `svg.py` needs the `svg` extra (resvg-py + pillow + opencv) and also exports `frame_times()`. Third-party solvers register under the `wulu_geetest_bypass.solvers` entry point group (entry point name = `captcha_type`); `discover_plugins()` collects them into `Geetest._solvers` at import time.
+- **`track/`**: `TrackBuilder` (bezier + jitter) plus the `gen_*_track()` generators in `generators.py`; `track_zip()` / `track_unzip()` implement the SDK's track codec; `types.py` holds `TrackType` / `PointerType` / `TrackPayload`.
+- **`_exceptions.py`**: `GeetestError` (base), `ConfigError`, `RateLimitError`, `VerifyError`. None of them are re-exported from `__init__.py`.
+- **`extensions/*`** are uv workspace members. `wulu-geetest-bypass-voice` is the offline MFCC digit recogniser (`solve_voice`): it ships `{lang}.npz` templates for 12 languages and registers the `voice` entry point. Regenerate templates with `scripts/build_voice_templates.py`.
 
 ## Key gotchas
 
-- Use `uv` not `pip`. Virtual env is `.venv`.
-- Optional dep chain: `image` (opencv) is intermediate → `slide` depends on `image`, `svg` depends on `image` + pillow + resvg-py.
-- Solver lazy loading: `from wulu_geetest_bypass.solver import solve_slide` raises `ImportError` if opencv missing, with install hint.
-- SVG solver (`svg.py`): `_grid_svgs()` extracts grid SVGs by `geetest_frame_hash` / `geetest_grid_hash`. Auto-detects 4-grid (2 cols) vs 9-grid (3 cols). Uses `resvg_py` for SVG→PNG rasterization.
-- Slide solver (`slide.py`): morphology gradient (3×3 rect) + `TM_CCOEFF_NORMED`. Alpha channel → background forced to 0 (eliminates white-space bias).
-- Custom solver registration: `Geetest.register_solver('icon', my_func)`.
-- Never commit without explicit request. Conventional commits: `feat:`, `fix:`, `chore:`, `test:`, `docs:`, `refactor:`, `revert:`.
-- Daily config-update CI (`update-config.yml`) commits to `main` directly and bumps patch version + tags.
+- Use `uv`, not `pip`. Interpreter is 3.11 (`.python-version`); the venv is `.venv`.
+- The extras (`voice`, `slide`, `svg`, `image`, `all`) are for downstream installs. In this repo `uv sync` already brings in every workspace member and dev dependency.
+- `tests/test_geetest.py` and `tests/test_svg.py` call the live Geetest API (`conftest.py` holds the `captcha_id`) and dump images into `resources/` (gitignored). They need network, and results depend on the exit IP.
+- `scripts/extract-config.mjs` is the only Node.js piece. CI runs it daily; locally it accepts `--dry-run` or a local SDK file (which implies `--dry-run`).
+- `Geetest.default_headers` deliberately omits `Referer`: a real browser on a `file://` page sends none, and sending the geetest one flips some sites to `fail`.
+- Client emulation defaults to `Emulation.Chrome147`. Switching it to `Edge147` gets `forbidden` from at least one production site.
+- `GeetestOptions` declares `challenge` and `user_info`, but `Geetest.__init__` ignores both.
+- `client_options` is annotated `ClientConfig`, but `wreq` exports no such name — it is a plain kwargs dict splatted into `Client(**client_options)`.
+- `TrackBuilder._compress` mirrors the SDK's track downsampler (`gg4.js` `$_BHGR`): head + newest moves + every action. It deliberately does **not** re-sort by timestamp.
+- `.shatter/` (gitignored) holds the deobfuscated `gg4.js` / `gcaptcha4_deob.js` — the reference for track, crypto and config behaviour.
+- Untracked local scratch can break repo-wide `ruff` / `pytest` runs; scope the command or check `git status` first.
+- Never commit without an explicit request. Conventional commits: `feat:`, `fix:`, `chore:`, `test:`, `docs:`, `refactor:`, `revert:`.
+- Daily `update-config.yml` (23:00 UTC) re-extracts `data/*.json` from live sites, bumps the patch version, commits straight to `main` and pushes the tag.
