@@ -41,7 +41,7 @@ jobs:
         uses: stefanzweifel/git-auto-commit-action@v7
         with:
           commit_message: "chore: update geetest config to ${{ steps.update.outputs.GEETEST_VER }} [auto]"
-          file_pattern: 'src/wulu_geetest_bypass/data/*.json pyproject.toml'
+          file_pattern: 'src/wulu_geetest_bypass/data/*.json pyproject.toml uv.lock'
           commit_user_name: 'bot'
           commit_user_email: 'dabaobeix@gmail.com'
           tagging_message: 'v${{ steps.bump.outputs.version }}'
