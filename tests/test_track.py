@@ -5,6 +5,7 @@ from itertools import pairwise
 from wulu_geetest_bypass.track import (
     _PERCENT_PRECISION,
     TrackBuilder,
+    TrackType,
     track_unzip,
     track_zip,
 )
@@ -140,6 +141,73 @@ def test_gen_time():
     for _, x, y, _track_type in t:
         assert x == round(x, _PERCENT_PRECISION)
         assert y == round(y, _PERCENT_PRECISION)
+
+
+def test_compress_keeps_head_and_every_action():
+    """``_compress`` ports the SDK's ``$_BHGR``: head + newest moves + all actions.
+
+    Regression: the head used to be rebuilt from ``start_point`` *and* re-emitted by
+    the non-move bucket, so it showed up twice and the result overshot ``max_points``.
+    The head is index 0 whatever its type -- ``down()``/``end()`` can rewrite the START.
+    """
+    builders = [
+        TrackBuilder((0.3, 0.8))
+        .move_to(0.5, 0.5, 3000)
+        .down()
+        .move_to(0.9, 0.9, 3000)
+        .end(),
+        TrackBuilder((0.4, 0.6))
+        .move_to(0.5, 0.5, 2000)
+        .click(100)
+        .move_to(0.8, 0.8, 2000)
+        .click(100),
+        TrackBuilder((0.3, 0.8)).down().move_to(0.9, 0.9, 6000).end(),
+    ]
+    for tb in builders:
+        tb.max_points = 10_000
+        full = tb.build()
+        tb.max_points = 150
+        t = tb.build()
+
+        assert len(full) > tb.max_points
+        moves_kept = [p for p in t if p[3] == TrackType.MOVE]
+        moves_full = [p for p in full if p[3] == TrackType.MOVE]
+
+        assert len(t) == tb.max_points
+        assert t[0] == full[0]  # head survives
+        assert sum(p == full[0] for p in t) == 1  # ...and only once
+        assert t[-1] == full[-1]
+        # every action survives, in the original order
+        assert [p for p in t[1:] if p[3] != TrackType.MOVE] == [
+            p for p in full[1:] if p[3] != TrackType.MOVE
+        ]
+        # the moves that survive are the newest ones
+        assert moves_kept == moves_full[-len(moves_kept) :]
+
+
+def test_generated_tracks_keep_a_single_head():
+    """The shipped payloads must carry the START point exactly once."""
+    from wulu_geetest_bypass.track import (
+        gen_click_track,
+        gen_match_track,
+        gen_nine_track,
+        gen_slide_track,
+        gen_svg_track,
+        gen_winlinze_track,
+    )
+
+    payloads = [
+        gen_slide_track(120)[0],
+        gen_svg_track((1, 1), 3, 1200),
+        gen_click_track([(0.2, 0.3), (0.5, 0.5), (0.8, 0.7)])[0],
+        gen_nine_track([(1, 1), (2, 2), (3, 3)])[0],
+        gen_match_track(((0, 0), (1, 1)))[0],  # passtime >= 4500ms -> always compresses
+        gen_winlinze_track(((0, 0), (1, 1)))[0],
+    ]
+    for payload in payloads:
+        types = [e[3] for e in payload['p']]
+        assert types[0] == TrackType.START
+        assert types.count(TrackType.START) == 1
 
 
 def test_gen_click_track():

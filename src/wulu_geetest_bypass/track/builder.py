@@ -205,13 +205,17 @@ class TrackBuilder:
         if len(track) <= self.max_points:
             return track
 
-        # Separate regular move points from key action points
-        moves = [p for p in track if p[3] == TrackType.MOVE]
-        non_moves = [p for p in track if p[3] != TrackType.MOVE]
+        # The head is index 0 whatever its type (down()/end() can rewrite the
+        # START), so drop it positionally -- the SDK's loop starts at 1 for this.
+        first = track[0]
+        rest = track[1:]
+        moves = [p for p in rest if p[3] == TrackType.MOVE]
+        actions = [p for p in rest if p[3] != TrackType.MOVE]
+        if len(actions) >= self.max_points:
+            return [first, *actions[-(self.max_points - 1) :]]
 
         # Pick the newest points near the end first
-        first = (0, *self.start_point, TrackType.START)
-        need = self.max_points - len(self.down_points) - 2
+        need = self.max_points - len(actions) - 1
         end_time = track[-1][0]
         near_end = [p for p in moves if end_time - p[0] <= self.keep_before_click]
         selected = near_end[-need:] if len(near_end) >= need else near_end[:]
@@ -226,4 +230,4 @@ class TrackBuilder:
                 need_more -= 1
 
         # Merge back; insertion order already keeps chronological order
-        return [first, *selected, *non_moves]
+        return [first, *selected, *actions]
