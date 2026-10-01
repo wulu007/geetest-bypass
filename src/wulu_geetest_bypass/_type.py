@@ -83,6 +83,8 @@ class BasePayload(TypedDict):
     lot_number: str
     pow_detail: dict[str, Any]
     guard: bool
+    captcha_mode: Literal['adaptive', 'risk_manage', 'headless']
+    """Verification mode the ``captcha_id`` is configured with on the server side."""
     static_path: str
     """SDK build the site is serving, e.g. ``/v4/static/v1.9.7-fc2ddc``."""
     pt: int | str

@@ -20,7 +20,7 @@ from wulu_geetest_bypass.track import (
     track_zip,
 )
 
-from ._exceptions import RateLimitError, VerifyError
+from ._exceptions import ApiError, RateLimitError, VerifyError
 from ._type import (
     GeetestOptions,
     RiskType,
@@ -104,12 +104,7 @@ class Geetest:
         if self.voice:
             params['switch_to'] = 'voice'
 
-        data = await self._get_jsonp('/load', params, 'load')
-
-        d = data.get('data')
-        if not isinstance(d, dict):
-            raise RuntimeError('load response missing data field')
-        return d
+        return (await self._get_jsonp('/load', params, 'load'))['data']
 
     async def _load_resource(self, path: str) -> bytes:
         try:
@@ -126,9 +121,12 @@ class Geetest:
         if resp.status == 429:
             raise RateLimitError(f'{what} request rate limited (HTTP 429)')
         try:
-            return _unwrap_jsonp(await resp.text())
+            data = _unwrap_jsonp(await resp.text())
         except Exception as e:
             raise RuntimeError(f'{what} request failed: {e}') from e
+        if data.get('status') == 'error':
+            raise ApiError(what, data)
+        return data
 
     async def verify(self, data) -> VerifyResponse:
         if data['captcha_type'] == 'slide':
