@@ -83,6 +83,8 @@ class BasePayload(TypedDict):
     lot_number: str
     pow_detail: dict[str, Any]
     guard: bool
+    static_path: str
+    """SDK build the site is serving, e.g. ``/v4/static/v1.9.7-fc2ddc``."""
     pt: int | str
     """
     Protocol type. Controls whether encryption is applied and which algorithm is used:
@@ -201,7 +203,8 @@ class GeetestOptions(TypedDict, total=False):
     - In Geetest 1.9.7, additional parameters for tracking were observed.
     - The latest production version has been reverted to 1.9.6, so those
       additional parameters are not used in the current implementation.
-    - Defaults to False.
+    - When omitted, the value recorded for the build the site serves is used
+      (see ``data/*-config.json``).
     """
 
     voice: bool
