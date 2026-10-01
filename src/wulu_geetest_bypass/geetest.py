@@ -85,7 +85,7 @@ class Geetest:
         self.lang = kwargs.get('lang', 'zh')
         self.voice = kwargs.get('voice')
         self.pt = kwargs.get('pt')
-        self.track_enable = kwargs.get('track_enable', Config.track_enable)
+        self.track_enable = kwargs.get('track_enable')  # None = follow the served build
         if 'client' in kwargs:
             self.client = kwargs['client']
         else:
@@ -155,7 +155,8 @@ class Geetest:
             data['pt'] = self.pt.value
 
         ans = self.auto_solve(data)
-        if not self.track_enable:
+        cfg = Config.from_static_path(data.get('static_path'))
+        if not (cfg.track_enable if self.track_enable is None else self.track_enable):
             ans.pop('track', None)
         ans['track'] = td = track_zip(ans['track']) if 'track' in ans else None
         query = {
@@ -190,11 +191,12 @@ class Geetest:
     def generate_w(data: WPayload, ans: dict) -> str:
         lot_number = data['lot_number']
         pow_detail = data['pow_detail']
+        cfg = Config.from_static_path(data.get('static_path'))
         payload = {
             **generate_pow(lot_number, data['captcha_id'], **pow_detail),
-            **parse_abo_pair(Config.abo_key, Config.abo_val, lot_number),
-            Config.lib_key: Config.lib_val,
-            'biht': Config.biht,
+            **parse_abo_pair(cfg.abo_key, cfg.abo_val, lot_number),
+            cfg.lib_key: cfg.lib_val,
+            'biht': cfg.biht,
             'device_id': '',
             'em': Config.em,
             'ep': '123',

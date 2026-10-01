@@ -39,7 +39,10 @@ all = ["wulu-geetest-bypass[voice,slide,svg]"]
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/wulu_geetest_bypass"]
-exclude = ["tests/", "scripts/"]
+exclude = ["tests/", "scripts/", "src/wulu_geetest_bypass/data/*.json"]
+
+[tool.hatch.build.targets.wheel.hooks.custom]
+path = "scripts/hatch_build.py"
 
 [tool.uv.sources]
 wulu-geetest-bypass = { workspace = true }
