@@ -1,0 +1,1019 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Geetest v4 调试台</title>
+    <style>
+      :root {
+        --bg: #f5f6f8;
+        --panel: #ffffff;
+        --border: #e4e7ec;
+        --text: #1f2329;
+        --muted: #8a9099;
+        --accent: #2f6fed;
+        --accent-weak: #edf2fe;
+        --ok: #0b8a4b;
+        --warn: #b7791f;
+        --err: #d93025;
+        --code: #f4f5f7;
+        --radius: 10px;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        height: 100vh;
+        height: 100dvh;
+        display: flex;
+        flex-direction: column;
+        background: var(--bg);
+        color: var(--text);
+        font:
+          14px/1.6 -apple-system,
+          BlinkMacSystemFont,
+          'Segoe UI',
+          'PingFang SC',
+          'Microsoft YaHei',
+          sans-serif;
+      }
+      code,
+      pre,
+      textarea,
+      input,
+      select {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      }
+      header {
+        flex: none;
+        padding: 18px 20px 14px;
+        background: var(--panel);
+        border-bottom: 1px solid var(--border);
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        flex-wrap: wrap;
+      }
+      header h1 {
+        margin: 0;
+        font-size: 17px;
+        font-weight: 600;
+      }
+      header .sub {
+        color: var(--muted);
+        font-size: 12px;
+      }
+      header .spacer {
+        flex: 1;
+      }
+      .wrap {
+        display: grid;
+        grid-template-columns: minmax(340px, 430px) minmax(0, 1fr);
+        gap: 16px;
+        align-items: start;
+        grid-template-rows: minmax(0, 1fr);
+        flex: 1;
+        min-height: 0;
+        width: 100%;
+        max-width: 1440px;
+        margin: 0 auto;
+        padding: 16px 20px 24px;
+      }
+      @media (max-width: 980px) {
+        .wrap {
+          grid-template-columns: 1fr;
+        }
+      }
+      .panel {
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 14px 16px 16px;
+      }
+      .panel > h2 {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        margin: 0 0 12px;
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+      }
+      .copy {
+        padding: 2px 8px;
+        font-size: 11px;
+        font-weight: 400;
+        text-transform: none;
+        letter-spacing: 0;
+        color: var(--muted);
+        background: transparent;
+      }
+      .panel-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        margin-bottom: 12px;
+      }
+      .tabs {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 4px;
+        padding: 3px;
+        background: var(--code);
+        border-radius: 8px;
+      }
+      .tab {
+        border: 0;
+        padding: 5px 12px;
+        font-size: 12px;
+        border-radius: 6px;
+        background: transparent;
+        color: var(--muted);
+      }
+      .tab:hover {
+        background: #fff;
+      }
+      .tab.active {
+        background: #fff;
+        color: var(--text);
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px 12px;
+      }
+      .field {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        min-width: 0;
+      }
+      .field.full {
+        grid-column: 1 / -1;
+      }
+      label {
+        font-size: 12px;
+        color: var(--muted);
+      }
+      input[type='text'],
+      input[type='number'],
+      select,
+      textarea {
+        width: 100%;
+        padding: 7px 9px;
+        border: 1px solid var(--border);
+        border-radius: 7px;
+        background: #fff;
+        color: var(--text);
+        font-size: 13px;
+        outline: none;
+      }
+      input:focus,
+      select:focus,
+      textarea:focus {
+        border-color: var(--accent);
+        box-shadow: 0 0 0 3px var(--accent-weak);
+      }
+      textarea {
+        resize: vertical;
+        min-height: 60px;
+      }
+      .hint {
+        font-size: 11px;
+        color: var(--muted);
+      }
+      button {
+        border: 1px solid var(--border);
+        background: #fff;
+        color: var(--text);
+        padding: 7px 13px;
+        border-radius: 7px;
+        font-size: 13px;
+        cursor: pointer;
+        transition: 0.15s;
+      }
+      button:hover {
+        border-color: #c9cfd8;
+        background: #fafbfc;
+      }
+      button.primary {
+        background: var(--accent);
+        border-color: var(--accent);
+        color: #fff;
+      }
+      button.primary:hover {
+        background: #2a63d4;
+      }
+      button:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+      .row {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        margin-top: 14px;
+      }
+      .check {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 12px;
+        color: var(--text);
+      }
+      .check input {
+        margin: 0;
+      }
+      details {
+        margin-top: 12px;
+        border-top: 1px dashed var(--border);
+        padding-top: 10px;
+      }
+      details > summary {
+        cursor: pointer;
+        font-size: 12px;
+        color: var(--muted);
+        user-select: none;
+      }
+      .stage {
+        align-self: stretch;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+        min-height: 0;
+      }
+      .stage > .panel {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        min-height: 0;
+      }
+      .tab-body {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        min-height: 0;
+      }
+      .tab-body[hidden] {
+        display: none;
+      }
+      .tab-body > .log,
+      .tab-body > pre {
+        flex: 1;
+        min-height: 0;
+      }
+      .log {
+        overflow: auto;
+        background: var(--code);
+        border-radius: 8px;
+        padding: 8px 10px;
+        font-size: 12px;
+        line-height: 1.75;
+      }
+      .log-line {
+        display: flex;
+        gap: 8px;
+        white-space: pre-wrap;
+        word-break: break-all;
+      }
+      .log-line .t {
+        color: var(--muted);
+        flex: none;
+      }
+      .log-line .lv {
+        flex: none;
+        font-weight: 600;
+      }
+      .lv.info {
+        color: var(--muted);
+      }
+      .lv.ok {
+        color: var(--ok);
+      }
+      .lv.warn {
+        color: var(--warn);
+      }
+      .lv.err {
+        color: var(--err);
+      }
+      pre {
+        margin: 0;
+        background: var(--code);
+        border-radius: 8px;
+        padding: 10px 12px;
+        font-size: 12px;
+        overflow: auto;
+        white-space: pre-wrap;
+        word-break: break-all;
+      }
+      .empty {
+        color: var(--muted);
+        font-size: 12px;
+      }
+      .note {
+        max-width: 1440px;
+        margin: 12px auto -4px;
+        padding: 0 20px;
+        font-size: 12px;
+        color: var(--muted);
+        line-height: 1.6;
+      }
+      .note code {
+        background: var(--code);
+        border-radius: 4px;
+        padding: 1px 5px;
+      }
+      .banner {
+        border-radius: 8px;
+        padding: 8px 10px;
+        font-size: 12px;
+        margin-bottom: 12px;
+        line-height: 1.5;
+      }
+      .banner.warn {
+        background: #fff8e6;
+        border: 1px solid #f5e0a3;
+        color: #7a5b12;
+      }
+      .banner.err {
+        background: #fdecea;
+        border: 1px solid #f5c2bd;
+        color: #8c1d18;
+      }
+      .chip {
+        font-size: 12px;
+        padding: 3px 10px;
+        border-radius: 999px;
+        border: 1px solid var(--border);
+        background: #fff;
+        color: var(--muted);
+        white-space: nowrap;
+      }
+      .chip.load {
+        color: #7a5b12;
+        border-color: #f5e0a3;
+        background: #fff8e6;
+      }
+      .chip.ok {
+        color: var(--ok);
+        border-color: #bfe3cd;
+        background: #eefaf3;
+      }
+      .chip.err {
+        color: var(--err);
+        border-color: #f3c6c2;
+        background: #fdecea;
+      }
+    </style>
+  </head>
+
+  <body>
+    <header>
+      <h1>Geetest v4 调试台</h1>
+      <span class="sub">加载官方 gt4.js，自定义参数走完整前端验证流程</span>
+      <span class="chip" id="status">未初始化</span>
+      <span class="spacer"></span>
+      <button id="btn-init" class="primary">初始化验证码</button>
+      <button id="btn-sdk">重新加载 SDK</button>
+      <button id="btn-reset">重置配置</button>
+      <button id="btn-copy">复制配置</button>
+    </header>
+
+    <div class="wrap">
+      <section class="panel">
+        <h2>参数配置</h2>
+        <div class="banner" id="banner" hidden></div>
+        <div class="grid">
+          <div class="field full">
+            <label>
+              captchaId
+              <span class="hint">必填，32 位十六进制</span>
+            </label>
+            <input
+              id="captchaId"
+              type="text"
+              spellcheck="false"
+              placeholder="24f56dc13c40dc4a02fd0318567caef5" />
+          </div>
+
+          <div class="field">
+            <label>language</label>
+            <select id="language">
+              <option value="zho">zho 简体中文</option>
+              <option value="zho-tw">zho-tw 繁体中文</option>
+              <option value="zho-hk">zho-hk 繁体中文</option>
+              <option value="eng">eng</option>
+              <option value="jpn">jpn</option>
+              <option value="kor">kor</option>
+              <option value="fra">fra</option>
+              <option value="deu">deu</option>
+              <option value="spa">spa</option>
+              <option value="rus">rus</option>
+              <option value="por">por</option>
+              <option value="pon">pon</option>
+              <option value="ara">ara</option>
+              <option value="ind">ind</option>
+              <option value="udm">udm</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label>riskType 预设</label>
+            <select id="riskType">
+              <option value="ai">ai</option>
+              <option value="slide">slide</option>
+              <option value="match">match</option>
+              <option value="winlinze">winlinze</option>
+              <option value="svg_icon">svg_icon</option>
+              <option value="svg_seed">svg_seed</option>
+              <option value="icon">icon</option>
+              <option value="word">word</option>
+              <option value="nine">nine</option>
+              <option value="phrase">phrase</option>
+              <option value="space">space</option>
+              <option value="pencil">pencil</option>
+              <option value="voice">voice</option>
+            </select>
+          </div>
+
+          <div class="field full">
+            <label>
+              riskType 长串
+              <span class="hint">风控融合站点专用，非空时覆盖上面的预设</span>
+            </label>
+            <textarea
+              id="riskTypeRaw"
+              spellcheck="false"
+              placeholder="ai|1700000000|&lt;32位hex&gt;|&lt;64位hmac&gt;"></textarea>
+          </div>
+
+          <div class="field">
+            <label>
+              challenge
+              <span class="hint">留空自动生成</span>
+            </label>
+            <input id="challenge" type="text" spellcheck="false" />
+          </div>
+
+          <div class="field">
+            <label>timeout (ms)</label>
+            <input id="timeout" type="number" min="1000" step="1000" />
+          </div>
+
+          <div class="field full">
+            <label>userInfo</label>
+            <input id="userInfo" type="text" spellcheck="false" />
+          </div>
+        </div>
+
+        <details>
+          <summary>高级选项</summary>
+          <div class="grid" style="margin-top: 10px">
+            <div class="field full">
+              <label>gt4.js 地址</label>
+              <input id="sdkUrl" type="text" spellcheck="false" />
+            </div>
+            <div class="field full">
+              <label>
+                staticServers
+                <span class="hint">逗号分隔，留空用服务端下发</span>
+              </label>
+              <input
+                id="staticServers"
+                type="text"
+                spellcheck="false"
+                placeholder="static.geetest.com, static.geevisit.com" />
+            </div>
+            <div class="field full">
+              <label>
+                getType
+                <span class="hint">
+                  JSON，可覆盖 apiServers / staticServers / typePath
+                </span>
+              </label>
+              <textarea
+                id="getType"
+                spellcheck="false"
+                placeholder='{"staticServers":["static.geetest.com"]}'></textarea>
+            </div>
+            <div class="field full">
+              <label>
+                debug
+                <span class="hint">JSON，覆盖服务端下发的配置</span>
+              </label>
+              <textarea
+                id="debug"
+                spellcheck="false"
+                placeholder="{}"></textarea>
+            </div>
+            <div class="field full">
+              <div class="row" style="margin: 0">
+                <span class="check">
+                  <input id="autoInit" type="checkbox" />
+                  打开页面自动初始化
+                </span>
+                <span class="check">
+                  <input id="autoShow" type="checkbox" />
+                  就绪后自动弹出
+                </span>
+                <span class="check">
+                  <input id="https" type="checkbox" />
+                  强制 HTTPS
+                </span>
+                <span class="check">
+                  <input id="resetOnInit" type="checkbox" />
+                  初始化前销毁旧实例
+                </span>
+              </div>
+            </div>
+          </div>
+        </details>
+
+        <div class="row">
+          <button id="btn-show">弹出验证码</button>
+          <button id="btn-validate">读取 getValidate()</button>
+          <button id="btn-destroy">销毁实例</button>
+        </div>
+      </section>
+
+      <section class="stage">
+        <div class="panel">
+          <div class="panel-head">
+            <div class="tabs" id="tabs">
+              <button class="tab active" data-tab="log">事件日志</button>
+              <button class="tab" data-tab="validate">验证结果 getValidate()</button>
+              <button class="tab" data-tab="payload">w 明文（hook 捕获）</button>
+              <button class="tab" data-tab="track">轨迹原始数据</button>
+            </div>
+            <button class="copy" id="btn-copy-result" hidden>复制</button>
+          </div>
+
+          <div class="tab-body" id="body-log">
+            <div class="log" id="log"></div>
+          </div>
+          <div class="tab-body" id="body-validate" hidden>
+            <pre id="pre-validate"><span class="empty">尚未验证</span></pre>
+          </div>
+          <div class="tab-body" id="body-payload" hidden>
+            <pre id="pre-w"><span class="empty">尚未捕获，先在页面上把验证过掉</span></pre>
+          </div>
+          <div class="tab-body" id="body-track" hidden>
+            <pre id="pre-track"><span class="empty">尚未捕获，先在页面上把验证过掉</span></pre>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <script src="./hook.js"></script>
+    <script>
+      const $ = (s) => document.querySelector(s)
+      const STORE_KEY = 'gt4-demo-config'
+      const DEFAULTS = {
+        captchaId: '24f56dc13c40dc4a02fd0318567caef5',
+        language: 'zho',
+        riskType: 'slide',
+        riskTypeRaw: '',
+        challenge: '',
+        timeout: 10000,
+        userInfo: '',
+        sdkUrl: 'https://static.geetest.com/v4/gt4.js',
+        staticServers: '',
+        getType: '',
+        debug: '',
+        https: true,
+        autoInit: true,
+        autoShow: true,
+        resetOnInit: true,
+      }
+
+      const FIELDS = [
+        'captchaId',
+        'language',
+        'riskType',
+        'riskTypeRaw',
+        'challenge',
+        'timeout',
+        'userInfo',
+        'sdkUrl',
+        'staticServers',
+        'getType',
+        'debug',
+      ]
+
+      let captcha = null
+
+      function readStore() {
+        try {
+          return JSON.parse(localStorage.getItem(STORE_KEY) || 'null')
+        } catch (e) {
+          return null
+        }
+      }
+
+      function writeStore(cfg) {
+        try {
+          localStorage.setItem(STORE_KEY, JSON.stringify(cfg))
+        } catch (e) {}
+      }
+
+      function setStatus(text, kind = '') {
+        const el = $('#status')
+        el.textContent = text
+        el.className = 'chip' + (kind ? ' ' + kind : '')
+      }
+
+      function showBanner(kind, text) {
+        const el = $('#banner')
+        el.className = 'banner ' + kind
+        el.innerHTML = text
+        el.hidden = false
+      }
+
+      function hideBanner() {
+        $('#banner').hidden = true
+      }
+
+      document.addEventListener('securitypolicyviolation', (e) => {
+        log('err', 'CSP 拦截', e.violatedDirective, '→', e.blockedURI)
+      })
+      window.addEventListener('error', (e) => log('err', 'window.onerror', e.message || String(e)))
+      window.addEventListener('unhandledrejection', (e) => log('err', 'unhandledrejection', String(e.reason)))
+
+      function log(level, ...parts) {
+        const el = document.createElement('div')
+        el.className = 'log-line'
+        const time = new Date().toTimeString().slice(0, 8)
+        el.innerHTML =
+          `<span class="t">${time}</span><span class="lv ${level}">${level.toUpperCase()}</span><span class="msg"></span>`
+        el.querySelector('.msg').textContent = parts
+          .map((p) => (typeof p === 'string' ? p : JSON.stringify(p)))
+          .join(' ')
+        const box = $('#log')
+        box.appendChild(el)
+        box.scrollTop = box.scrollHeight
+        while (box.childElementCount > 500) box.removeChild(box.firstChild)
+      }
+
+      function readForm() {
+        const cfg = {}
+        for (const k of FIELDS) cfg[k] = $('#' + k).value.trim()
+        cfg.timeout = Number(cfg.timeout) || DEFAULTS.timeout
+        cfg.https = $('#https').checked
+        cfg.autoInit = $('#autoInit').checked
+        cfg.autoShow = $('#autoShow').checked
+        cfg.resetOnInit = $('#resetOnInit').checked
+        return cfg
+      }
+
+      function writeForm(cfg) {
+        const merged = { ...DEFAULTS, ...cfg }
+        for (const k of FIELDS) $('#' + k).value = merged[k]
+        $('#https').checked = !!merged.https
+        $('#autoInit').checked = !!merged.autoInit
+        $('#autoShow').checked = !!merged.autoShow
+        $('#resetOnInit').checked = !!merged.resetOnInit
+      }
+
+      function parseJsonField(raw, name) {
+        if (!raw) return undefined
+        try {
+          return JSON.parse(raw)
+        } catch (e) {
+          throw new Error(`${name} 不是合法 JSON: ${e.message}`)
+        }
+      }
+
+      function buildOptions(cfg) {
+        if (!cfg.captchaId) throw new Error('captchaId 不能为空')
+
+        const options = {
+          captchaId: cfg.captchaId,
+          product: 'bind',
+          clientType: 'web',
+          language: cfg.language,
+          riskType: cfg.riskTypeRaw || cfg.riskType,
+          timeout: cfg.timeout,
+        }
+        if (cfg.challenge) options.challenge = cfg.challenge
+        if (cfg.userInfo) options.userInfo = cfg.userInfo
+        if (cfg.https) options.https = true
+        if (cfg.staticServers) {
+          options.staticServers = cfg.staticServers
+            .split(',')
+            .map((s) => s.trim())
+            .filter(Boolean)
+        }
+        const getType = parseJsonField(cfg.getType, 'getType')
+        if (getType) options.getType = getType
+        const debug = parseJsonField(cfg.debug, 'debug')
+        if (debug) options.debug = debug
+        return options
+      }
+
+      function loadSdk(url) {
+        return new Promise((resolve, reject) => {
+          if (window.initGeetest4) return resolve()
+          const s = document.createElement('script')
+          s.src = url
+          s.async = true
+          s.onload = () => (window.initGeetest4 ? resolve() : reject(new Error('SDK 已加载但未暴露 initGeetest4')))
+          s.onerror = () => reject(new Error('SDK 加载失败: ' + url))
+          document.head.appendChild(s)
+        })
+      }
+
+      function destroy() {
+        if (!captcha) return log('warn', '当前没有实例')
+        try {
+          captcha.destroy()
+          log('info', '已销毁实例')
+        } catch (e) {
+          log('err', 'destroy 失败', e.message)
+        }
+        captcha = null
+      }
+
+      const TABS = ['log', 'validate', 'payload', 'track']
+      const TAB_PRE = { validate: '#pre-validate', payload: '#pre-w', track: '#pre-track' }
+      const TAB_EMPTY = {
+        validate: '尚未验证',
+        payload: '尚未捕获，先在页面上把验证过掉',
+        track: '尚未捕获，先在页面上把验证过掉',
+      }
+      const tabData = { validate: null, payload: null, track: null }
+      let activeTab = 'log'
+
+      // 跟 JSON.stringify(v, null, 2) 一样，但「纯量数组」压成一行，
+      // 这样轨迹点一行一个，方便逐行比对；整体仍是合法 JSON。
+      function formatJson(v, depth = 0) {
+        const pad = '  '.repeat(depth)
+        if (Array.isArray(v)) {
+          if (!v.length) return '[]'
+          if (v.every((x) => x === null || typeof x !== 'object')) {
+            return '[' + v.map((x) => JSON.stringify(x)).join(', ') + ']'
+          }
+          const inner = v.map((x) => pad + '  ' + formatJson(x, depth + 1))
+          return '[\n' + inner.join(',\n') + '\n' + pad + ']'
+        }
+        if (v && typeof v === 'object') {
+          const keys = Object.keys(v)
+          if (!keys.length) return '{}'
+          const inner = keys.map((k) => pad + '  ' + JSON.stringify(k) + ': ' + formatJson(v[k], depth + 1))
+          return '{\n' + inner.join(',\n') + '\n' + pad + '}'
+        }
+        const s = JSON.stringify(v)
+        return s === undefined ? String(v) : s
+      }
+
+      function renderTab(key, data) {
+        tabData[key] = data
+        const pre = $(TAB_PRE[key])
+        if (data) pre.textContent = formatJson(data)
+        else pre.innerHTML = `<span class="empty">${TAB_EMPTY[key]}</span>`
+        syncCopyBtn()
+      }
+
+      const renderResult = (d) => renderTab('validate', d)
+      const renderPayload = (d) => renderTab('payload', d)
+      const renderTrack = (d) => renderTab('track', d)
+
+      // new_track = base64url(gzip(JSON.stringify(原始轨迹)))，见 gg4.js 的 f259 / f260。
+      // 所以原始数据在页面里直接解压就能拿到，不用再去 hook 那个 gzip 函数。
+      async function decodeTrack(s) {
+        const b64 = String(s).replace(/-/g, '+').replace(/_/g, '/')
+        const bin = atob(b64 + '='.repeat((4 - (b64.length % 4)) % 4))
+        const bytes = Uint8Array.from(bin, (c) => c.charCodeAt(0))
+        const stream = new Blob([bytes]).stream().pipeThrough(new DecompressionStream('gzip'))
+        return JSON.parse(await new Response(stream).text())
+      }
+
+      function syncCopyBtn() {
+        const btn = $('#btn-copy-result')
+        const data = tabData[activeTab]
+        btn.hidden = activeTab === 'log' || !data
+      }
+
+      function setTab(name) {
+        activeTab = name
+        for (const t of document.querySelectorAll('.tab')) {
+          t.classList.toggle('active', t.dataset.tab === name)
+        }
+        for (const k of TABS) {
+          $('#body-' + k).hidden = k !== name
+        }
+        syncCopyBtn()
+      }
+
+      function refreshEnvWarn() {
+        if (location.protocol === 'file:' && !$('#https').checked) {
+          showBanner('warn', '当前以 file:// 打开且未勾选「强制 HTTPS」，load 请求会指向 file:// 而失败，请勾选。')
+        } else {
+          hideBanner()
+        }
+      }
+
+      async function init() {
+        const cfg = readForm()
+        writeStore(cfg)
+        refreshEnvWarn()
+
+        let options
+        try {
+          options = buildOptions(cfg)
+        } catch (e) {
+          setStatus('配置错误', 'err')
+          showBanner('err', e.message)
+          return log('err', e.message)
+        }
+
+        if (cfg.resetOnInit && captcha) destroy()
+
+        setStatus('加载 SDK…', 'load')
+        log('info', '初始化参数', options)
+        try {
+          await loadSdk(cfg.sdkUrl)
+        } catch (e) {
+          setStatus('SDK 加载失败', 'err')
+          showBanner(
+            'err',
+            e.message +
+              '<br>若在预览面板里打开：其 CSP 的 connect-src 只放行 same-origin 与 http://127.0.0.1:*，SDK 发出的 XHR 会被拦。改用本地 http 服务或直接用浏览器打开本文件。'
+          )
+          return log('err', e.message)
+        }
+        if (!window.initGeetest4) {
+          setStatus('SDK 异常', 'err')
+          return log('err', '页面未检测到 initGeetest4')
+        }
+
+        renderResult(null)
+        renderPayload(null)
+        renderTrack(null)
+
+        let ready = false
+        const watchdog = setTimeout(() => {
+          if (ready) return
+          setStatus('就绪超时', 'err')
+          showBanner(
+            'warn',
+            '实例已创建，但 8 秒内没有触发 onReady —— 通常是运行环境拦掉了 SDK 的跨域请求（例如预览面板的 CSP）。请用浏览器直接打开本文件，或用本地 http 服务访问。'
+          )
+          log('warn', 'onReady 超时，验证码不会渲染')
+        }, 8000)
+
+        try {
+          window.initGeetest4(options, (obj) => {
+            captcha = obj
+            log('ok', 'initGeetest4 回调已触发')
+
+            const hook = (name, fn) => {
+              if (typeof obj[name] !== 'function') return false
+              obj[name](fn)
+              return true
+            }
+            const onNext = (ctx) => {
+              log('info', 'onNext', ctx || '')
+              if (ctx && ctx.captchaType) {
+                log('info', '服务端实际下发的 captcha_type = ' + ctx.captchaType)
+                if (ctx.captchaType === 'ai') {
+                  log('warn', 'ai 是静默验证，不会渲染任何可见 UI；想看界面请把 riskType 换成 slide / match / svg_icon 等')
+                }
+              }
+            }
+
+            hook('onReady', () => {
+              ready = true
+              clearTimeout(watchdog)
+              setStatus('就绪', 'ok')
+              log('ok', 'onReady')
+              if (cfg.autoShow) trigger()
+            })
+            if (!hook('onNext', onNext) && !hook('onNextReady', onNext)) {
+              log('warn', '该 SDK 版本既无 onNext 也无 onNextReady')
+            }
+            hook('onFail', (failObj) => log('warn', 'onFail', failObj))
+            hook('onSuccess', (arg) => {
+              setStatus('验证通过', 'ok')
+              log('ok', 'onSuccess', arg)
+              renderResult(safeValidate(obj) || arg)
+            })
+            hook('onError', (err) => {
+              setStatus('验证出错', 'err')
+              log('err', 'onError', err)
+            })
+            hook('onClose', () => log('warn', 'onClose'))
+            hook('onBoxShow', () => log('info', 'onBoxShow'))
+          })
+        } catch (e) {
+          clearTimeout(watchdog)
+          setStatus('初始化失败', 'err')
+          showBanner('err', 'initGeetest4 抛错：' + e.message)
+          log('err', 'initGeetest4 抛错', e.message)
+        }
+      }
+
+      function trigger() {
+        if (!captcha) return log('warn', '请先初始化')
+        captcha.showCaptcha()
+        log('info', 'showCaptcha()')
+      }
+
+      function safeValidate(obj) {
+        try {
+          return obj.getValidate()
+        } catch (e) {
+          log('warn', 'getValidate 失败', e.message)
+          return null
+        }
+      }
+
+      $('#btn-init').addEventListener('click', init)
+      $('#btn-sdk').addEventListener('click', () => {
+        const url = $('#sdkUrl').value.trim()
+        document.querySelectorAll('script[src*="gt4.js"]').forEach((s) => s.remove())
+        try {
+          delete window.initGeetest4
+        } catch (e) {}
+        captcha = null
+        setStatus('未初始化')
+        log('info', '已卸载 SDK，下次初始化将重新加载', url)
+      })
+      $('#btn-reset').addEventListener('click', () => {
+        try {
+          localStorage.removeItem(STORE_KEY)
+        } catch (e) {}
+        writeForm(DEFAULTS)
+        refreshEnvWarn()
+        log('info', '配置已重置为默认值')
+      })
+      $('#btn-copy').addEventListener('click', async () => {
+        const text = JSON.stringify(readForm(), null, 2)
+        try {
+          await navigator.clipboard.writeText(text)
+          log('ok', '配置已复制到剪贴板')
+        } catch (e) {
+          log('warn', '复制失败，请手动选择：' + text)
+        }
+      })
+      $('#btn-show').addEventListener('click', trigger)
+      $('#btn-validate').addEventListener('click', () => {
+        if (!captcha) return log('warn', '请先初始化')
+        const v = safeValidate(captcha)
+        log(v ? 'ok' : 'warn', 'getValidate()', v)
+        renderResult(v)
+      })
+      $('#btn-destroy').addEventListener('click', destroy)
+      $('#https').addEventListener('change', refreshEnvWarn)
+
+      for (const t of document.querySelectorAll('.tab')) {
+        t.addEventListener('click', () => setTab(t.dataset.tab))
+      }
+      $('#btn-copy-result').addEventListener('click', async () => {
+        const text = $(TAB_PRE[activeTab]).textContent
+        try {
+          await navigator.clipboard.writeText(text)
+          log('ok', '已复制', text.length + ' 字符')
+        } catch (e) {
+          log('warn', '复制失败：' + e.message)
+        }
+      })
+
+      window.addEventListener('gt4-stringify', (e) => {
+        log('info', 'stringify 入参 keys:', e.detail.keys.join(', '))
+      })
+      window.addEventListener('gt4-capture', (e) => {
+        log('ok', '捕获到 w 明文载荷', JSON.stringify(e.detail))
+        renderPayload(e.detail)
+      })
+      window.addEventListener('gt4-track', async (e) => {
+        const snap = e.detail
+        log('ok', '捕获到轨迹载荷，new_track =', snap.new_track)
+        renderTrack(snap)
+        if (!snap.new_track) return
+        try {
+          const raw = await decodeTrack(snap.new_track)
+          renderTrack({ ...snap, new_track_raw: raw })
+          log('ok', 'new_track 解压完成，原始轨迹在 new_track_raw', Array.isArray(raw) ? raw.length + ' 项' : typeof raw)
+        } catch (err) {
+          log('err', 'new_track 解压失败：' + err.message)
+        }
+      })
+
+      writeForm(readStore() || DEFAULTS)
+      refreshEnvWarn()
+      if (window.__gt4Hook) {
+        log('ok', 'hook.js 已加载：已 hook stringify 与 new_track，捕获结果会打到控制台与本面板')
+      } else {
+        log('err', 'hook.js 未加载 —— 抓不到 w 明文')
+      }
+      log('info', '配置已恢复，SDK 地址 ' + $('#sdkUrl').value)
+      if ($('#autoInit').checked) init()
+    </script>
+  </body>
+</html>
