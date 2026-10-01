@@ -57,14 +57,11 @@ class Geetest:
     IMG_BASE = 'https://static.geetest.com'
 
     default_headers: ClassVar = {
-        'Connection': 'keep-alive',
         'Accept': '*/*',
-        'Sec-Fetch-Site': 'same-site',
+        'Accept-Language': 'zh-CN,zh;q=0.9,en;q=0.8',
+        'Sec-Fetch-Site': 'cross-site',
         'Sec-Fetch-Mode': 'no-cors',
         'Sec-Fetch-Dest': 'script',
-        'sec-ch-ua-mobile': '?0',
-        'Accept-Language': 'zh-CN,zh;q=0.9,en;q=0.8',
-        'referer': 'https://www.geetest.com/',
     }
 
     _solvers: dict = {

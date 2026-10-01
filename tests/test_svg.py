@@ -7,7 +7,13 @@ import pytest
 import resvg_py
 
 from wulu_geetest_bypass import Geetest
-from wulu_geetest_bypass.solver.svg import _grid_svgs, _rgba_to_gray, frame_times, match
+from wulu_geetest_bypass.solver.svg import (
+    _grid_svgs,
+    _hint_to_edge,
+    _rgba_to_gray,
+    frame_times,
+    match,
+)
 
 
 def _dump_svg(svg: str, out) -> None:
@@ -93,7 +99,7 @@ async def test_frame_times(cid, risk_type):
 )
 async def test_svg_seed_solve(cid, svg_out_dir, risk_type, n_cols):
     svg, hint = await _load_svg_resources(cid, risk_type)
-    hint_edge = cv2.Canny(_rgba_to_gray(hint), 50, 150)
+    hint_edge = _hint_to_edge(hint)
     _dump_svg(svg, svg_out_dir / f'{risk_type}.svg')
     grids = _grid_svgs(svg)
     imgs = _edges(grids)
