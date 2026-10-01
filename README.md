@@ -218,15 +218,25 @@ g = Geetest(captcha_id='your_captcha_id', risk_type='slide', client=Client(confi
 
 ```python
 class VerifyResponse:
-    status: str  # "success" / "fail" / "error"
-    data: VerifyData  # verification result data
+    status: str  # "success" / "error"
+    data: VerifyData  # VerifyDataSuccess | VerifyDataFail, discriminated by `result`
 
 
-class VerifyData:
+class VerifyDataSuccess:  # result == "success"
     lot_number: str
-    result: str  # "success" / "fail"
+    result: str
     fail_count: int
-    seccode: Seccode
+    seccode: Seccode  # success only
+    score: str
+    payload: str
+    process_token: str
+    payload_protocol: int
+
+
+class VerifyDataFail:  # result == "fail" / "forbidden" / "continue" — no seccode
+    lot_number: str
+    result: str
+    fail_count: int
     score: str
     payload: str
     process_token: str
@@ -246,14 +256,19 @@ class Seccode:
 
 | Parameter | Type  | Description                          |
 | --------- | ----- | ------------------------------------ |
-| `retry`   | `int` | Retry count on failure, default `3`  |
+| `retry`   | `int` | Retries on `fail`, default `3`; `forbidden` raises at once |
 
 ### Exceptions
 
-| Exception        | Description                                            |
-| ---------------- | ------------------------------------------------------ |
-| `GeetestError`   | Base class of all custom exceptions                    |
-| `VerifyError`    | Verification failed (all retries exhausted)            |
+| Exception      | Description                                                           |
+| -------------- | --------------------------------------------------------------------- |
+| `GeetestError` | Base class of all custom exceptions                                   |
+| `VerifyError`  | `/verify` did not return `success`; carries `.result` / `.fail_count` |
+
+`VerifyError.result` is the raw server value: `fail` (scored and rejected — wrong answer,
+bad headers or low risk score; retryable), `forbidden` (rejected before scoring — an
+IP-level rate limit, not an answer problem; back off or change the exit IP) or `continue`
+(another round of the same challenge is wanted, `match` only).
 
 ## ⚖️ Disclaimer
 

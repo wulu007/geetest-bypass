@@ -20,7 +20,7 @@ from wulu_geetest_bypass.track import (
     track_zip,
 )
 
-from ._exceptions import RateLimitError, VerifyError
+from ._exceptions import ApiError, RateLimitError, VerifyError
 from ._type import (
     GeetestOptions,
     RiskType,
@@ -104,12 +104,7 @@ class Geetest:
         if self.voice:
             params['switch_to'] = 'voice'
 
-        data = await self._get_jsonp('/load', params, 'load')
-
-        d = data.get('data')
-        if not isinstance(d, dict):
-            raise RuntimeError('load response missing data field')
-        return d
+        return (await self._get_jsonp('/load', params, 'load'))['data']
 
     async def _load_resource(self, path: str) -> bytes:
         try:
@@ -126,9 +121,12 @@ class Geetest:
         if resp.status == 429:
             raise RateLimitError(f'{what} request rate limited (HTTP 429)')
         try:
-            return _unwrap_jsonp(await resp.text())
+            data = _unwrap_jsonp(await resp.text())
         except Exception as e:
             raise RuntimeError(f'{what} request failed: {e}') from e
+        if data.get('status') == 'error':
+            raise ApiError(what, data)
+        return data
 
     async def verify(self, data) -> VerifyResponse:
         if data['captcha_type'] == 'slide':
@@ -174,15 +172,16 @@ class Geetest:
         return await self._get_jsonp('/verify', query, 'verify')  # type: ignore
 
     async def resolve(self, retry: int = 3) -> Seccode:
-        data = None
-        for attempt in range(retry):
+        """``load`` + ``verify``, retrying ``fail``; ``forbidden`` aborts at once."""
+        for attempt in range(1, retry + 1):
             data = await self.load()
             data = (await self.verify(data))['data']
             if data['result'] == 'success':
                 return data['seccode']
-            if attempt < retry - 1:
-                continue
-        raise VerifyError(f'verification failed after {retry} attempts: {data}')
+            if data['result'] == 'forbidden' or attempt == retry:
+                # pyrefly: ignore [bad-argument-type]
+                raise VerifyError(data, attempt)
+        raise ValueError('retry must be >= 1')
 
     @staticmethod
     def generate_w(data: WPayload, ans: dict) -> str:

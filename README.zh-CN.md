@@ -220,15 +220,25 @@ g = Geetest(captcha_id='your_captcha_id', risk_type='slide', client=Client(confi
 
 ```python
 class VerifyResponse:
-    status: str  # "success" / "fail" / "error"
-    data: VerifyData  # 验证结果数据
+    status: str  # "success" / "error"
+    data: VerifyData  # VerifyDataSuccess | VerifyDataFail，用 `result` 区分
 
 
-class VerifyData:
+class VerifyDataSuccess:  # result == "success"
     lot_number: str
-    result: str  # "success" / "fail"
+    result: str
     fail_count: int
-    seccode: Seccode
+    seccode: Seccode  # 仅成功时才有
+    score: str
+    payload: str
+    process_token: str
+    payload_protocol: int
+
+
+class VerifyDataFail:  # result == "fail" / "forbidden" / "continue" —— 没有 seccode
+    lot_number: str
+    result: str
+    fail_count: int
     score: str
     payload: str
     process_token: str
@@ -248,14 +258,18 @@ class Seccode:
 
 | 参数 | 类型 | 说明 |
 | ---- | ---- | ---- |
-| `retry` | `int` | 失败重试次数，默认 `3` |
+| `retry` | `int` | `fail` 的重试次数，默认 `3`；`forbidden` 立即抛出 |
 
 ### 异常
 
 | 异常 | 说明 |
 | ---- | ---- |
 | `GeetestError` | 所有自定义异常的基类 |
-| `VerifyError` | 验证失败（重试次数已耗尽） |
+| `VerifyError` | `/verify` 未返回 `success`，携带 `.result` / `.fail_count` |
+
+`VerifyError.result` 是服务端原始值：`fail`（已判分但不通过 —— 答案错、header 风控或行为分低；可重试）、
+`forbidden`（判分前就被拒 —— **IP 限流**，与答案无关；应退避或换出口 IP，不要死循环重试）、
+`continue`（要求同一题再走一轮，仅 `match`）。
 
 ## ⚖️ Disclaimer
 

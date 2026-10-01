@@ -83,6 +83,8 @@ class BasePayload(TypedDict):
     lot_number: str
     pow_detail: dict[str, Any]
     guard: bool
+    captcha_mode: Literal['adaptive', 'risk_manage', 'headless']
+    """Verification mode the ``captcha_id`` is configured with on the server side."""
     static_path: str
     """SDK build the site is serving, e.g. ``/v4/static/v1.9.7-fc2ddc``."""
     pt: int | str
@@ -161,15 +163,29 @@ class Seccode(TypedDict):
     captcha_output: str
 
 
-class VerifyData(TypedDict):
+VerifyResult = Literal['success', 'fail', 'continue', 'forbidden']
+"""``/verify`` ``result`` values recognised by the client SDK; anything else is an error."""
+
+
+class _VerifyDataBase(TypedDict):
     lot_number: str
-    result: str
     fail_count: int
-    seccode: Seccode
     score: str
     payload: str
     process_token: str
     payload_protocol: int
+
+
+class VerifyDataSuccess(_VerifyDataBase):
+    result: Literal['success']
+    seccode: Seccode
+
+
+class VerifyDataFail(_VerifyDataBase):
+    result: Literal['fail', 'forbidden', 'continue']
+
+
+VerifyData = VerifyDataSuccess | VerifyDataFail
 
 
 class VerifyResponse(TypedDict):
