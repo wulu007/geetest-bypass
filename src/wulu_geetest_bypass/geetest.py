@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import asyncio
 import json
 import random
 import time
@@ -113,6 +114,9 @@ class Geetest:
         except Exception as e:
             raise RuntimeError(f'load resource failed: {e}') from e
 
+    async def _load_resources(self, *paths: str) -> list[bytes]:
+        return await asyncio.gather(*(self._load_resource(p) for p in paths))
+
     async def _get_jsonp(self, path: str, query: dict, what: str) -> dict:
         try:
             resp = await self.client.get(f'{self.BASE_URL}{path}', query=query)
@@ -130,16 +134,17 @@ class Geetest:
 
     async def verify(self, data) -> VerifyResponse:
         if data['captcha_type'] == 'slide':
-            data['bg'] = await self._load_resource(data['bg'])
-            data['slice'] = await self._load_resource(data['slice'])
+            data['bg'], data['slice'] = await self._load_resources(
+                data['bg'], data['slice']
+            )
         elif data['captcha_type'] == 'svg_icon':
-            data['question_path'] = (
-                await self._load_resource(data['question_path'])
-            ).decode()
-            data['answer_path'] = await self._load_resource(data['answer_path'])
+            question, data['answer_path'] = await self._load_resources(
+                data['question_path'], data['answer_path']
+            )
+            data['question_path'] = question.decode()
         elif data['captcha_type'] in ('icon', 'word', 'nine'):
-            data['imgs'] = await self._load_resource(data['imgs'])
-            data['ques'] = [await self._load_resource(url) for url in data['ques']]
+            imgs, *ques = await self._load_resources(data['imgs'], *data['ques'])
+            data['imgs'], data['ques'] = imgs, ques
         elif data['captcha_type'] in ('phrase', 'space', 'pencil'):
             data['imgs'] = await self._load_resource(data['imgs'])
         elif data['captcha_type'] == 'voice':
