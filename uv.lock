@@ -14,6 +14,7 @@ members = [
     "wulu-geetest-bypass-nine",
     "wulu-geetest-bypass-phrase",
     "wulu-geetest-bypass-voice",
+    "wulu-geetest-bypass-word",
 ]
 
 [[package]]
@@ -1316,6 +1317,7 @@ version = "0.5.0b3"
 source = { editable = "." }
 dependencies = [
     { name = "pooch", extra = ["progress"] },
+    { name = "mmh3" },
     { name = "pycryptodome" },
     { name = "smcryptopy" },
     { name = "wreq" },
@@ -1473,3 +1475,8 @@ requires-dist = [
     { name = "numpy", specifier = ">=1.24.0" },
     { name = "wulu-geetest-bypass", editable = "." },
 ]
+
+[[package]]
+name = "wulu-geetest-bypass-word"
+version = "0.1.0"
+source = { editable = "extensions/wulu-geetest-bypass-word" }
