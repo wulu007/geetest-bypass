@@ -14,7 +14,7 @@
 
 > 一个轻量级纯 Python 库，无需 Node.js 或无头浏览器即可自动通过 **极验行为验证 v4（Geetest Behavioral CAPTCHA v4）**。具备动态鼠标轨迹仿真、7 种内置风险类型求解器、无障碍语音绕过，以及可扩展的自定义求解器注册机制。
 
-## ✨ Features
+## ✨ 特性
 
 - 🚀 **纯 Python 3.11+** — 零 Node.js、零无头浏览器、零外部运行时依赖。
 - 🛡️ **多风险类型支持** — 开箱即用的 7 种风险类型求解器（[完整表格见下](#supported-risk-types)）。
@@ -26,7 +26,7 @@
 - 🌐 **高级网络能力** — 原生支持代理链、浏览器 TLS 指纹仿真与自定义请求头。
 
 <a id="supported-risk-types"></a>
-## 🧩 Supported Risk Types
+## 🧩 支持类型
 
 | 类型 | 说明 | 依赖 | 支持 |
 | ---- | ---- | ---- | ---- |
@@ -47,7 +47,7 @@
 `依赖` 列指向下方的[依赖组](#installation)。标记为 ❌ 的类型没有内置求解器，需通过[自定义求解器](#register-custom-solvers)自行注册。
 
 <a id="installation"></a>
-## 📦 Installation
+## 📦 安装
 
 推荐使用 `uv`（更快、更现代的 Python 包管理器）：
 
@@ -77,7 +77,7 @@ uv add "wulu-geetest-bypass[svg]"
 uv add "wulu-geetest-bypass[all]"
 ```
 
-## 🚀 Quick Start
+## 🚀 快速开始
 
 ```python
 import asyncio
@@ -103,7 +103,7 @@ asyncio.run(main())
 常见场景到这里就够了。重试控制、分步流程、语音模式、自定义求解器与 HTTP 配置见[进阶用法](#advanced-usage)。
 
 <a id="advanced-usage"></a>
-## 💡 Advanced Usage
+## 💡 进阶用法
 
 ### 自动重试与单次调用 `resolve()`
 
@@ -195,7 +195,7 @@ g = Geetest(captcha_id='your_captcha_id', risk_type='slide', client_options=conf
 g = Geetest(captcha_id='your_captcha_id', risk_type='slide', client=Client(config))
 ```
 
-## 📖 API Reference
+## 📖 API 参考
 
 ### 配置项 — `Geetest(**options)`
 
@@ -271,11 +271,11 @@ class Seccode:
 `forbidden`（判分前就被拒 —— **IP 限流**，与答案无关；应退避或换出口 IP，不要死循环重试）、
 `continue`（要求同一题再走一轮，仅 `match`）。
 
-## ⚖️ Disclaimer
+## ⚖️ 免责声明
 
 本项目仅用于学习与研究目的。使用者应遵守相关法律法规与平台服务条款，严禁任何非法用途。作者不对因使用本项目而产生的任何法律问题承担责任。
 
-## 🤝 Support & Updates
+## 🤝 支持 & 更新
 
 - 本项目持续跟踪极验 v4 行为验证的变更，并及时更新绕过逻辑与求解器。
 - 遇到问题欢迎提交 [Issue](https://github.com/wulu007/geetest-bypass/issues)，也欢迎 PR。
