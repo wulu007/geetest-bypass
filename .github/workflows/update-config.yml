@@ -2,23 +2,51 @@ name: Update Config
 
 on:
   schedule:
-    - cron: '0 23 * * *'
+    - cron: "0 23 * * *"
   workflow_dispatch:
 
 permissions:
   contents: write
 
 jobs:
-  update:
+  find-targets:
     runs-on: ubuntu-latest
+    outputs:
+      branches: ${{ steps.get-branches.outputs.branches }}
+    steps:
+      - uses: actions/checkout@v7
+      - name: Get all active release branches + main
+        id: get-branches
+        run: |
+          git fetch --prune --unshallow || git fetch --prune
+          BRANCHES=$(git for-each-ref --format='%(refname:short)' \
+            refs/remotes/origin/main \
+            refs/remotes/origin/release/ \
+            | sed 's#^origin/##' \
+            | grep -E '^(main|release/[0-9]+\.[0-9]+)$' \
+            | jq -R -s -c 'split("\n") | map(select(length > 0))')
+
+          echo "Discovered branches: $BRANCHES"
+          echo "branches=$BRANCHES" >> $GITHUB_OUTPUT
+
+  update:
+    needs: find-targets
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        branch: ${{ fromJson(needs.find-targets.outputs.branches) }}
+
     steps:
       - uses: actions/checkout@v7
         with:
+          ref: ${{ matrix.branch }}
           token: ${{ secrets.PAT_TOKEN }}
+          fetch-depth: 0
 
       - uses: actions/setup-node@v7
         with:
-          node-version: '24'
+          node-version: "24"
 
       - uses: astral-sh/setup-uv@v8.1.0
         with:
@@ -29,19 +57,54 @@ jobs:
         id: update
         run: node scripts/extract-config.mjs
 
-      - name: Bump version
-        if: steps.update.outputs.CHANGED == 'true'
+      - name: Verify Branch-Version Alignment
+        if: steps.update.outputs.CHANGED == 'true' && startsWith(matrix.branch, 'release/')
+        run: |
+          BRANCH_PREFIX="${MATRIX_BRANCH#release/}"
+          CURRENT_VER="$(uv version --short)"
+          if [[ "$CURRENT_VER" != "${BRANCH_PREFIX}."* ]]; then
+            echo "::error::Branch '$MATRIX_BRANCH' has invalid version '$CURRENT_VER'! Must start with '${BRANCH_PREFIX}.'."
+            exit 1
+          fi
+        env:
+          MATRIX_BRANCH: ${{ matrix.branch }}
+
+      - name: Bump version (release/* branches only)
+        if: steps.update.outputs.CHANGED == 'true' && startsWith(matrix.branch, 'release/')
         id: bump
         run: |
           uv version --bump patch
           echo "version=$(uv version --short)" >> $GITHUB_OUTPUT
 
-      - name: Commit and push if changed
-        if: steps.update.outputs.CHANGED == 'true'
+      - name: Check Tag Existence
+        if: steps.update.outputs.CHANGED == 'true' && startsWith(matrix.branch, 'release/')
+        id: tag_check
+        run: |
+          TAG_NAME="v${{ steps.bump.outputs.version }}"
+          if git ls-remote --tags origin "refs/tags/$TAG_NAME" | grep -q "$TAG_NAME"; then
+            echo "::warning::Tag $TAG_NAME already exists on remote! Committing files without tag."
+            echo "can_tag=false" >> $GITHUB_OUTPUT
+          else
+            echo "can_tag=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Commit and Tag (release/*)
+        if: steps.update.outputs.CHANGED == 'true' && startsWith(matrix.branch, 'release/')
         uses: stefanzweifel/git-auto-commit-action@v7
         with:
+          branch: ${{ matrix.branch }}
           commit_message: "chore: update geetest config to ${{ steps.update.outputs.GEETEST_VER }} [auto]"
-          file_pattern: 'src/wulu_geetest_bypass/data/*.json pyproject.toml uv.lock'
-          commit_user_name: 'bot'
-          commit_user_email: 'dabaobeix@gmail.com'
-          tagging_message: 'v${{ steps.bump.outputs.version }}'
+          file_pattern: "src/wulu_geetest_bypass/data/*.json pyproject.toml uv.lock"
+          commit_user_name: "bot"
+          commit_user_email: "dabaobeix@gmail.com"
+          tagging_message: ${{ steps.tag_check.outputs.can_tag == 'true' && format('v{0}', steps.bump.outputs.version) || '' }}
+
+      - name: Sync config data only (main)
+        if: steps.update.outputs.CHANGED == 'true' && matrix.branch == 'main'
+        uses: stefanzweifel/git-auto-commit-action@v7
+        with:
+          branch: ${{ matrix.branch }}
+          commit_message: "chore: update geetest config to ${{ steps.update.outputs.GEETEST_VER }} [auto]"
+          file_pattern: "src/wulu_geetest_bypass/data/*.json"
+          commit_user_name: "bot"
+          commit_user_email: "dabaobeix@gmail.com"

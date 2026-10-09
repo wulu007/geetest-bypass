@@ -2,10 +2,10 @@ name: CI
 
 on:
   push:
-    branches: [main]
-    tags: ['v[0-9]*']
+    branches: [main, "release/**"]
+    tags: ["v[0-9]*"]
   pull_request:
-    branches: [main]
+    branches: [main, "release/**"]
 
 permissions:
   contents: read
@@ -26,13 +26,13 @@ jobs:
 
   publish:
     needs: lint
-    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
     runs-on: ubuntu-latest
-    
+
     permissions:
-      id-token: write 
+      id-token: write
       contents: write
-      
+
     steps:
       - uses: actions/checkout@v7
       - uses: astral-sh/setup-uv@v8.1.0
@@ -40,11 +40,38 @@ jobs:
           enable-cache: true
           python-version: "3.11"
 
-      - name: Build package
-        run: uv build
+      - name: Verify Version Match
+        run: |
+          TAG_VER="${GITHUB_REF_NAME#v}"
+          PROJECT_VER="$(uv version --short)"
+          echo "Tag version: $TAG_VER"
+          echo "Project version: $PROJECT_VER"
+          if [[ "$TAG_VER" != "$PROJECT_VER" ]]; then
+            echo "::error::Tag ($TAG_VER) does not match pyproject.toml version ($PROJECT_VER)!"
+            exit 1
+          fi
+
+      - name: Clean and Build
+        run: |
+          rm -rf dist/
+          uv build
 
       - name: Publish to PyPI
-        run: uv publish
+        run: uv publish --check-url https://pypi.org/simple/
+
+      - name: Check if Pre-release
+        id: check_pre
+        env:
+          REF_NAME: ${{ github.ref_name }}
+        run: |
+          VERSION="${REF_NAME#v}"
+          if [[ "$VERSION" =~ [._-]?(a|b|rc|alpha|beta|dev)[0-9]*$ ]]; then
+            echo "is_prerelease=true" >> $GITHUB_OUTPUT
+            echo "make_latest=false" >> $GITHUB_OUTPUT
+          else
+            echo "is_prerelease=false" >> $GITHUB_OUTPUT
+            echo "make_latest=true" >> $GITHUB_OUTPUT
+          fi
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v3
@@ -53,3 +80,5 @@ jobs:
             dist/*.whl
             dist/*.tar.gz
           generate_release_notes: true
+          prerelease: ${{ steps.check_pre.outputs.is_prerelease == 'true' }}
+          make_latest: ${{ steps.check_pre.outputs.make_latest == 'true' }}
