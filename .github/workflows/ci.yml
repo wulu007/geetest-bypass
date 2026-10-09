@@ -73,12 +73,25 @@ jobs:
             echo "make_latest=true" >> $GITHUB_OUTPUT
           fi
 
+      - name: Prepare Release Notes
+        id: notes
+        run: |
+          MSG="$(git log -1 --pretty=%s)"
+          if [[ "$MSG" == "chore: update geetest config to "* ]]; then
+            GEETEST_VER="${MSG#chore: update geetest config to }"
+            GEETEST_VER="${GEETEST_VER% [auto]}"
+            echo "body=Config updated to Geetest $GEETEST_VER" >> "$GITHUB_OUTPUT"
+          else
+            echo "body=" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v3
         with:
           files: |
             dist/*.whl
             dist/*.tar.gz
+          body: ${{ steps.notes.outputs.body }}
           generate_release_notes: true
           prerelease: ${{ steps.check_pre.outputs.is_prerelease == 'true' }}
           make_latest: ${{ steps.check_pre.outputs.make_latest == 'true' }}
