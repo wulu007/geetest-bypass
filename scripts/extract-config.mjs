@@ -221,13 +221,15 @@ if (new Set(results.map((r) => r.gctPath)).size > 1) {
 }
 
 let changed = false
+const changedVersions = []
 for (const [staticVer, { flat, sites }] of byVersion) {
   const isChanged = saveConfig(staticVer, flat)
   changed ||= isChanged
+  if (isChanged) changedVersions.push(staticVer)
   const display = path.relative(process.cwd(), configPath(staticVer))
   console.log(`${isChanged ? (dryRun ? 'would update' : 'updated') : 'no changes'} ${staticVer} (${sites} site${sites > 1 ? 's' : ''}) -> ${display}`)
 }
 
 if (process.env.GITHUB_OUTPUT) {
-  appendFileSync(process.env.GITHUB_OUTPUT, `GEETEST_VER=${[...byVersion.keys()].join(', ')}\nCHANGED=${changed}\n`)
+  appendFileSync(process.env.GITHUB_OUTPUT, `GEETEST_VER=${changedVersions.join(', ')}\nCHANGED=${changed}\n`)
 }
