@@ -7,7 +7,7 @@ members = ["extensions/*"]
 
 [project]
 name = "wulu-geetest-bypass"
-version = "0.4.0"
+version = "0.4.1"
 description = "Pure Python Geetest v4 CAPTCHA solver with human-like track simulation, no Node.js or browser"
 readme = "README.md"
 requires-python = ">=3.11"
