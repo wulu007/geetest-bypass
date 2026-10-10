@@ -281,6 +281,14 @@ class Seccode:
 - 遇到问题欢迎提交 [Issue](https://github.com/wulu007/geetest-bypass/issues)，也欢迎 PR。
 - 如果本项目对你有帮助，欢迎点个 ⭐ Star 支持持续开发。
 
+## 🙏 致谢
+
+`icon` 求解器使用的 YOLO 模型并非本项目训练。ONNX 模型文件与 `_config.py` 中的方向映射表均来自
+[gaogzhen/GeekedTest](https://github.com/gaogzhen/GeekedTest)，遵循 MIT License —— 完整许可文本见
+[THIRD_PARTY_NOTICES.md](./THIRD_PARTY_NOTICES.md)。
+
+同时感谢 [xKiian/GeekedTest](https://github.com/xKiian/GeekedTest)，gaogzhen/GeekedTest 基于该项目构建。
+
 ## 📄 License
 
 本项目基于 MIT License 发布，详见 [LICENSE](./LICENSE)。

@@ -280,6 +280,16 @@ This project is for learning and research purposes only. Users should comply wit
 - Please open an [Issue](https://github.com/wulu007/geetest-bypass/issues) if you encounter problems, and PRs are welcome.
 - If this project helps you, feel free to give it a ⭐ Star to encourage continued development.
 
+## 🙏 Credits
+
+The `icon` solver uses a third-party YOLO model rather than one trained here. Both
+the ONNX file and the direction mapping table in `_config.py` come from
+[gaogzhen/GeekedTest](https://github.com/gaogzhen/GeekedTest) under the MIT License —
+see [THIRD_PARTY_NOTICES.md](./THIRD_PARTY_NOTICES.md) for the full text.
+
+Thanks also to [xKiian/GeekedTest](https://github.com/xKiian/GeekedTest), which
+gaogzhen/GeekedTest builds on.
+
 ## 📄 License
 
 Released under the MIT License — see [LICENSE](./LICENSE).
