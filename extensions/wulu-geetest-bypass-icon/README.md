@@ -81,7 +81,7 @@ For downstream forks that ship their own model:
 | `OWNER`, `HF_REPO` | HuggingFace repo holding the model. | `wulu007`, `gt` |
 | `DEFAULT_ENDPOINT` | Host used when `HF_ENDPOINT` is unset. | `https://huggingface.co` |
 | `model_url()` | `{endpoint}/{OWNER}/{HF_REPO}/resolve/main/{FILENAME}`. | — |
-| `CACHE_DIR` | Where the model is cached. | `platformdirs.user_cache_dir('wulu-geetest-bypass-icon', appauthor=False)` |
+| `CACHE_DIR` | Where the model is cached. | `platformdirs.user_cache_dir('wulu-geetest-bypass', appauthor=False)` |
 | `DIR_HASHES` | Question-icon MD5 → direction. | 8 CDN assets |
 
 ### Class order

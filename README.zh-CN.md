@@ -102,7 +102,8 @@ wulu-geetest download --all -f  # 强制重新下载
 ```
 
 模型在首次使用时本来就会自动下载，这个命令是给「提前预热」用的，比如打进镜像。
-`--quiet` 关掉进度条；stderr 不是终端时进度条也会自动关掉。
+`--quiet` 关掉进度条；stderr 不是终端时进度条也会自动关掉。`--endpoint <url>`
+可以把下载改走镜像站，比如默认站点不通时用 `--endpoint https://hf-mirror.com`。
 
 扩展作者请注意：把 `download_model(progress=None, *, force=False) -> Path` 注册到同一个
 entry point 组即可，你取的名字就是命令行参数名；完整契约见

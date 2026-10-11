@@ -48,13 +48,13 @@ uv publish
 - **`solver/`**: lazy-loaded through module `__getattr__` — a missing optional dep returns a stub raising `ImportError` that names the extra to install. `match.py` and `winlinze.py` are pure Python; `slide.py` needs the `slide` extra (opencv); `svg.py` needs the `svg` extra (resvg-py + pillow + opencv) and also exports `frame_times()`. Third-party solvers register under the `wulu_geetest_bypass.solvers` entry point group (entry point name = `captcha_type`); `discover_plugins()` collects them into `Geetest._solvers` at import time.
 - **`track/`**: `TrackBuilder` (bezier + jitter) plus the `gen_*_track()` generators in `generators.py`; `track_zip()` / `track_unzip()` implement the SDK's track codec; `types.py` holds `TrackType` / `PointerType` / `TrackPayload`.
 - **`_exceptions.py`**: `GeetestError` (base), `ConfigError`, `RateLimitError`, `VerifyError`. None of them are re-exported from `__init__.py`.
-- **`extensions/*`** are uv workspace members. `wulu-geetest-bypass-voice` is the offline MFCC digit recogniser (`solve_voice`): it ships `{lang}.npz` templates for 12 languages and registers the `voice` entry point. Regenerate templates with `scripts/build_voice_templates.py`.
+- **`extensions/*`** are uv workspace members. `wulu-geetest-bypass-voice` is the offline MFCC digit recogniser (`solve_voice`): it ships `{lang}.npz` templates for 12 languages and registers the `voice` entry point. Regenerate templates with `scripts/build_voice_templates.py`. `wulu-geetest-bypass-icon` (`solve_icon`) answers direction-icon questions by MD5-matching each question thumbnail against `_config.DIR_HASHES` and YOLO-detecting the collage with an ONNX model fetched from HuggingFace.
 
 ## Key gotchas
 
 - Use `uv`, not `pip`. Interpreter is 3.11 (`.python-version`); the venv is `.venv`.
-- The extras (`voice`, `slide`, `svg`, `image`, `all`) are for downstream installs. In this repo `uv sync` already brings in every workspace member and dev dependency.
-- `tests/test_geetest.py` and `tests/test_svg.py` call the live Geetest API (`conftest.py` holds the `captcha_id`) and dump images into `resources/` (gitignored). They need network, and results depend on the exit IP.
+- The extras (`voice`, `slide`, `svg`, `icon`, `image`, `all`) are for downstream installs. In this repo `uv sync` already brings in every workspace member and dev dependency.
+- `tests/test_geetest.py`, `tests/test_svg.py` and `tests/test_icon.py` call the live Geetest API (`conftest.py` holds the `captcha_id`) and dump images into `resources/` (gitignored). They need network, and results depend on the exit IP.
 - `scripts/extract-config.mjs` is the only Node.js piece. CI runs it daily; locally it accepts `--dry-run` or a local SDK file (which implies `--dry-run`).
 - `Geetest.default_headers` deliberately omits `Referer`: a real browser on a `file://` page sends none, and sending the geetest one flips some sites to `fail`.
 - Client emulation defaults to `Emulation.Chrome147`. Switching it to `Edge147` gets `forbidden` from at least one production site.

@@ -101,7 +101,9 @@ wulu-geetest download --all -f  # force a re-download
 
 Models are fetched on first use anyway; the command is for prefetching, e.g. when
 baking them into an image. `--quiet` hides the progress bar, which is also hidden
-automatically when stderr is not a terminal.
+automatically when stderr is not a terminal. `--endpoint <url>` routes the
+download through a mirror instead — e.g. `--endpoint https://hf-mirror.com` when
+the default host is unreachable.
 
 For extension authors: register `download_model(progress=None, *, force=False) -> Path`
 under the same entry point group — the name you pick becomes the CLI argument. The
