@@ -19,7 +19,7 @@ OWNER = 'wulu007'
 HF_REPO = 'gt'
 GH_REPO = 'geetest-bypass'
 
-CACHE_DIR = Path(user_cache_dir('wulu-geetest-bypass-icon', appauthor=False))
+CACHE_DIR = Path(user_cache_dir('wulu-geetest-bypass', appauthor=False))
 MODEL_PATH = CACHE_DIR / FILENAME
 
 SOURCES = (
