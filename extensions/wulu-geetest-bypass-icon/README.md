@@ -35,6 +35,16 @@ See [THIRD_PARTY_NOTICES.md](https://github.com/wulu007/geetest-bypass/blob/main
 2. `<CACHE_DIR>/<FILENAME>`
 3. download from `SOURCES` (in order) into `CACHE_DIR`
 
+The model also downloads on first use. To prefetch it, run the main package's CLI:
+
+```bash
+wulu-geetest download icon
+```
+
+`download_model(progress=None, *, force=False)` is registered under the
+`wulu_geetest_bypass.downloads` entry point group, which is how that command finds
+it; call it directly to download without the framework.
+
 ### Environment variables
 
 | Variable | Meaning | Default |

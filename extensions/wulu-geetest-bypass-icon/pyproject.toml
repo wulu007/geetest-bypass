@@ -18,3 +18,6 @@ build-backend = "uv_build"
 
 [project.entry-points."wulu_geetest_bypass.solvers"]
 icon = "wulu_geetest_bypass_icon.solver:solve_icon"
+
+[project.entry-points."wulu_geetest_bypass.downloads"]
+icon = "wulu_geetest_bypass_icon.download:download_model"
