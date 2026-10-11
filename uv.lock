@@ -1021,7 +1021,7 @@ wheels = [
 
 [[package]]
 name = "wulu-geetest-bypass"
-version = "0.4.1"
+version = "0.5.0b1"
 source = { editable = "." }
 dependencies = [
     { name = "pycryptodome" },

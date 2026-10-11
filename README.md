@@ -88,6 +88,10 @@ uv add "wulu-geetest-bypass[all]"
 
 ### Command line
 
+> **New in 0.5.0.** The `wulu-geetest` command, the `downloads` entry point group
+> and the `--endpoint` flag do not exist in 0.4.x and earlier. Upgrade with
+> `uv add -U wulu-geetest-bypass`.
+
 The package installs a `wulu-geetest` command. Extensions that ship a large model
 register a downloader through the `wulu_geetest_bypass.downloads` entry point
 group, and the CLI discovers them — one command covers all of them:

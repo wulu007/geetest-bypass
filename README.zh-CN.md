@@ -90,6 +90,9 @@ uv add "wulu-geetest-bypass[all]"
 
 ### 命令行
 
+> **0.5.0 新增。** `wulu-geetest` 命令、`downloads` entry point 组和 `--endpoint`
+> 参数在 0.4.x 及更早版本中都不存在。升级：`uv add -U wulu-geetest-bypass`。
+
 安装后会带一个 `wulu-geetest` 命令。需要下载大模型的扩展会通过
 `wulu_geetest_bypass.downloads` 这个 entry point 组注册下载器，主命令会自动发现，
 所以一个命令就能覆盖全部扩展：
