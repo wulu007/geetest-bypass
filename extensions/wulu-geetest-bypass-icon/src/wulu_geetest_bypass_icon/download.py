@@ -3,12 +3,11 @@ from __future__ import annotations
 import contextlib
 import os
 import tempfile
-import urllib.error
 import urllib.request
 from collections.abc import Callable
 from pathlib import Path
 
-from ._config import CACHE_DIR, MODEL_PATH, SOURCES
+from ._config import CACHE_DIR, MODEL_PATH, model_url
 
 Progress = Callable[[int, int | None], None]
 
@@ -23,23 +22,20 @@ def resolve_model() -> Path:
 def download_model(progress: Progress | None = None, *, force: bool = False) -> Path:
     """Download the onnx model into the cache dir.
 
-    Returns the cached path without downloading unless ``force`` is set. Sources
-    are tried in order (HuggingFace, then GitHub Release) until one succeeds.
-    The payload is written to a temp file next to the target and atomically
-    renamed, so a partial or failed download never leaves a bogus model behind.
+    Returns the cached path without downloading unless ``force`` is set. The
+    payload is written to a temp file next to the target and atomically renamed,
+    so a partial or failed download never leaves a bogus model behind.
     ``progress`` receives ``(bytes_done, bytes_total | None)``.
     """
     if MODEL_PATH.is_file() and not force:
         return MODEL_PATH
     CACHE_DIR.mkdir(parents=True, exist_ok=True)
-    errors: list[str] = []
-    for name, url in SOURCES:
-        try:
-            _download_to(url, MODEL_PATH, progress)
-            return MODEL_PATH
-        except (OSError, urllib.error.URLError) as exc:
-            errors.append(f'{name}: {exc}')
-    raise RuntimeError('icon: no download source available: ' + ' | '.join(errors))
+    url = model_url()
+    try:
+        _download_to(url, MODEL_PATH, progress)
+    except OSError as exc:
+        raise RuntimeError(f'{url} unreachable: {exc}') from exc
+    return MODEL_PATH
 
 
 def _download_to(url: str, target: Path, progress: Progress | None = None) -> None:

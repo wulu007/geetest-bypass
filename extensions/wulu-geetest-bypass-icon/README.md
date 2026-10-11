@@ -33,12 +33,27 @@ See [THIRD_PARTY_NOTICES.md](https://github.com/wulu007/geetest-bypass/blob/main
 
 1. `$WULU_ICON_MODEL`, if it points at an existing file
 2. `<CACHE_DIR>/<FILENAME>`
-3. download from `SOURCES` (in order) into `CACHE_DIR`
+3. download `model_url()` into `CACHE_DIR`
 
 The model also downloads on first use. To prefetch it, run the main package's CLI:
 
 ```bash
 wulu-geetest download icon
+```
+
+If `huggingface.co` is unreachable, point `HF_ENDPOINT` at a mirror — the same
+variable `huggingface_hub` reads, so anything already configured for it works
+here too:
+
+```bash
+export HF_ENDPOINT=https://hf-mirror.com
+wulu-geetest download icon
+```
+
+`--endpoint` is shorthand for setting that variable for the one command:
+
+```bash
+wulu-geetest download icon --endpoint https://hf-mirror.com
 ```
 
 `download_model(progress=None, *, force=False)` is registered under the
@@ -54,6 +69,7 @@ it; call it directly to download without the framework.
 | `WULU_ICON_CONF_THRES` | Confidence threshold. | `0.10` |
 | `WULU_ICON_IOU_THRES` | NMS IoU threshold. | `0.45` |
 | `WULU_ICON_MAX_DET` | Max boxes kept per background. | `4` |
+| `HF_ENDPOINT` | Base URL the model is downloaded from; set it to a mirror when `huggingface.co` is unreachable. Read on each download, so it may be set after import. | `https://huggingface.co` |
 
 ### Source constants (`_config.py`)
 
@@ -63,8 +79,8 @@ For downstream forks that ship their own model:
 | --- | --- | --- |
 | `FILENAME` | Model filename; also its name inside the cache dir. | `icon_t1_261010` |
 | `OWNER`, `HF_REPO` | HuggingFace repo holding the model. | `wulu007`, `gt` |
-| `GH_REPO` | GitHub repo used for the release fallback. | `geetest-bypass` |
-| `SOURCES` | Download sources, tried in order. | HuggingFace → GitHub Release |
+| `DEFAULT_ENDPOINT` | Host used when `HF_ENDPOINT` is unset. | `https://huggingface.co` |
+| `model_url()` | `{endpoint}/{OWNER}/{HF_REPO}/resolve/main/{FILENAME}`. | — |
 | `CACHE_DIR` | Where the model is cached. | `platformdirs.user_cache_dir('wulu-geetest-bypass-icon', appauthor=False)` |
 | `DIR_HASHES` | Question-icon MD5 → direction. | 8 CDN assets |
 

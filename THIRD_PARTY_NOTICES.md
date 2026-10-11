@@ -9,7 +9,7 @@ project.
 | | |
 | --- | --- |
 | Source | [gaogzhen/GeekedTest](https://github.com/gaogzhen/GeekedTest) — `geeked/models/icon_yolo.onnx` |
-| Used by | `wulu-geetest-bypass-icon` (fetched at runtime, also mirrored on HuggingFace) |
+| Used by | `wulu-geetest-bypass-icon` (fetched at runtime from HuggingFace) |
 | License | MIT |
 
 The ONNX file is redistributed unmodified. The direction table in

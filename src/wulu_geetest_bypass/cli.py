@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import argparse
 import importlib.metadata
+import os
 import sys
 from collections.abc import Callable
 from pathlib import Path
@@ -23,7 +24,7 @@ class Downloader(Protocol):
 def discover_downloads() -> dict[str, Downloader]:
     """Collect model downloaders registered through entry points.
 
-    Extensions keep their own CLI and register the same callable here::
+    Extensions register the callable that fetches their model here::
 
         [project.entry-points."wulu_geetest_bypass.downloads"]
         icon = "wulu_geetest_bypass_icon.download:download_model"
@@ -85,7 +86,8 @@ def main(argv: list[str] | None = None) -> int:
             'examples:\n'
             '  wulu-geetest download --list\n'
             '  wulu-geetest download icon --force\n'
-            '  wulu-geetest download --all --quiet'
+            '  wulu-geetest download --all --quiet\n'
+            '  wulu-geetest download icon --endpoint https://hf-mirror.com'
         ),
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
@@ -107,6 +109,12 @@ def main(argv: list[str] | None = None) -> int:
     download.add_argument(
         '-q', '--quiet', action='store_true', help='hide the progress bar'
     )
+    download.add_argument(
+        '-e',
+        '--endpoint',
+        metavar='URL',
+        help='fetch from this HuggingFace endpoint instead of the default (sets HF_ENDPOINT)',
+    )
 
     args = parser.parse_args(argv)
     if args.command == 'download':
@@ -115,6 +123,8 @@ def main(argv: list[str] | None = None) -> int:
 
 
 def _download(args: argparse.Namespace) -> int:
+    if args.endpoint:
+        os.environ['HF_ENDPOINT'] = args.endpoint
     downloads = discover_downloads()
     if args.list:
         print(

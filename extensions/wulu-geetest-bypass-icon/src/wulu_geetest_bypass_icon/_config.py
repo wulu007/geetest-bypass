@@ -11,27 +11,22 @@ from pathlib import Path
 
 from platformdirs import user_cache_dir
 
-# The only variable parts of the download sources are the owner and repository
-# names; the paths themselves are fixed templates. Edit these to point at your
-# own distribution.
+# Where the model is hosted. `HF_ENDPOINT` is the same variable huggingface_hub
+# reads, so pointing it at a mirror (https://hf-mirror.com) reroutes this too.
 FILENAME = 'icon_t1_261010'
 OWNER = 'wulu007'
 HF_REPO = 'gt'
-GH_REPO = 'geetest-bypass'
+DEFAULT_ENDPOINT = 'https://huggingface.co'
 
 CACHE_DIR = Path(user_cache_dir('wulu-geetest-bypass', appauthor=False))
 MODEL_PATH = CACHE_DIR / FILENAME
 
-SOURCES = (
-    (
-        'HuggingFace',
-        f'https://huggingface.co/{OWNER}/{HF_REPO}/resolve/main/{FILENAME}',
-    ),
-    (
-        'GitHub Release',
-        f'https://github.com/{OWNER}/{GH_REPO}/releases/latest/download/{FILENAME}',
-    ),
-)
+
+def model_url() -> str:
+    """Read the endpoint at call time, so ``HF_ENDPOINT`` may be set after import."""
+    endpoint = os.environ.get('HF_ENDPOINT', DEFAULT_ENDPOINT).rstrip('/')
+    return f'{endpoint}/{OWNER}/{HF_REPO}/resolve/main/{FILENAME}'
+
 
 CONF_THRES = float(os.environ.get('WULU_ICON_CONF_THRES', 0.10))
 IOU_THRES = float(os.environ.get('WULU_ICON_IOU_THRES', 0.45))
