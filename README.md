@@ -37,14 +37,19 @@
 | `svg_seed` | SVG 3x3 image selection  | `[svg]`    | ✅      |
 | `svg_icon` | SVG 2x2 icon selection   | `[svg]`    | ✅      |
 | `voice`    | Voice verification       | `[voice]`  | ✅      |
-| `icon`     | Icon click               | none       | ❌      |
+| `icon`     | Direction icon click     | `[icon]`   | 🧪      |
+|            | Similarity icon click    | none       | ❌      |
 | `word`     | Word click               | none       | ❌      |
 | `nine`     | Nine-grid                | none       | ❌      |
 | `phrase`   | Phrase recognition       | none       | ❌      |
 | `pencil`   | Doodle                   | none       | ❌      |
 | `space`    | Spatial reasoning        | none       | ❌      |
 
-The `Dependency` column refers to the [dependency groups](#installation) below. Types marked ❌ have no built-in solver — register your own via [custom solvers](#register-custom-solvers).
+The `Dependency` column refers to the [dependency groups](#installation) below.
+
+- ✅ — Built-in solver, ready to use.
+- 🧪 — Experimental solver; not fully validated.
+- ❌ — No built-in solver; register your own via [custom solvers](#register-custom-solvers).
 
 <a id="installation"></a>
 ## 📦 Installation
@@ -72,6 +77,10 @@ uv add "wulu-geetest-bypass[slide]"
 
 # SVG icon & seed selection
 uv add "wulu-geetest-bypass[svg]"
+
+# icon click (direction-type questions)
+uv add "wulu-geetest-bypass[icon]"
+wulu-geetest download icon  # prefetch the model
 
 # Install everything
 uv add "wulu-geetest-bypass[all]"
