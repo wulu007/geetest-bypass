@@ -38,6 +38,9 @@ image = ["opencv-python-headless>=4.13.0.92"]
 icon = ["wulu-geetest-bypass-icon"]
 all = ["wulu-geetest-bypass[voice,slide,svg,icon]"]
 
+[project.scripts]
+wulu-geetest = "wulu_geetest_bypass.cli:main"
+
 [tool.hatch.build.targets.wheel]
 packages = ["src/wulu_geetest_bypass"]
 exclude = ["tests/", "scripts/", "src/wulu_geetest_bypass/data/*.json"]
