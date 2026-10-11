@@ -77,6 +77,26 @@ uv add "wulu-geetest-bypass[svg]"
 uv add "wulu-geetest-bypass[all]"
 ```
 
+### 命令行
+
+安装后会带一个 `wulu-geetest` 命令。需要下载大模型的扩展会通过
+`wulu_geetest_bypass.downloads` 这个 entry point 组注册下载器，主命令会自动发现，
+所以一个命令就能覆盖全部扩展：
+
+```bash
+wulu-geetest download --list    # 列出已装扩展能提供的模型
+wulu-geetest download <name>    # 下载单个（已缓存则跳过）
+wulu-geetest download --all     # 下载全部已注册模型
+wulu-geetest download --all -f  # 强制重新下载
+```
+
+模型在首次使用时本来就会自动下载，这个命令是给「提前预热」用的，比如打进镜像。
+`--quiet` 关掉进度条；stderr 不是终端时进度条也会自动关掉。
+
+扩展作者请注意：把 `download_model(progress=None, *, force=False) -> Path` 注册到同一个
+entry point 组即可，你取的名字就是命令行参数名；完整契约见
+`wulu_geetest_bypass.cli.discover_downloads` 的 docstring。
+
 ## 🚀 快速开始
 
 ```python
@@ -280,6 +300,14 @@ class Seccode:
 - 本项目持续跟踪极验 v4 行为验证的变更，并及时更新绕过逻辑与求解器。
 - 遇到问题欢迎提交 [Issue](https://github.com/wulu007/geetest-bypass/issues)，也欢迎 PR。
 - 如果本项目对你有帮助，欢迎点个 ⭐ Star 支持持续开发。
+
+## 🙏 致谢
+
+`icon` 求解器使用的 YOLO 模型并非本项目训练。ONNX 模型文件与 `_config.py` 中的方向映射表均来自
+[gaogzhen/GeekedTest](https://github.com/gaogzhen/GeekedTest)，遵循 MIT License —— 完整许可文本见
+[THIRD_PARTY_NOTICES.md](./THIRD_PARTY_NOTICES.md)。
+
+同时感谢 [xKiian/GeekedTest](https://github.com/xKiian/GeekedTest)，gaogzhen/GeekedTest 基于该项目构建。
 
 ## 📄 License
 

@@ -1,0 +1,23 @@
+[project]
+name = "wulu-geetest-bypass-icon"
+version = "0.1.0"
+description = "Offline YOLO icon-direction solver for Geetest v4 icon captchas"
+readme = "README.md"
+authors = [{ name = "wulu007", email = "dabaobeix@gmail.com" }]
+license = { text = "MIT" }
+requires-python = ">=3.11"
+dependencies = [
+    "onnxruntime>=1.31.0",
+    "opencv-python-headless>=4.13.0.92",
+    "platformdirs>=4.12.4",
+]
+
+[build-system]
+requires = ["uv_build>=0.11.21,<0.12.0"]
+build-backend = "uv_build"
+
+[project.entry-points."wulu_geetest_bypass.solvers"]
+icon = "wulu_geetest_bypass_icon.solver:solve_icon"
+
+[project.entry-points."wulu_geetest_bypass.downloads"]
+icon = "wulu_geetest_bypass_icon.download:download_model"

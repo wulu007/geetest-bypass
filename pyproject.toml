@@ -35,7 +35,11 @@ voice = ["wulu-geetest-bypass-voice>=0.1.2"]
 svg = ["pillow>=12.2.0", "resvg-py>=0.3.2", "wulu-geetest-bypass[image]"]
 slide = ["wulu-geetest-bypass[image]"]
 image = ["opencv-python-headless>=4.13.0.92"]
-all = ["wulu-geetest-bypass[voice,slide,svg]"]
+icon = ["wulu-geetest-bypass-icon"]
+all = ["wulu-geetest-bypass[voice,slide,svg,icon]"]
+
+[project.scripts]
+wulu-geetest = "wulu_geetest_bypass.cli:main"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/wulu_geetest_bypass"]
@@ -47,6 +51,7 @@ path = "scripts/hatch_build.py"
 [tool.uv.sources]
 wulu-geetest-bypass = { workspace = true }
 wulu-geetest-bypass-voice = { workspace = true }
+wulu-geetest-bypass-icon = { workspace = true }
 
 [tool.ruff.format]
 quote-style = "single"
@@ -67,6 +72,11 @@ addopts = "-s"
 
 [tool.pyrefly]
 project-includes = ["**/*.py*", "**/*.ipynb"]
+search-path = [
+    "src",
+    "extensions/wulu-geetest-bypass-voice/src",
+    "extensions/wulu-geetest-bypass-icon/src",
+]
 
 [dependency-groups]
 dev = [

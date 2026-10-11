@@ -77,6 +77,27 @@ uv add "wulu-geetest-bypass[svg]"
 uv add "wulu-geetest-bypass[all]"
 ```
 
+### Command line
+
+The package installs a `wulu-geetest` command. Extensions that ship a large model
+register a downloader through the `wulu_geetest_bypass.downloads` entry point
+group, and the CLI discovers them — one command covers all of them:
+
+```bash
+wulu-geetest download --list    # models the installed extensions can provide
+wulu-geetest download <name>    # download one (skipped when already cached)
+wulu-geetest download --all     # download every registered model
+wulu-geetest download --all -f  # force a re-download
+```
+
+Models are fetched on first use anyway; the command is for prefetching, e.g. when
+baking them into an image. `--quiet` hides the progress bar, which is also hidden
+automatically when stderr is not a terminal.
+
+For extension authors: register `download_model(progress=None, *, force=False) -> Path`
+under the same entry point group — the name you pick becomes the CLI argument. The
+full contract is in the `wulu_geetest_bypass.cli.discover_downloads` docstring.
+
 ## 🚀 Quick Start
 
 ```python
@@ -279,6 +300,16 @@ This project is for learning and research purposes only. Users should comply wit
 - This project continuously tracks Geetest v4 behavioral verification changes and updates the bypass logic and solvers promptly.
 - Please open an [Issue](https://github.com/wulu007/geetest-bypass/issues) if you encounter problems, and PRs are welcome.
 - If this project helps you, feel free to give it a ⭐ Star to encourage continued development.
+
+## 🙏 Credits
+
+The `icon` solver uses a third-party YOLO model rather than one trained here. Both
+the ONNX file and the direction mapping table in `_config.py` come from
+[gaogzhen/GeekedTest](https://github.com/gaogzhen/GeekedTest) under the MIT License —
+see [THIRD_PARTY_NOTICES.md](./THIRD_PARTY_NOTICES.md) for the full text.
+
+Thanks also to [xKiian/GeekedTest](https://github.com/xKiian/GeekedTest), which
+gaogzhen/GeekedTest builds on.
 
 ## 📄 License
 
