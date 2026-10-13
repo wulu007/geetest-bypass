@@ -6,5 +6,13 @@
     "abo_key": "n[26:28]+n[24:26]",
     "abo_val": "n[1:8]",
     "track_enable": true
+  },
+  "v1.9.8-0c99e9": {
+    "biht": "1426265548",
+    "lib_key": "seNY",
+    "lib_val": "QAUJ",
+    "abo_key": "(n[18:23])+.+(n[20:20]+n[29:29]+n[11:11]+n[6:6])+.+(n[24:27]+n[20:23])",
+    "abo_val": "n[23:30]",
+    "track_enable": true
   }
 }
