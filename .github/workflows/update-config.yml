@@ -52,6 +52,7 @@ jobs:
         with:
           enable-cache: true
           python-version: "3.11"
+          ignore-nothing-to-cache: true
 
       - name: Update config
         id: update
