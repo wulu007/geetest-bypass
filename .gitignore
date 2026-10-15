@@ -10,6 +10,10 @@ wheels/
 .venv
 .ruff_cache
 
+# pytest-benchmark 基线（--benchmark-autosave）
+.benchmarks/
+.pytest_cache/
+
 # IDE
 .vscode/
 .shatter/

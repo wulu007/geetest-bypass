@@ -36,12 +36,13 @@ Repository = "https://github.com/wulu007/geetest-bypass.git"
 Issues = "https://github.com/wulu007/geetest-bypass/issues"
 
 [project.optional-dependencies]
+all = ["wulu-geetest-bypass[voice,slide,svg,icon,phrase]"]
 voice = ["wulu-geetest-bypass-voice>=0.1.2"]
 svg = ["pillow>=12.2.0", "resvg-py>=0.3.2", "wulu-geetest-bypass[image]"]
 slide = ["wulu-geetest-bypass[image]"]
 image = ["opencv-python-headless>=4.13.0.92"]
 icon = ["wulu-geetest-bypass-icon"]
-all = ["wulu-geetest-bypass[voice,slide,svg,icon]"]
+phrase = ["wulu-geetest-bypass-phrase"]
 
 [project.scripts]
 gt-pull = "wulu_geetest_bypass.cli:main"
@@ -57,6 +58,7 @@ path = "scripts/hatch_build.py"
 wulu-geetest-bypass = { workspace = true }
 wulu-geetest-bypass-voice = { workspace = true }
 wulu-geetest-bypass-icon = { workspace = true }
+wulu-geetest-bypass-phrase = { workspace = true }
 
 [tool.ruff.format]
 quote-style = "single"
@@ -74,6 +76,15 @@ split-on-trailing-comma = true
 
 [tool.pytest.ini_options]
 addopts = "-s"
+markers = [
+    "unmarked: conftest 自动补的兜底标记（既不属于任何分组）",
+    "smoke: 冒烟",
+    "slow: 慢",
+    "integration: 集成（联网 / 依赖外部服务）",
+    "draw: 绘图 debug —— 线上拉一张，画出定位框与点击顺序",
+    "accuracy: 线上通过率 —— 提交给服务器验证，慢且消耗挑战配额",
+    "perf: 性能 —— 离线跑本地语料，统计定位/识别/语序还原各阶段耗时",
+]
 
 [tool.pyrefly]
 project-includes = ["**/*.py*", "**/*.ipynb"]
@@ -81,6 +92,7 @@ search-path = [
     "src",
     "extensions/wulu-geetest-bypass-voice/src",
     "extensions/wulu-geetest-bypass-icon/src",
+    "extensions/wulu-geetest-bypass-phrase/src",
 ]
 
 [dependency-groups]
@@ -91,4 +103,5 @@ dev = [
     "wulu-geetest-bypass[all]",
     "pyrefly>=1.2.0",
     "ruff==0.16.4",
+    "pytest-benchmark>=5.3.0",
 ]
