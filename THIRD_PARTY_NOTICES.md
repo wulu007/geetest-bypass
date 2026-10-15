@@ -42,3 +42,17 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ```
+
+## uer/chinese_roberta_L-2_H-128
+
+| | |
+| --- | --- |
+| Source | [uer/chinese_roberta_L-2_H-128](https://huggingface.co/uer/chinese_roberta_L-2_H-128) — one of the *Chinese RoBERTa Miniatures*, pre-trained by [UER-py](https://github.com/dbiir/UER-py) on CLUECorpusSmall |
+| Used by | `wulu-geetest-bypass-phrase` — `order.onnx` is a fine-tune of it, with a 4-way scoring head in place of the masked-LM head |
+| License | **Not declared.** The upstream model card states no license; the UER-py toolkit that pre-trained these weights is Apache-2.0. |
+
+`tokenizer.json` is built from the base model's 21128-token WordPiece vocabulary.
+Only the fine-tuned ONNX export and that vocabulary are redistributed here, not the
+original weights. Because the upstream card declares no license, no license text is
+reproduced above — this notice should be revisited if upstream adds one. The model
+card also asks that the UER-py and RoBERTa papers be cited.

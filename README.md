@@ -41,7 +41,7 @@
 |            | Similarity icon click    | none       | ❌      |
 | `word`     | Word click               | none       | ❌      |
 | `nine`     | Nine-grid                | none       | ❌      |
-| `phrase`   | Phrase recognition       | none       | ❌      |
+| `phrase`   | Phrase click order       | `[phrase]` | 🧪      |
 | `pencil`   | Doodle                   | none       | ❌      |
 | `space`    | Spatial reasoning        | none       | ❌      |
 
@@ -80,7 +80,11 @@ uv add "wulu-geetest-bypass[svg]"
 
 # icon click (direction-type questions)
 uv add "wulu-geetest-bypass[icon]"
-wulu-geetest download icon  # prefetch the model
+gt-pull download icon  # prefetch the model
+
+# phrase captcha (click the four characters in phrase order)
+uv add "wulu-geetest-bypass[phrase]"
+gt-pull download phrase  # prefetch the models
 
 # Install everything
 uv add "wulu-geetest-bypass[all]"
@@ -88,30 +92,28 @@ uv add "wulu-geetest-bypass[all]"
 
 ### Command line
 
-> **New in 0.5.0.** The `wulu-geetest` command, the `downloads` entry point group
-> and the `--endpoint` flag do not exist in 0.4.x and earlier. Upgrade with
+> **New in 0.5.0.** The `gt-pull` command and the `wulu_geetest_bypass.fetcher`
+> entry point group do not exist in 0.4.x and earlier. Upgrade with
 > `uv add -U wulu-geetest-bypass`.
 
-The package installs a `wulu-geetest` command. Extensions that ship a large model
-register a downloader through the `wulu_geetest_bypass.downloads` entry point
-group, and the CLI discovers them — one command covers all of them:
+The package installs a `gt-pull` command. Extensions that ship a large model
+register a downloader through the `wulu_geetest_bypass.fetcher` entry point group,
+and the CLI discovers them — one command covers all of them:
 
 ```bash
-wulu-geetest download --list    # models the installed extensions can provide
-wulu-geetest download <name>    # download one (skipped when already cached)
-wulu-geetest download --all     # download every registered model
-wulu-geetest download --all -f  # force a re-download
+gt-pull status                   # installed plugins and their cached assets
+gt-pull download <name>          # one plugin's assets; cached files are skipped
+gt-pull download --all           # every registered plugin
+gt-pull download --all --force   # re-download from scratch
 ```
 
 Models are fetched on first use anyway; the command is for prefetching, e.g. when
-baking them into an image. `--quiet` hides the progress bar, which is also hidden
-automatically when stderr is not a terminal. `--endpoint <url>` routes the
-download through a mirror instead — e.g. `--endpoint https://hf-mirror.com` when
-the default host is unreachable.
+baking them into an image. Extension models live on HuggingFace — set `HF_ENDPOINT`
+(e.g. `https://hf-mirror.com`) before running the command to route through a mirror.
 
-For extension authors: register `download_model(progress=None, *, force=False) -> Path`
-under the same entry point group — the name you pick becomes the CLI argument. The
-full contract is in the `wulu_geetest_bypass.cli.discover_downloads` docstring.
+For extension authors: register a `pooch.Pooch` — or a zero-argument factory that
+returns one — under the same entry point group; the entry point name becomes the CLI
+argument. The discovery logic is `wulu_geetest_bypass.cli.discover_fetchers`.
 
 ## 🚀 Quick Start
 
@@ -322,6 +324,12 @@ The `icon` solver uses a third-party YOLO model rather than one trained here. Bo
 the ONNX file and the direction mapping table in `_config.py` come from
 [gaogzhen/GeekedTest](https://github.com/gaogzhen/GeekedTest) under the MIT License —
 see [THIRD_PARTY_NOTICES.md](./THIRD_PARTY_NOTICES.md) for the full text.
+
+The `phrase` solver's ordering model is fine-tuned from
+[uer/chinese_roberta_L-2_H-128](https://huggingface.co/uer/chinese_roberta_L-2_H-128),
+one of the Chinese RoBERTa Miniatures pre-trained by
+[UER-py](https://github.com/dbiir/UER-py) on CLUECorpusSmall. The upstream model card
+declares no license — see [THIRD_PARTY_NOTICES.md](./THIRD_PARTY_NOTICES.md).
 
 Thanks also to [xKiian/GeekedTest](https://github.com/xKiian/GeekedTest), which
 gaogzhen/GeekedTest builds on.

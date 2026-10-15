@@ -71,6 +71,14 @@ cost the same — it is there to raise accuracy.
 | `tokenizer.json` | 0.4 MiB | tokenizer for `order.onnx` |
 | `dict.json` | 20 KiB | `table` / `tried` / `pending` |
 
+`order.onnx` is a fine-tune of
+[uer/chinese_roberta_L-2_H-128](https://huggingface.co/uer/chinese_roberta_L-2_H-128)
+(Chinese RoBERTa Miniatures, pre-trained by
+[UER-py](https://github.com/dbiir/UER-py)): a 4-way scoring head replaces the
+masked-LM head, and `tokenizer.json` is built from the same 21128-token WordPiece
+vocabulary. The upstream model card declares no license — see
+[THIRD_PARTY_NOTICES.md](https://github.com/wulu007/geetest-bypass/blob/main/THIRD_PARTY_NOTICES.md).
+
 ## Download
 
 Everything is fetched on first use into

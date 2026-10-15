@@ -29,22 +29,22 @@
 
 ## 🧩 支持类型
 
-| 类型       | 说明             | 依赖      | 支持 |
-| ---------- | ---------------- | --------- | ---- |
-| `ai`       | 静默验证         | 无        | ✅   |
-| `slide`    | 滑块拼图         | `[slide]` | ✅   |
-| `match`    | 3×3 连线         | 无        | ✅   |
-| `winlinze` | 五子棋           | 无        | ✅   |
-| `svg_seed` | SVG 3×3 图片选择 | `[svg]`   | ✅   |
-| `svg_icon` | SVG 2×2 图标选择 | `[svg]`   | ✅   |
-| `voice`    | 语音验证         | `[voice]` | ✅   |
-| `icon`     | 方向类图标点选   | `[icon]`  | 🧪   |
-|            | 相似类图标点选   | 无        | ❌   |
-| `word`     | 文字点选         | 无        | ❌   |
-| `nine`     | 九宫格           | 无        | ❌   |
-| `phrase`   | 短语识别         | 无        | ❌   |
-| `pencil`   | 涂鸦             | 无        | ❌   |
-| `space`    | 空间推理         | 无        | ❌   |
+| 类型       | 说明             | 依赖       | 支持 |
+| ---------- | ---------------- | ---------- | ---- |
+| `ai`       | 静默验证         | 无         | ✅   |
+| `slide`    | 滑块拼图         | `[slide]`  | ✅   |
+| `match`    | 3×3 连线         | 无         | ✅   |
+| `winlinze` | 五子棋           | 无         | ✅   |
+| `svg_seed` | SVG 3×3 图片选择 | `[svg]`    | ✅   |
+| `svg_icon` | SVG 2×2 图标选择 | `[svg]`    | ✅   |
+| `voice`    | 语音验证         | `[voice]`  | ✅   |
+| `icon`     | 方向类图标点选   | `[icon]`   | 🧪   |
+|            | 相似类图标点选   | 无         | ❌   |
+| `word`     | 文字点选         | 无         | ❌   |
+| `nine`     | 九宫格           | 无         | ❌   |
+| `phrase`   | 短语语序点选     | `[phrase]` | 🧪   |
+| `pencil`   | 涂鸦             | 无         | ❌   |
+| `space`    | 空间推理         | 无         | ❌   |
 
 `依赖` 列指向下方的[依赖组](#installation)。
 
@@ -82,7 +82,11 @@ uv add "wulu-geetest-bypass[svg]"
 
 # icon 图标点选（方向类题目）
 uv add "wulu-geetest-bypass[icon]"
-wulu-geetest download icon  # 预热模型
+gt-pull download icon  # 预热模型
+
+# phrase 短语点选（按语序点四个字）
+uv add "wulu-geetest-bypass[phrase]"
+gt-pull download phrase  # 预热模型
 
 # 安装全部
 uv add "wulu-geetest-bypass[all]"
@@ -90,27 +94,27 @@ uv add "wulu-geetest-bypass[all]"
 
 ### 命令行
 
-> **0.5.0 新增。** `wulu-geetest` 命令、`downloads` entry point 组和 `--endpoint`
-> 参数在 0.4.x 及更早版本中都不存在。升级：`uv add -U wulu-geetest-bypass`。
+> **0.5.0 新增。** `gt-pull` 命令与 `wulu_geetest_bypass.fetcher` entry point 组在
+> 0.4.x 及更早版本中都不存在。升级：`uv add -U wulu-geetest-bypass`。
 
-安装后会带一个 `wulu-geetest` 命令。需要下载大模型的扩展会通过
-`wulu_geetest_bypass.downloads` 这个 entry point 组注册下载器，主命令会自动发现，
+安装后会带一个 `gt-pull` 命令。需要下载大模型的扩展会通过
+`wulu_geetest_bypass.fetcher` 这个 entry point 组注册下载器，主命令会自动发现，
 所以一个命令就能覆盖全部扩展：
 
 ```bash
-wulu-geetest download --list    # 列出已装扩展能提供的模型
-wulu-geetest download <name>    # 下载单个（已缓存则跳过）
-wulu-geetest download --all     # 下载全部已注册模型
-wulu-geetest download --all -f  # 强制重新下载
+gt-pull status                   # 列出已装插件及其缓存资产
+gt-pull download <name>          # 下载单个插件（已缓存的文件会跳过）
+gt-pull download --all           # 下载全部已注册插件
+gt-pull download --all --force   # 强制重新下载
 ```
 
 模型在首次使用时本来就会自动下载，这个命令是给「提前预热」用的，比如打进镜像。
-`--quiet` 关掉进度条；stderr 不是终端时进度条也会自动关掉。`--endpoint <url>`
-可以把下载改走镜像站，比如默认站点不通时用 `--endpoint https://hf-mirror.com`。
+扩展模型托管在 HuggingFace —— 想走镜像站，就在执行命令前设置 `HF_ENDPOINT`
+（例如 `https://hf-mirror.com`）。
 
-扩展作者请注意：把 `download_model(progress=None, *, force=False) -> Path` 注册到同一个
-entry point 组即可，你取的名字就是命令行参数名；完整契约见
-`wulu_geetest_bypass.cli.discover_downloads` 的 docstring。
+扩展作者请注意：把 `pooch.Pooch` 实例（或返回它的零参工厂）注册到同一个 entry point
+组即可，你取的名字就是命令行参数名；发现逻辑见
+`wulu_geetest_bypass.cli.discover_fetchers`。
 
 ## 🚀 快速开始
 
@@ -323,6 +327,12 @@ class Seccode:
 
 `icon` 求解器使用的 YOLO 模型并非本项目训练。ONNX 模型文件与 `_config.py` 中的方向映射表均来自
 [gaogzhen/GeekedTest](https://github.com/gaogzhen/GeekedTest)，遵循 MIT License —— 完整许可文本见
+[THIRD_PARTY_NOTICES.md](./THIRD_PARTY_NOTICES.md)。
+
+`phrase` 求解器的语序模型微调自
+[uer/chinese_roberta_L-2_H-128](https://huggingface.co/uer/chinese_roberta_L-2_H-128)
+（Chinese RoBERTa Miniatures 系列，由 [UER-py](https://github.com/dbiir/UER-py) 基于
+CLUECorpusSmall 预训练）。上游模型卡未声明任何许可 —— 详见
 [THIRD_PARTY_NOTICES.md](./THIRD_PARTY_NOTICES.md)。
 
 同时感谢 [xKiian/GeekedTest](https://github.com/xKiian/GeekedTest)，gaogzhen/GeekedTest 基于该项目构建。
