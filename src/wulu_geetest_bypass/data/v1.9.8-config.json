@@ -14,5 +14,13 @@
     "abo_key": "(n[18:23])+.+(n[20:20]+n[29:29]+n[11:11]+n[6:6])+.+(n[24:27]+n[20:23])",
     "abo_val": "n[23:30]",
     "track_enable": true
+  },
+  "v1.9.8-0d53fd": {
+    "biht": "1426265548",
+    "lib_key": "oQ9h",
+    "lib_val": "VQzx",
+    "abo_key": "(n[16:19]+n[13:16])+.+(n[12:19])",
+    "abo_val": "n[22:27]",
+    "track_enable": true
   }
 }
