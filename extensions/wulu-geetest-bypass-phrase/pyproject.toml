@@ -1,0 +1,50 @@
+[project]
+name = "wulu-geetest-bypass-phrase"
+version = "0.1.0"
+description = "Offline phrase captcha solver for Geetest v4 (detection, OCR, ordering)"
+readme = "README.md"
+authors = [{ name = "wulu007", email = "dabaobeix@gmail.com" }]
+license = { text = "MIT" }
+requires-python = ">=3.11"
+keywords = [
+    "geetest",
+    "bypass",
+    "captcha",
+    "phrase",
+    "ocr",
+    "onnx",
+    'wulu-geetest-bypass',
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+dependencies = [
+    "numpy>=2.4.6",
+    "onnxruntime>=1.31.0",
+    "platformdirs>=4.0.0",
+    "pooch>=1.8.0",
+    "rapidocr>=3.10.0",
+    "tokenizers>=0.23.1",
+]
+
+[build-system]
+requires = ["uv_build>=0.11.21,<0.12.0"]
+build-backend = "uv_build"
+
+[project.entry-points."wulu_geetest_bypass.solvers"]
+phrase = "wulu_geetest_bypass_phrase.solver:solve_phrase"
+
+[project.entry-points."wulu_geetest_bypass.fetcher"]
+phrase = "wulu_geetest_bypass_phrase.hub:get_fetcher"
+
+[project.urls]
+Homepage = "https://github.com/wulu007/geetest-bypass"
+Documentation = "https://github.com/wulu007/geetest-bypass#readme"
+Repository = "https://github.com/wulu007/geetest-bypass.git"
+Issues = "https://github.com/wulu007/geetest-bypass/issues"
