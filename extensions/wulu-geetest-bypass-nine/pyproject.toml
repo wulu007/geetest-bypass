@@ -1,39 +1,48 @@
-[build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
-
 [project]
 name = "wulu-geetest-bypass-nine"
 version = "0.1.0"
-description = "Nine-grid (3x3) solver using convnextv2_femto embeddings for wulu-geetest-bypass"
+description = "Offline ONNX nine-grid solver for Geetest v4 (3x3 cell matching)"
 readme = "README.md"
-requires-python = ">=3.11"
-license = { text = "MIT" }
 authors = [{ name = "wulu007", email = "dabaobeix@gmail.com" }]
+license = { text = "MIT" }
+requires-python = ">=3.11"
 keywords = [
     "geetest",
     "bypass",
     "captcha",
     "nine",
-    "convnext",
-    "wulu-geetest-bypass",
+    "onnx",
+    'wulu-geetest-bypass',
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Software Development :: Libraries :: Python Modules",
 ]
 dependencies = [
-    "timm>=1.0.0",
-    "torch>=2.0.0",
-    "torchvision>=0.15.0",
-    "numpy>=1.24.0",
-    "wulu-geetest-bypass",
+    "numpy>=2.4.6",
+    "onnxruntime>=1.31.0",
+    "pillow>=12.2.0",
+    "platformdirs>=4.0.0",
+    "pooch>=1.8.0",
 ]
+
+[build-system]
+requires = ["uv_build>=0.11.21,<0.12.0"]
+build-backend = "uv_build"
 
 [project.entry-points."wulu_geetest_bypass.solvers"]
 nine = "wulu_geetest_bypass_nine.solver:solve_nine"
+
+[project.entry-points."wulu_geetest_bypass.fetcher"]
+nine = "wulu_geetest_bypass_nine.hub:get_fetcher"
 
 [project.urls]
 Homepage = "https://github.com/wulu007/geetest-bypass"
 Documentation = "https://github.com/wulu007/geetest-bypass#readme"
 Repository = "https://github.com/wulu007/geetest-bypass.git"
 Issues = "https://github.com/wulu007/geetest-bypass/issues"
-
-[tool.hatch.build.targets.wheel]
-packages = ["src/wulu_geetest_bypass_nine"]
