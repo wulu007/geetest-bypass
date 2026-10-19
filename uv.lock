@@ -11,6 +11,7 @@ resolution-markers = [
 members = [
     "wulu-geetest-bypass",
     "wulu-geetest-bypass-icon",
+    "wulu-geetest-bypass-nine",
     "wulu-geetest-bypass-phrase",
     "wulu-geetest-bypass-voice",
 ]
@@ -1326,6 +1327,7 @@ all = [
     { name = "pillow" },
     { name = "resvg-py" },
     { name = "wulu-geetest-bypass-icon" },
+    { name = "wulu-geetest-bypass-nine" },
     { name = "wulu-geetest-bypass-phrase" },
     { name = "wulu-geetest-bypass-voice" },
 ]
@@ -1334,6 +1336,9 @@ icon = [
 ]
 image = [
     { name = "opencv-python-headless" },
+]
+nine = [
+    { name = "wulu-geetest-bypass-nine" },
 ]
 phrase = [
     { name = "wulu-geetest-bypass-phrase" },
@@ -1371,12 +1376,13 @@ requires-dist = [
     { name = "wreq", specifier = ">=0.12.0" },
     { name = "wulu-geetest-bypass", extras = ["image"], marker = "extra == 'slide'", editable = "." },
     { name = "wulu-geetest-bypass", extras = ["image"], marker = "extra == 'svg'", editable = "." },
-    { name = "wulu-geetest-bypass", extras = ["voice", "slide", "svg", "icon", "phrase"], marker = "extra == 'all'", editable = "." },
+    { name = "wulu-geetest-bypass", extras = ["voice", "slide", "svg", "icon", "phrase", "nine"], marker = "extra == 'all'", editable = "." },
     { name = "wulu-geetest-bypass-icon", marker = "extra == 'icon'", editable = "extensions/wulu-geetest-bypass-icon" },
+    { name = "wulu-geetest-bypass-nine", marker = "extra == 'nine'", editable = "extensions/wulu-geetest-bypass-nine" },
     { name = "wulu-geetest-bypass-phrase", marker = "extra == 'phrase'", editable = "extensions/wulu-geetest-bypass-phrase" },
     { name = "wulu-geetest-bypass-voice", marker = "extra == 'voice'", editable = "extensions/wulu-geetest-bypass-voice" },
 ]
-provides-extras = ["all", "voice", "svg", "slide", "image", "icon", "phrase"]
+provides-extras = ["all", "voice", "nine", "svg", "slide", "image", "icon", "phrase"]
 
 [package.metadata.requires-dev]
 dev = [
@@ -1405,6 +1411,27 @@ requires-dist = [
     { name = "onnxruntime", specifier = ">=1.31.0" },
     { name = "opencv-python-headless", specifier = ">=4.13.0.92" },
     { name = "pooch", extras = ["progress"], specifier = ">=1.9.0" },
+]
+
+[[package]]
+name = "wulu-geetest-bypass-nine"
+version = "0.1.0"
+source = { editable = "extensions/wulu-geetest-bypass-nine" }
+dependencies = [
+    { name = "numpy" },
+    { name = "onnxruntime" },
+    { name = "pillow" },
+    { name = "platformdirs" },
+    { name = "pooch" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "numpy", specifier = ">=2.4.6" },
+    { name = "onnxruntime", specifier = ">=1.31.0" },
+    { name = "pillow", specifier = ">=12.2.0" },
+    { name = "platformdirs", specifier = ">=4.0.0" },
+    { name = "pooch", specifier = ">=1.8.0" },
 ]
 
 [[package]]

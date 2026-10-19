@@ -1,0 +1,3 @@
+[submodule "repo/gt2"]
+	path = repo/gt2
+	url = git@hf.co:wulu007/gt2
