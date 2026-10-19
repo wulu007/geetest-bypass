@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+import os
 import sys
 from importlib.metadata import entry_points
 
@@ -110,8 +111,11 @@ def handle_download(args: argparse.Namespace) -> None:
             elif local_file.is_file():
                 print(f'  - Cached: {fname}')
                 continue
-
-            fetcher.fetch(fname, progressbar=True)
+            token = os.environ.get('HF_TOKEN')
+            headers = {'Authorization': f'Bearer {token.strip()}'} if token else {}
+            dl = pooch.HTTPDownloader(progressbar=True, headers=headers)
+            # pyrefly: ignore[bad-argument-type]
+            fetcher.fetch(fname, downloader=dl)
 
     print('\nAll assets synced.')
 
