@@ -58,6 +58,7 @@ path = "scripts/hatch_build.py"
 [tool.uv.sources]
 wulu-geetest-bypass = { workspace = true }
 wulu-geetest-bypass-voice = { workspace = true }
+wulu-geetest-bypass-icon = { workspace = true }
 wulu-geetest-bypass-nine = { workspace = true }
 wulu-geetest-bypass-phrase = { workspace = true }
 
@@ -94,6 +95,7 @@ search-path = [
     "extensions/wulu-geetest-bypass-voice/src",
     "extensions/wulu-geetest-bypass-icon/src",
     "extensions/wulu-geetest-bypass-phrase/src",
+    "extensions/wulu-geetest-bypass-nine/src",
 ]
 
 [dependency-groups]
