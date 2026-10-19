@@ -253,7 +253,7 @@ MatchSolver = Callable[[list[list[int]]], CoordPair | None]
 ClickSolver = Callable[[bytes, list[bytes]], ClickPos]
 """icon/word: (imgs, ques) -> normalized click coords (0~1, relative to image)"""
 NineSolver = Callable[[bytes, list[bytes], int], GridIndices]
-"""nine: (imgs, ques, nine_nums) -> grid indices"""
+"""nine: (imgs, ques, nine_nums) -> grid indices, 1-based"""
 DrawSolver = Callable[[bytes], ClickPos | TracePoints]
 """phrase/space/pencil: (imgs) -> normalized click coords or trace points"""
 VoiceSolver = Callable[[bytes, str], str]
