@@ -1312,7 +1312,7 @@ wheels = [
 
 [[package]]
 name = "wulu-geetest-bypass"
-version = "0.5.0b2"
+version = "0.5.0b3"
 source = { editable = "." }
 dependencies = [
     { name = "pooch", extra = ["progress"] },
