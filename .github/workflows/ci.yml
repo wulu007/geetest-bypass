@@ -57,7 +57,9 @@ jobs:
           uv build
 
       - name: Publish to PyPI
-        run: uv publish --check-url https://pypi.org/simple/
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          skip-existing: true
 
       - name: Check if Pre-release
         id: check_pre
