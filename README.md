@@ -12,12 +12,12 @@
  <b>English</b> | <a href="./README.zh-CN.md"><b>简体中文</b></a>
 </p>
 
-> A lightweight, pure Python library to automatically solve **Geetest Behavioral CAPTCHA v4** without Node.js or headless browsers. Features dynamic mouse trajectory simulation, 7 built-in risk type solvers, accessible voice bypass, and an extensible custom solver registry.
+> A lightweight, pure Python library to automatically solve **Geetest Behavioral CAPTCHA v4** without Node.js or headless browsers. Features dynamic mouse trajectory simulation, 10 built-in risk type solvers, accessible voice bypass, and an extensible custom solver registry.
 
 ## ✨ Features
 
 - 🚀 **Pure Python 3.11+** — Zero Node.js, headless browsers, or external runtime dependencies required.
-- 🛡️ **Multi-Risk Type Support** — Out-of-the-box solvers for 7 risk types ([see full table](#supported-risk-types)).
+- 🛡️ **Multi-Risk Type Support** — Out-of-the-box solvers for 10 risk types ([see full table](#supported-risk-types)).
 - 🎯 **Human-like Track Simulation** — Dynamically generated mouse trajectories for every run (no fixed replays).
 - 🔁 **Smart Auto-Retry** — One-call `resolve()` automatically retries up to 3 times on transient failures.
 - 🕹️ **Granular Step-by-Step Flow** — Separate `load()` and `verify()` steps for intercepting payloads and tokens.
