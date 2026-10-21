@@ -40,4 +40,6 @@ jobs:
         run: uv build "${{ steps.pkg.outputs.dir }}"
 
       - name: Publish to PyPI
-        run: uv publish
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          skip-existing: true
