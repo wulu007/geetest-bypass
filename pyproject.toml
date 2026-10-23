@@ -32,7 +32,7 @@ keywords = [
 [project.urls]
 Homepage = "https://github.com/wulu007/geetest-bypass"
 Documentation = "https://github.com/wulu007/geetest-bypass#readme"
-Repository = "https://github.com/wulu007/geetest-bypass"
+Repository = "https://github.com/wulu007/geetest-bypass.git"
 Issues = "https://github.com/wulu007/geetest-bypass/issues"
 
 [project.optional-dependencies]
