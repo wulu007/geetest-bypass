@@ -14,25 +14,8 @@ BASE_CACHE = Path(os.environ.get('WULU_CACHE_DIR', DEFAULT_BASE_CACHE))
 ROOT = Path(__file__).resolve().parents[4]
 
 # ==================== 2. 模型资产规范声明 ====================
-TYPE = 'yolo-text'
-LOCATE_VERSION = '261028'
-LOCATE_REL_PATH = f'{TYPE}/{LOCATE_VERSION}/locate.onnx'
-REC_REL_PATH = '_shared/ocr/ppocrv6_rec.onnx'
-
-REGISTRY = {
-    LOCATE_REL_PATH: 'SHA256:7c576268d6c8a4ced7e9248df569378bb971fd666c974b11816fb915230e0519',
-    REC_REL_PATH: 'SHA256:5435fd747c9e0efe15a96d0b378d5bd157e9492ed8fd80edf08f30d02fa24634',
-}
-
-URLS = {
-    LOCATE_REL_PATH: f'{ENDPOINT}/wulu007/gt/resolve/main/{LOCATE_REL_PATH}',
-    REC_REL_PATH: f'{ENDPOINT}/PaddlePaddle/PP-OCRv6_small_rec_onnx/resolve/main/inference.onnx',
-}
-
-CHECKOUT_REPO = {
-    LOCATE_REL_PATH: 'gt',
-    REC_REL_PATH: 'gt',
-}
+LOCATE_REL_PATH = 'yolo-text/261028/locate.onnx'
+REC_REL_PATH = 'ocr/ppocrv6_rec.onnx'
 
 
 # ==================== 3. 核心加载逻辑 ====================
@@ -43,7 +26,18 @@ def _get_downloader(progressbar: bool = True) -> pooch.HTTPDownloader:
 
 
 def get_fetcher() -> pooch.Pooch:
-    return pooch.create(path=BASE_CACHE, base_url='', registry=REGISTRY, urls=URLS)
+    return pooch.create(
+        path=BASE_CACHE,
+        base_url='',
+        registry={
+            LOCATE_REL_PATH: 'SHA256:7c576268d6c8a4ced7e9248df569378bb971fd666c974b11816fb915230e0519',
+            REC_REL_PATH: 'SHA256:5435fd747c9e0efe15a96d0b378d5bd157e9492ed8fd80edf08f30d02fa24634',
+        },
+        urls={
+            LOCATE_REL_PATH: f'{ENDPOINT}/wulu007/gt/resolve/main/{LOCATE_REL_PATH}',
+            REC_REL_PATH: f'{ENDPOINT}/PaddlePaddle/PP-OCRv6_small_rec_onnx/resolve/main/inference.onnx',
+        },
+    )
 
 
 def _resolve_asset(rel_path: str, *env_vars: str) -> Path:
@@ -54,7 +48,7 @@ def _resolve_asset(rel_path: str, *env_vars: str) -> Path:
             return Path(env_p)
 
     # 2. 本地开发仓库路径
-    local_dev_file = ROOT / 'repo' / CHECKOUT_REPO[rel_path] / rel_path
+    local_dev_file = ROOT / 'repo' / 'gt' / rel_path
     if local_dev_file.is_file():
         return local_dev_file
 
