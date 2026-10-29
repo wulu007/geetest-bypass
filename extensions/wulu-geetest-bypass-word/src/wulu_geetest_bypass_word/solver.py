@@ -5,16 +5,6 @@ whole character dictionary is a soft "which character is this" vector, so two
 renderings of the same glyph land close in cosine space while different glyphs
 do not. Matching therefore never needs the hard argmax (which is what a plain
 ``recognize_txt`` string comparison does, and it loses ~20 points of accuracy).
-
-Two details make the cosine meaningful:
-
-* **Masked pooling** — a 48px-wide glyph only covers the first ``48 / 8 = 6``
-  time steps of the sequence; averaging the padding steps in dilutes every
-  feature towards the shared "blank" direction.
-* **Centering** — what is left of that shared direction after masking is still
-  strong enough to pin all pair similarities to ~0.999. Subtracting the mean of
-  the challenge's own feature vectors removes it and widens the correct-vs-wrong
-  margin from ~1e-4 to ~0.3.
 """
 
 from __future__ import annotations
@@ -39,6 +29,7 @@ _STRIDE = 8
 # 填充方向与填充值仍与训练一致（右填中灰）。
 _MIN_RATIO = 2.0
 _REC_BATCH = 8
+_CANDIDATES = 5
 
 
 class WordError(RuntimeError):
@@ -119,10 +110,10 @@ def _norm_image(img: np.ndarray, height: int, width: int) -> np.ndarray:
 
 
 def _posterior(images: Sequence[np.ndarray]) -> np.ndarray:
-    """每张图一条 ``[T, C]`` 的 CTC 后验 -> masked 均值池化，返回 ``[N, C]``。"""
+    """每张图取非 blank 概率最大的一帧 CTC 后验，返回 ``[N, C]``。"""
     session, input_name, height = _rec()
 
-    pooled = []
+    aligned = []
     for start in range(0, len(images), _REC_BATCH):
         chunk = list(images[start : start + _REC_BATCH])
         # 一个 batch 一个宽度：下限 _MIN_RATIO，遇到特别宽的图就跟着放宽，不会被压扁
@@ -131,11 +122,11 @@ def _posterior(images: Sequence[np.ndarray]) -> np.ndarray:
         blob = np.stack([_norm_image(im, height, width) for im in chunk])
         out = np.asarray(session.run(None, {input_name: blob})[0])
         for i, im in enumerate(chunk):
-            # 字形只占前 round(resized_w/8) 帧，其余是 padding，不能算进平均
             resized_w = min(math.ceil(height * im.shape[1] / float(im.shape[0])), width)
             frames = max(1, round(resized_w / _STRIDE))
-            pooled.append(out[i, :frames].mean(axis=0))
-    return np.stack(pooled)
+            seq = out[i, :frames]
+            aligned.append(seq[int(np.argmax(seq[:, 1:].sum(axis=1)))])
+    return np.stack(aligned)
 
 
 def _assign(sim: np.ndarray) -> list[int]:
@@ -163,9 +154,7 @@ def match_chars(
         raise WordError('word: empty question list')
 
     features = _posterior([*icons, *crops])
-    # 同一次挑战的特征共享同一套 padding / 底色基底，减掉均值就是去直流
-    units = features - features.mean(axis=0)
-    units /= np.linalg.norm(units, axis=1, keepdims=True) + 1e-9
+    units = features / (np.linalg.norm(features, axis=1, keepdims=True) + 1e-9)
     return _assign(units[: len(icons)] @ units[len(icons) :].T)
 
 
@@ -173,8 +162,9 @@ def detect_candidates(
     src: bytes | np.ndarray,
     conf: float = 0.4,
     iou: float = 0.45,
+    limit: int | None = None,
 ) -> list[Box]:
-    """YOLO 检出候选字框，返回原图坐标的 ``[x, y, w, h]``。"""
+    """YOLO 检出候选字框，按置信度降序返回原图坐标 ``[x, y, w, h]``。"""
     session, input_name, size, fmt = _yolo()
     img = _as_image(src)
     h_orig, w_orig = img.shape[:2]
@@ -222,10 +212,16 @@ def detect_candidates(
     # 5. NMS 处理（NMSBoxes 需要 [x, y, w, h] 格式）
     boxes_for_nms = np.stack([x1, y1, x2 - x1, y2 - y1], axis=1).tolist()
     indices = cv2.dnn.NMSBoxes(boxes_for_nms, scores.tolist(), conf, iou)
+    indices = np.asarray(indices, dtype=np.intp).flatten()
+    if indices.size == 0:
+        return []
+    indices = indices[np.argsort(-scores[indices])]
+    if limit is not None:
+        indices = indices[:limit]
 
     # 6. 组装结果并过滤掉无效框
     result = []
-    for idx in np.asarray(indices).flatten():
+    for idx in indices:
         xa, ya = int(x1[idx]), int(y1[idx])
         xb, yb = int(x2[idx]), int(y2[idx])
         width, height = xb - xa, yb - ya
@@ -238,7 +234,7 @@ def detect_candidates(
 def solve_word(bg: bytes, ques: list[bytes]) -> list[tuple[float, float]]:
     """返回每个题目字符在背景图中的归一化坐标 ``(x, y)``，范围 0.0 ~ 1.0。"""
     bg_img = _as_image(bg)
-    boxes = detect_candidates(bg_img)
+    boxes = detect_candidates(bg_img, limit=_CANDIDATES)
     if not boxes:
         raise WordError('word: no character detected in background image')
     crops = [bg_img[y : y + h, x : x + w] for x, y, w, h in boxes]
