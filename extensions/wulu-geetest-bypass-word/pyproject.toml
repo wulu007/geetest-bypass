@@ -1,25 +1,52 @@
 [project]
 name = "wulu-geetest-bypass-word"
 version = "0.1.0"
-description = "Word CAPTCHA solver for Geetest v4 using YOLO detection and Siamese icon matching"
+description = "Word CAPTCHA solver for Geetest v4 using YOLO detection and PP-OCR rec embeddings"
 readme = "README.md"
 authors = [{ name = "wulu007", email = "dabaobeix@gmail.com" }]
+license = "MIT"
+license-files = ["LICENSE", "NOTICE"]
 requires-python = ">=3.11"
 keywords = [
     "geetest",
     "bypass",
     "captcha",
-    "captcha-solver",
     "word",
     "yolo",
+    "ocr",
+    "onnx",
     'wulu-geetest-bypass',
 ]
-dependencies = []
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+dependencies = [
+    "numpy>=2.4.6",
+    "opencv-python-headless>=4.13.0.92",
+    "onnxruntime>=1.31.0",
+    "platformdirs>=4.0.0",
+    "pooch>=1.8.0",
+    "yolo26-kit>=0.1.1",
+]
 
 [build-system]
 requires = ["uv_build>=0.11.21,<0.12.0"]
 build-backend = "uv_build"
 
+[project.entry-points."wulu_geetest_bypass.solvers"]
+word = "wulu_geetest_bypass_word.solver:solve_word"
 
-[tool.pyrefly]
-search = ["src"]
+[project.entry-points."wulu_geetest_bypass.fetcher"]
+word = "wulu_geetest_bypass_word.hub:get_fetcher"
+
+[project.urls]
+Homepage = "https://github.com/wulu007/geetest-bypass"
+Documentation = "https://github.com/wulu007/geetest-bypass#readme"
+Repository = "https://github.com/wulu007/geetest-bypass.git"
+Issues = "https://github.com/wulu007/geetest-bypass/issues"

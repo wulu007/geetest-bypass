@@ -1,2 +1,8 @@
-def hello() -> str:
-    return 'Hello from wulu-geetest-bypass-word!'
+from .solver import WordError, detect_candidates, match_chars, solve_word
+
+__all__ = [
+    'WordError',
+    'detect_candidates',
+    'match_chars',
+    'solve_word',
+]
