@@ -36,9 +36,10 @@ Repository = "https://github.com/wulu007/geetest-bypass"
 Issues = "https://github.com/wulu007/geetest-bypass/issues"
 
 [project.optional-dependencies]
-all = ["wulu-geetest-bypass[voice,slide,svg,icon,phrase,nine]"]
+all = ["wulu-geetest-bypass[voice,slide,svg,icon,phrase,nine,word]"]
 voice = ["wulu-geetest-bypass-voice>=0.1.2"]
 nine = ["wulu-geetest-bypass-nine"]
+word = ["wulu-geetest-bypass-word"]
 svg = ["pillow>=12.2.0", "resvg-py>=0.3.2", "wulu-geetest-bypass[image]"]
 slide = ["wulu-geetest-bypass[image]"]
 image = ["opencv-python-headless>=4.13.0.92"]
@@ -61,6 +62,7 @@ wulu-geetest-bypass-voice = { workspace = true }
 wulu-geetest-bypass-icon = { workspace = true }
 wulu-geetest-bypass-nine = { workspace = true }
 wulu-geetest-bypass-phrase = { workspace = true }
+wulu-geetest-bypass-word = { workspace = true }
 
 [tool.ruff.format]
 quote-style = "single"
@@ -96,6 +98,7 @@ search-path = [
     "extensions/wulu-geetest-bypass-icon/src",
     "extensions/wulu-geetest-bypass-phrase/src",
     "extensions/wulu-geetest-bypass-nine/src",
+    "extensions/wulu-geetest-bypass-word/src",
 ]
 
 [dependency-groups]

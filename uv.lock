@@ -1317,7 +1317,6 @@ version = "0.5.0b3"
 source = { editable = "." }
 dependencies = [
     { name = "pooch", extra = ["progress"] },
-    { name = "mmh3" },
     { name = "pycryptodome" },
     { name = "smcryptopy" },
     { name = "wreq" },
@@ -1332,6 +1331,7 @@ all = [
     { name = "wulu-geetest-bypass-nine" },
     { name = "wulu-geetest-bypass-phrase" },
     { name = "wulu-geetest-bypass-voice" },
+    { name = "wulu-geetest-bypass-word" },
 ]
 icon = [
     { name = "wulu-geetest-bypass-icon" },
@@ -1356,6 +1356,9 @@ svg = [
 voice = [
     { name = "wulu-geetest-bypass-voice" },
 ]
+word = [
+    { name = "wulu-geetest-bypass-word" },
+]
 
 [package.dev-dependencies]
 dev = [
@@ -1378,13 +1381,14 @@ requires-dist = [
     { name = "wreq", specifier = ">=0.12.0" },
     { name = "wulu-geetest-bypass", extras = ["image"], marker = "extra == 'slide'", editable = "." },
     { name = "wulu-geetest-bypass", extras = ["image"], marker = "extra == 'svg'", editable = "." },
-    { name = "wulu-geetest-bypass", extras = ["voice", "slide", "svg", "icon", "phrase", "nine"], marker = "extra == 'all'", editable = "." },
+    { name = "wulu-geetest-bypass", extras = ["voice", "slide", "svg", "icon", "phrase", "nine", "word"], marker = "extra == 'all'", editable = "." },
     { name = "wulu-geetest-bypass-icon", marker = "extra == 'icon'", editable = "extensions/wulu-geetest-bypass-icon" },
     { name = "wulu-geetest-bypass-nine", marker = "extra == 'nine'", editable = "extensions/wulu-geetest-bypass-nine" },
     { name = "wulu-geetest-bypass-phrase", marker = "extra == 'phrase'", editable = "extensions/wulu-geetest-bypass-phrase" },
     { name = "wulu-geetest-bypass-voice", marker = "extra == 'voice'", editable = "extensions/wulu-geetest-bypass-voice" },
+    { name = "wulu-geetest-bypass-word", marker = "extra == 'word'", editable = "extensions/wulu-geetest-bypass-word" },
 ]
-provides-extras = ["all", "voice", "nine", "svg", "slide", "image", "icon", "phrase"]
+provides-extras = ["all", "voice", "nine", "word", "svg", "slide", "image", "icon", "phrase"]
 
 [package.metadata.requires-dev]
 dev = [
@@ -1480,3 +1484,33 @@ requires-dist = [
 name = "wulu-geetest-bypass-word"
 version = "0.1.0"
 source = { editable = "extensions/wulu-geetest-bypass-word" }
+dependencies = [
+    { name = "numpy" },
+    { name = "onnxruntime" },
+    { name = "opencv-python-headless" },
+    { name = "platformdirs" },
+    { name = "pooch" },
+    { name = "yolo26-kit" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "numpy", specifier = ">=2.4.6" },
+    { name = "onnxruntime", specifier = ">=1.31.0" },
+    { name = "opencv-python-headless", specifier = ">=4.13.0.92" },
+    { name = "platformdirs", specifier = ">=4.0.0" },
+    { name = "pooch", specifier = ">=1.8.0" },
+    { name = "yolo26-kit", specifier = ">=0.1.1" },
+]
+
+[[package]]
+name = "yolo26-kit"
+version = "0.1.1"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "numpy" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/64/66/812f51acc786caba2c7412f6ede6dd9a011b14ed4a9a2d32c16edcfee0cc/yolo26_kit-0.1.1.tar.gz", hash = "sha256:0c09684ec00103ccb570a823b089f99495e691a4764ac363700197dbe83809c5", size = 19945, upload-time = "2026-05-06T11:13:57.253Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/6f/4d/a040ecd23bafdbb2bbf42e3b9c63f7c461d1957a423921cb24cd1946b149/yolo26_kit-0.1.1-py3-none-any.whl", hash = "sha256:4f1e6e74d3af948077b330dc0a0293f9ad45d2b8eb0ea3f5ac424291ee8acca8", size = 16686, upload-time = "2026-05-06T11:13:55.51Z" },
+]
