@@ -106,4 +106,5 @@ dev = [
     "pyrefly==1.4.0",
     "ruff==0.16.4",
     "pytest-benchmark>=5.3.0",
+    "types-tqdm>=4.70.0.20260906",
 ]
