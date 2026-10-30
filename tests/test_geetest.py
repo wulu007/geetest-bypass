@@ -15,15 +15,6 @@ async def test_risk_type(risk_type, cid):
     assert result is not None
 
 
-def test_clicks_to_userresponse():
-    clicks = [(0.7483, 0.2174), (0.1417, 0.5472), (0.305, 0.4473)]
-    assert Geetest._clicks_to_userresponse(clicks) == [
-        [7483, 2174],
-        [1417, 5472],
-        [3050, 4473],
-    ]
-
-
 def test_auto_solve_icon_click():
     Geetest._solvers['icon'] = lambda imgs, ques: [(0.75, 0.2), (0.3, 0.5), (0.1, 0.8)]
     try:

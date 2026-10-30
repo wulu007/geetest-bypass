@@ -3,7 +3,6 @@ from __future__ import annotations
 import asyncio
 import json
 import random
-import time
 import uuid
 from collections.abc import Callable
 from typing import ClassVar, Unpack
@@ -20,6 +19,7 @@ from wulu_geetest_bypass.track import (
     gen_winlinze_track,
     track_zip,
 )
+from wulu_geetest_bypass.utils import format_userresponse, gt_callback, unwrap_jsonp
 
 from ._exceptions import ApiError, RateLimitError, VerifyError
 from ._type import (
@@ -40,17 +40,6 @@ from .solver import (
     solve_winlinze,
 )
 from .solver.svg import frame_times
-
-
-def _callback() -> str:
-    return f'geetest_{int(time.time() * 1000)}'
-
-
-def _unwrap_jsonp(text: str) -> dict:
-    t = text.strip()
-    if '(' in t:
-        t = t[t.index('(') + 1 : t.rindex(')')]
-    return json.loads(t)
 
 
 class Geetest:
@@ -95,7 +84,7 @@ class Geetest:
 
     async def load(self):
         params = {
-            'callback': _callback(),
+            'callback': gt_callback(),
             'captcha_id': self.captcha_id,
             'challenge': str(uuid.uuid4()),
             'client_type': self.client_type,
@@ -125,7 +114,7 @@ class Geetest:
         if resp.status == 429:
             raise RateLimitError(f'{what} request rate limited (HTTP 429)')
         try:
-            data = _unwrap_jsonp(await resp.text())
+            data = unwrap_jsonp(await resp.text())
         except Exception as e:
             raise RuntimeError(f'{what} request failed: {e}') from e
         if data.get('status') == 'error':
@@ -160,7 +149,7 @@ class Geetest:
             ans.pop('track', None)
         ans['track'] = td = track_zip(ans['track']) if 'track' in ans else None
         query = {
-            'callback': _callback(),
+            'callback': gt_callback(),
             'captcha_id': self.captcha_id,
             'client_type': self.client_type,
             'risk_type': self.risk_type,
@@ -213,16 +202,6 @@ class Geetest:
 
         return build_w(json.dumps(payload, separators=(',', ':')), int(data['pt']))
 
-    @staticmethod
-    def _clicks_to_userresponse(clicks) -> list[list[int]]:
-        """Convert normalized (0~1) click coordinates to the wire integer format.
-
-        The frontend stores marks as ``Math.round(100 * percent)`` where percent
-        is ``0~100`` relative to the image, i.e. each component equals the
-        normalized value times 10000.
-        """
-        return [[round(x * 10000), round(y * 10000)] for x, y in clicks]
-
     @classmethod
     def auto_solve(cls, data: WPayload):
         ct = data['captcha_type']
@@ -260,7 +239,7 @@ class Geetest:
                 ans['track'], ans['passtime'] = gen_winlinze_track(cells)
             case 'icon' | 'word':
                 clicks = solver(data['imgs'], data['ques'])
-                ans['userresponse'] = cls._clicks_to_userresponse(clicks)
+                ans['userresponse'] = format_userresponse(clicks)
                 ans['track'], ans['passtime'] = gen_click_track(clicks)
             case 'nine':
                 cells = solver(data['imgs'], data['ques'], data['nine_nums'])
@@ -272,7 +251,7 @@ class Geetest:
                 ret = solver(data['imgs'])
                 if ret and isinstance(ret[0], (list, tuple)) and len(ret[0]) == 2:
                     clicks = ret
-                    ans['userresponse'] = cls._clicks_to_userresponse(clicks)
+                    ans['userresponse'] = format_userresponse(clicks)
                     ans['track'], ans['passtime'] = gen_click_track(clicks)
                 else:
                     ans['userresponse'] = ret

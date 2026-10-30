@@ -23,6 +23,7 @@ from PIL import Image, ImageDraw, ImageFont
 
 from wulu_geetest_bypass import Geetest
 from wulu_geetest_bypass._exceptions import RateLimitError
+from wulu_geetest_bypass.utils import format_userresponse
 
 pytest.importorskip('wulu_geetest_bypass_word')
 
@@ -144,7 +145,7 @@ def test_solve_word_offline():
         assert 0.0 <= x <= 1.0
         assert 0.0 <= y <= 1.0
 
-    wire = Geetest._clicks_to_userresponse(clicks)
+    wire = format_userresponse(clicks)
     assert len(wire) == len(ques)
     for coord in wire:
         assert len(coord) == 2
