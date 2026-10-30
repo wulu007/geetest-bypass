@@ -199,6 +199,18 @@ class Encryption(Enum):
     SM4_SM2 = 2
 
 
+class TimezoneConfig(TypedDict):
+    """Timezone payload."""
+
+    name: str
+    """IANA timezone name, e.g. ``"Asia/Shanghai"``."""
+    offset: int
+    """Minutes east of UTC (``480`` for ``"Asia/Shanghai"``). Not inferred from ``name``."""
+
+
+DEFAULT_TZ: TimezoneConfig = {'name': 'Asia/Shanghai', 'offset': 480}
+
+
 class GeetestOptions(TypedDict, total=False):
     captcha_id: Required[str]
     risk_type: RiskType
@@ -206,6 +218,8 @@ class GeetestOptions(TypedDict, total=False):
     challenge: str
     lang: Lang
     """ Language, default ``"zh"`` """
+    tz: TimezoneConfig
+    """Timezone payload; see ``TimezoneConfig``. Defaults to ``DEFAULT_TZ``."""
     user_info: Any
     track_enable: bool
     """

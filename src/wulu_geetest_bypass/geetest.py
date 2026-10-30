@@ -9,6 +9,7 @@ from typing import ClassVar, Unpack
 
 from wreq import Client, Emulation
 
+from wulu_geetest_bypass._type import DEFAULT_TZ
 from wulu_geetest_bypass.crypto import gen_td_sign
 from wulu_geetest_bypass.track import (
     gen_click_track,
@@ -70,6 +71,7 @@ class Geetest:
         self.risk_type = kwargs.get('risk_type', 'ai')
         self.client_type = kwargs.get('client_type', 'web')
         self.lang = kwargs.get('lang', 'zh')
+        self.tz = kwargs.get('tz', DEFAULT_TZ)
         self.voice = kwargs.get('voice')
         self.pt = kwargs.get('pt')
         self.track_enable = kwargs.get('track_enable')  # None = follow the served build
@@ -177,8 +179,7 @@ class Geetest:
                 raise VerifyError(data, attempt)
         raise ValueError('retry must be >= 1')
 
-    @staticmethod
-    def generate_w(data: WPayload, ans: dict) -> str:
+    def generate_w(self, data: WPayload, ans: dict) -> str:
         lot_number = data['lot_number']
         pow_detail = data['pow_detail']
         cfg = Config.from_static_path(data.get('static_path'))
@@ -193,6 +194,9 @@ class Geetest:
             'geetest': 'captcha',
             'lang': 'zh',
             'lot_number': lot_number,
+            'nd': Config.nd,
+            'tc': Config.tc,
+            'tz': self.tz,
             **{k: v for k, v in ans.items() if k != 'track'},
         }
         if 'track' in ans and ans['track'] is not None:

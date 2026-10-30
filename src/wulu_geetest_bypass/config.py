@@ -12,9 +12,9 @@ class Patrol(NamedTuple):
     lib_val: str
     abo_key: str
     abo_val: str
-    # Defaulted rather than removed: tracking has been mandatory since v1.9.7, and the
-    # extractor no longer records it, so an entry may or may not carry it. Entries written
-    # while it was recorded still win. Retire the field once those age out.
+    # Defaulted rather than removed: tracking has been mandatory since v1.9.7 and the
+    # extractor no longer records it, so an entry may or may not carry it. Entries that
+    # were written while it was recorded still win. Retire the field once they age out.
     track_enable: bool = True
 
 
@@ -41,6 +41,15 @@ class Config:
         'si': 0,
         'wd': 1,
     }
+
+    # NodeEnvHoneypot vector (v1.9.9+): one slot per probe, all zero for a real browser.
+    nd: ClassVar = [0, 0, 0, 0, 0, 0, 0]
+
+    # Touch capability (v1.9.9+): maxTouchPoints / createEvent / ontouchstart.
+    # `te` can never be true: Document.createEvent() accepts only a fixed list of
+    # legacy event interfaces, and TouchEvent is not one of them -- Chrome throws
+    # NotSupportedError. Whoever shipped this never ran it once: it measures nothing.
+    tc: ClassVar = {'mtp': 0, 'te': False, 'ts': False}
 
     _patrols: ClassVar[dict[str, Patrol]] = {}
 

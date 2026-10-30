@@ -15,6 +15,15 @@ async def test_risk_type(risk_type, cid):
     assert result is not None
 
 
+def test_tz_defaults_to_shanghai():
+    assert Geetest(captcha_id='x').tz == {'name': 'Asia/Shanghai', 'offset': 480}
+
+
+def test_tz_is_used_as_given():
+    tz = {'name': 'America/New_York', 'offset': -240}
+    assert Geetest(captcha_id='x', tz=tz).tz is tz
+
+
 def test_auto_solve_icon_click():
     Geetest._solvers['icon'] = lambda imgs, ques: [(0.75, 0.2), (0.3, 0.5), (0.1, 0.8)]
     try:
