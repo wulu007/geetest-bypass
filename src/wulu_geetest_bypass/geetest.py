@@ -9,7 +9,6 @@ from typing import ClassVar, Unpack
 
 from wreq import Client, Emulation
 
-from wulu_geetest_bypass._type import DEFAULT_TZ
 from wulu_geetest_bypass.crypto import gen_td_sign
 from wulu_geetest_bypass.track import (
     gen_click_track,
@@ -24,6 +23,7 @@ from wulu_geetest_bypass.utils import format_userresponse, gt_callback, unwrap_j
 
 from ._exceptions import ApiError, RateLimitError, VerifyError
 from ._type import (
+    DEFAULT_TZ,
     GeetestOptions,
     RiskType,
     Seccode,
