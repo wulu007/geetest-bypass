@@ -66,3 +66,9 @@ def test_registered_patrol_survives_file_load():
 def test_registered_patrol_covers_unrecorded_build():
     Config.register_patrol('/v4/static/v9.9.9-zz', CUSTOM)
     assert Config.from_static_path('/v4/static/v9.9.9-zz') is CUSTOM
+
+
+def test_track_enable_defaults_to_true():
+    # The extractor stopped recording it, but older entries still carry it.
+    assert Patrol('1', 'AAAA', 'bbbb', '(n[0:1])', 'n[0:1]').track_enable is True
+    assert CUSTOM.track_enable is False

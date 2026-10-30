@@ -1,4 +1,5 @@
 import { randomUUID } from 'node:crypto'
+import { spawnSync } from 'node:child_process'
 import { appendFileSync, existsSync, mkdirSync, readFileSync, renameSync, writeFileSync } from 'node:fs'
 import { readFile } from 'node:fs/promises'
 import path from 'node:path'
@@ -9,10 +10,10 @@ const GCAPTCHA_BASE = 'https://gcaptcha4.geetest.com'
 const STATIC_BASE = 'https://static.geetest.com'
 const CONFIG_DIR = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', 'src', 'wulu_geetest_bypass', 'data')
 
-// Probing several sites because one can be pinned to a stale (or ahead-of-fleet)
-// build. Deduped: a repeated id would fake the cross-check below.
+// Probing several sites: one can be pinned to a stale (or ahead-of-fleet) build. The demo
+// site is excluded -- it lags by design, so it would keep succeeding while production
+// failed and mask a honeypot trip. Deduped: a repeated id would fake the cross-check below.
 const CAPTCHA_IDS = [...new Set([
-  '24f56dc13c40dc4a02fd0318567caef5', // geetest demo
   '4a20b69644e17d023b92a381c30968b1',
   'e392e1d7fd421dc63325744d5a2b9c73',
 ])]
@@ -51,10 +52,9 @@ function loadConfig(staticVer) {
   return parsed
 }
 
-// Order-independent, unlike stringifying the whole object.
-const differs = (a, b) =>
-  Object.keys(a).length !== Object.keys(b).length ||
-  Object.entries(a).some(([k, v]) => JSON.stringify(v) !== JSON.stringify(b[k]))
+// Compared on the live keys only: a stored entry may also carry a retired field.
+const differs = (stored, live) =>
+  Object.entries(live).some(([k, v]) => JSON.stringify(stored[k]) !== JSON.stringify(v))
 
 function saveConfig(staticVer, flat) {
   const file = configPath(staticVer)
@@ -67,9 +67,10 @@ function saveConfig(staticVer, flat) {
     throw new Error(`stored ${staticVer} disagrees with live: ${JSON.stringify(config[staticVer])} vs ${JSON.stringify(flat)}`)
   }
 
-  // Sorted keys and exactly one trailing newline keep the file canonical and
-  // match what prek's end-of-file-fixer would write.
-  const merged = { ...config, [staticVer]: flat }
+  // Sorted keys and exactly one trailing newline keep the file canonical and match what
+  // prek's end-of-file-fixer would write. Merged over the stored entry so a retired key
+  // survives and an unchanged build is not rewritten.
+  const merged = { ...config, [staticVer]: { ...config[staticVer], ...flat } }
   const sorted = Object.fromEntries(Object.entries(merged).sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0)))
   const content = JSON.stringify(sorted, null, 2) + '\n'
   const changed = !existsSync(file) || readFileSync(file, 'utf8') !== content
@@ -116,41 +117,103 @@ function only(value, label) {
   return entries[0]
 }
 
-function extractFlat(sdkSource, gctSource) {
-  // window/self/globalThis point back at the sandbox object: pointing window at
-  // the real global would hand remote code window.process (node:vm is not a sandbox).
-  const ctx = {
-    document: { getElementsByTagName: () => [], createElement: () => Object() },
-    lib: {},
-    location: {},
-    navigator: globalThis.navigator,
-    setTimeout: () => { },
-    global: null,
-  }
-  ctx.window = ctx.self = ctx.globalThis = ctx
+// The SDK writes `_lib` and `lib._abo` in its opening statement, then dies on `window`, so
+// `lib` is the only global it needs. Since v1.9.8 an env honeypot rewrites `_abo` to a bot
+// marker once it thinks the runtime is Node or a DOM shim; with no `window` that probe never
+// runs, and if it ever does the second write throws instead of silently picking one.
+const SANDBOX_BOOTSTRAP = `(function () {
+  var g = globalThis;
+  var store = {};
+  var lib = {};
+  Object.defineProperty(lib, '_abo', {
+    configurable: true,
+    enumerable: true,
+    get: function () { return store._abo; },
+    set: function (value) {
+      if (Object.prototype.hasOwnProperty.call(store, '_abo'))
+        throw new Error('lib._abo written twice: ' + JSON.stringify(value));
+      store._abo = value;
+    },
+  });
+  g.lib = lib;
+})()`
 
-  const track = randomUUID()
-  vm.createContext(ctx)
+function runInSandbox(sdkSource, gctSource) {
+  if (!vm.constants?.DONT_CONTEXTIFY)
+    throw new Error('needs node >= 22.8: without vm.constants.DONT_CONTEXTIFY the host realm leaks in through globalThis.constructor')
+
+  const ctx = vm.createContext(vm.constants.DONT_CONTEXTIFY)
+  vm.runInContext(SANDBOX_BOOTSTRAP, ctx)
+
+  let sdkError
   try {
-    vm.runInContext(
-      `Object.defineProperty(Object.prototype, 'appendTrack', { set() { globalThis['${track}'] = true }, configurable: true })`,
-      ctx,
-    )
     vm.runInContext(sdkSource, ctx, { timeout: 5_000 })
   } catch (e) {
-    if (ctx[track] === undefined) throw new Error(`Failed to run SDK script: ${e.message}`)
+    // Dies on `window` right after the prologue -- unless the guard fired, which is not ours
+    // to swallow: a rewritten `_abo` means the honeypot ran and the build needs a human.
+    if (/^lib\._abo written twice/.test(e?.message ?? ''))
+      throw new Error(`SDK rewrote lib._abo -- env honeypot fired, refusing to guess: ${e.message}`)
+    sdkError = e
   }
-  if (ctx[track] === undefined) ctx[track] = false
 
-  const gctCtx = {}
-  vm.createContext(gctCtx)
+  // Read out as a JSON string -- no host value crosses the realm line.
+  const seen = readJson(ctx, `({
+    lib: globalThis._lib || null,
+    abo: (globalThis.lib && globalThis.lib._abo) || null,
+  })`)
+  if (!seen.lib || !seen.abo)
+    throw new Error(`Failed to run SDK script: ${sdkError?.message ?? 'no lib/abo was written'}`)
+
+  // `_gct` takes an object; build it inside rather than passing one in.
+  const gctCtx = vm.createContext(vm.constants.DONT_CONTEXTIFY)
   vm.runInContext(gctSource, gctCtx, { timeout: 5_000 })
-  const obj = { lang: 'zh', ep: '123' }
-  gctCtx._gct(obj)
+  const gct = readJson(gctCtx, `(function () {
+    var o = { lang: 'zh', ep: '123' };
+    _gct(o);
+    return o;
+  })()`)
 
-  const [lib_key, lib_val] = only(ctx._lib, 'lib')
-  const [abo_key, abo_val] = only(ctx.lib && ctx.lib._abo, 'abo')
-  const flat = { biht: obj.biht, lib_key, lib_val, abo_key, abo_val, track_enable: ctx[track] }
+  return { ...seen, biht: gct.biht }
+}
+
+function readJson(context, expression) {
+  return JSON.parse(vm.runInContext(`JSON.stringify(${expression})`, context))
+}
+
+// The SDK is remote code, so it runs in a child under --permission, with an empty env and
+// the source fed over stdin. Windows cannot narrow --allow-fs-read (the module resolver
+// walks past it), so it is `*` there; write and exec stay blocked on every platform.
+function extractFlat(sdkSource, gctSource) {
+  const child = spawnSync(
+    process.execPath,
+    ['--permission', '--allow-fs-read=*', fileURLToPath(import.meta.url), '--sandbox'],
+    {
+      input: JSON.stringify({ sdk: sdkSource, gct: gctSource }),
+      env: process.platform === 'win32' ? { SystemRoot: process.env.SystemRoot } : {},
+      timeout: 30_000,
+      maxBuffer: 8 * 1024 * 1024,
+      encoding: 'utf8',
+    },
+  )
+  if (child.error) throw new Error(`sandbox child failed: ${child.error.message}`)
+  if (child.status !== 0)
+    throw new Error(`sandbox child exited ${child.status}: ${(child.stderr || '').trim().slice(0, 400)}`)
+
+  // The child prints exactly one line, so a newline means something else wrote to stdout.
+  if (/[\r\n]/.test(child.stdout))
+    throw new Error(`sandbox child wrote more than the result line: ${JSON.stringify(child.stdout.slice(0, 200))}`)
+
+  const seen = JSON.parse(child.stdout)
+  const [lib_key, lib_val] = only(seen.lib, 'lib')
+  const [abo_key, abo_val] = only(seen.abo, 'abo')
+
+  // Canary for the value above: the declared pair sits in the file prologue, so the first
+  // 2 KB must contain it. A wrong abo fails every solve, so refuse to write it.
+  const prologue = sdkSource.slice(0, 2_000).replace(/["']/g, '')
+  if (prologue.includes('._abo') && !(prologue.includes(abo_key) && prologue.includes(abo_val)))
+    throw new Error(`kept abo ${abo_key}/${abo_val} is not the one declared in the SDK prologue`)
+
+  const flat = { biht: seen.biht, lib_key, lib_val, abo_key, abo_val }
 
   for (const [k, v] of Object.entries(flat)) {
     if (v === undefined || v === null || v === '')
@@ -188,17 +251,30 @@ async function extractSite(captcha_id) {
   return { captcha_id, staticVer, gctPath: gct_path, flat: extractFlat(sdkSource, gctSource) }
 }
 
+// Child mode: the only thing it does is run the two sources and print one JSON line.
+if (process.argv.includes('--sandbox')) {
+  const chunks = []
+  for await (const chunk of process.stdin) chunks.push(chunk)
+  const { sdk, gct } = JSON.parse(Buffer.concat(chunks).toString('utf8'))
+  const out = JSON.stringify(runInSandbox(sdk, gct))
+  await new Promise((resolve) => process.stdout.write(out, resolve))
+  process.exit(0)
+}
+
 const results = []
 for (const [i, captcha_id] of CAPTCHA_IDS.entries()) {
   try {
     const r = await extractSite(captcha_id)
     results.push(r)
-    console.log(`[${i + 1}/${CAPTCHA_IDS.length}] ${captcha_id.slice(0, 8)} -> ${r.staticVer} lib=${r.flat.lib_key}/${r.flat.lib_val} track=${r.flat.track_enable}`)
+    console.log(`[${i + 1}/${CAPTCHA_IDS.length}] ${captcha_id.slice(0, 8)} -> ${r.staticVer} lib=${r.flat.lib_key}/${r.flat.lib_val}`)
   } catch (e) {
     warn(`${captcha_id}: ${e.message}`)
   }
 }
-if (!results.length) throw new Error(`all ${CAPTCHA_IDS.length} captcha_id(s) failed to extract`)
+// Any single failure fails the job. A site that silently drops out would leave the others
+// succeeding on their own, so a honeypot trip on the build it was serving would go unseen.
+const failed = CAPTCHA_IDS.length - results.length
+if (failed) throw new Error(`${failed} of ${CAPTCHA_IDS.length} site(s) failed to extract, see the [warn] lines above`)
 
 // One static_path can only ever serve one set of bytes (content-addressed and
 // cached), so sites sharing a build must agree. A mismatch means the extraction
