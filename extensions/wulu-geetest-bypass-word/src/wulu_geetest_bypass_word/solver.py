@@ -45,7 +45,7 @@ def _static_dim(dim: object, fallback: int) -> int:
 
 def _box_format(meta: dict[str, str]) -> str:
     valid_formats = (_XCYCWH, _XYXY)
-    sources = (meta.get('box_format'), os.environ.get('WORD_BOX_FORMAT'))
+    sources = (meta.get('box_format'), os.environ.get('WULU_WORD_BOX_FORMAT'))
     for val in sources:
         fmt = (val or '').strip().lower()
         if fmt in valid_formats:
