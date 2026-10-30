@@ -1,0 +1,81 @@
+# NOTICE
+
+`wulu-geetest-bypass-word` is MIT licensed — see `LICENSE`. Third-party material
+referenced or fetched by this package is listed below; the project-wide summary
+lives in the repository's `THIRD_PARTY_NOTICES.md`.
+
+## PP-OCRv6 small rec — `ppocrv6_small_rec.onnx`
+
+| | |
+| --- | --- |
+| Source | [PaddlePaddle/PP-OCRv6_small_rec_onnx](https://huggingface.co/PaddlePaddle/PP-OCRv6_small_rec_onnx) — `inference.onnx`, from the [PaddleOCR](https://github.com/PaddlePaddle/PaddleOCR) project |
+| Used by | `match_chars()` / `solve_word()` — only the CTC posterior is read; the character dictionary is not used and no text is decoded |
+| License | Apache-2.0, per the upstream PaddleOCR repository. The HuggingFace model card itself carries no license tag. |
+| Redistributed | **No.** Downloaded at runtime (URL + SHA256 pinned in `hub.py`) and cached under the user cache directory. |
+
+`_norm_image()` in `solver.py` reproduces the semantics of PaddleOCR's
+`RecResizeImg` transform — resize to 48px height, pad on the right with the
+mid-grey value, normalise to `[-1, 1]`. It is a from-scratch implementation and
+copies no upstream code; if you modify that behaviour, extend this notice, as
+Apache-2.0 §4(b) asks for modified files to carry prominent change notices.
+
+No copy of the Apache-2.0 text is reproduced here because the model file is not
+redistributed with this package; the canonical text is at
+<https://www.apache.org/licenses/LICENSE-2.0>. Installations that vendor the
+ONNX file themselves must ship that text alongside it.
+
+## Character detector — `locate.onnx`
+
+| | |
+| --- | --- |
+| Source | Trained for this project; published in the project's own HuggingFace repository [wulu007/gt](https://huggingface.co/wulu007/gt) under `yolo-text/261028/` |
+| Base weights | `LibreYOLO9t.pt` — [LibreYOLO/LibreYOLO9t](https://huggingface.co/LibreYOLO/LibreYOLO9t), MIT. Converted from `MultimediaTechLab/YOLO` release `v1.0-alpha` (`v9-t.pt`) with only the state-dict keys remapped; the learned parameters are unchanged |
+| Toolchain | [LibreYOLO](https://www.libreyolo.com) 1.6.0 (MIT) exported the ONNX graph. Ultralytics did **not** produce this file |
+| Used by | `detect_candidates()` / `solve_word()` — single-class glyph-box localiser. The same graph is meant to serve the phrase extension as well |
+| License | MIT. `locate.onnx` is a derivative of MIT-licensed base weights and is redistributed under the same terms |
+| Redistributed | **No.** Downloaded at runtime (URL + SHA256 pinned in `hub.py`) |
+
+### Why this file carries no AGPL
+
+YOLOv9 exists in two lineages. The Ultralytics packaging (v5 / v8 / v9 / v11 /
+v26) is AGPL-3.0; the authors' own release under
+[MultimediaTechLab/YOLO](https://github.com/MultimediaTechLab/YOLO) is MIT, and
+LibreYOLO ports that tree rather than the GPL-3.0 one. `locate.onnx` was
+exported by LibreYOLO from those MIT weights, so no AGPL-3.0 material
+contributed to it.
+
+### MIT notice for the base weights
+
+MIT asks for the copyright notice and permission text to travel with copies.
+`locate.onnx` is distributed as a derivative of `LibreYOLO9t.pt`, so both are
+reproduced here verbatim.
+
+```text
+Copyright (c) 2024 Kin-Yiu Wong and Hao-Tang Tsui. Licensed under the MIT License.
+
+MIT License
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+```
+
+The ONNX metadata declares `box_format: xyxy`, `nc: 1`, `imgsz: 320`. LibreYOLO
+bakes box decoding into the graph, so the output is corner format
+`(x1, y1, x2, y2)` instead of the anchor encoding `(cx, cy, w, h)` that
+Ultralytics exports produce. `solver._box_format()` reads that field and
+rejects any model that does not declare it — it does not guess.

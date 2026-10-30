@@ -39,7 +39,7 @@
 | `voice`    | Voice verification       | `[voice]`  | ✅      |
 | `icon`     | Direction icon click     | `[icon]`   | 🧪      |
 |            | Similarity icon click    | none       | ❌      |
-| `word`     | Word click               | none       | ❌      |
+| `word`     | Word click               | `[word]`   | 🧪      |
 | `nine`     | Nine-grid                | `[nine]`   | 🧪      |
 | `phrase`   | Phrase click order       | `[phrase]` | 🧪      |
 | `pencil`   | Doodle                   | none       | ❌      |
