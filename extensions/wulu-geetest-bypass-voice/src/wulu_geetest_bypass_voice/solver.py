@@ -5,7 +5,7 @@ import miniaudio
 import numpy as np
 
 
-def solve_voice(mp3_bytes: bytes, lang: str = '') -> str:
+def solve_voice(mp3_bytes: bytes, lang: str = '', version: str = '') -> str:
     sr = 16000
     audio = _load_audio(mp3_bytes, sr)
     segs = _split_by_silence(audio, sr)
@@ -13,12 +13,9 @@ def solve_voice(mp3_bytes: bytes, lang: str = '') -> str:
         raise RuntimeError(
             f'voice segmentation failed: expected 7 segments (prompt + 6 digits), got {len(segs)}'
         )
-    if lang:
-        centroids, labels, _, _, _ = _load_templates(lang)
-    else:
-        prompt_feat = _mfcc_feature(segs[0], sr)
-        lang = _detect_lang(prompt_feat)
-        centroids, labels, _, _, _ = _load_templates(lang)
+    if not lang:
+        lang = _detect_lang(version, _mfcc_feature(segs[0], sr))
+    centroids, labels, _, _, _ = _load_templates(version, lang)
     digits = []
     for seg in segs[1 : 1 + 6]:
         feat = _mfcc_feature(seg, sr)
@@ -59,7 +56,7 @@ def _create_mel_filterbank(sr: int, n_fft: int, n_mels: int = 128) -> np.ndarray
     mels = np.linspace(0, mel_max, n_mels + 2)
     hz = 700.0 * (10.0 ** (mels / 2595.0) - 1.0)
     fft_bins = np.floor((n_fft + 1) * hz / sr).astype(int)
-    filters = np.zeros((n_mels, int(1 + n_fft // 2)))
+    filters = np.zeros((n_mels, (1 + n_fft // 2)))
     for i in range(n_mels):
         for j in range(fft_bins[i], fft_bins[i + 1]):
             filters[i, j] = (j - fft_bins[i]) / (fft_bins[i + 1] - fft_bins[i])
@@ -155,24 +152,38 @@ def _split_by_silence(y: np.ndarray, sr: int) -> list[np.ndarray]:
     return segs
 
 
-@functools.lru_cache(maxsize=16)
-def _load_templates(lang: str) -> tuple[np.ndarray, np.ndarray, int, str, np.ndarray]:
-    path = files('wulu_geetest_bypass_voice').joinpath(f'{lang}.npz')
+@functools.lru_cache(maxsize=32)
+def _load_templates(
+    version: str, lang: str
+) -> tuple[np.ndarray, np.ndarray, int, str, np.ndarray]:
+    """按音色版本加载模板；版本来自 voice_path 的目录名，如 ``v4_voice_20261012``。"""
+    path = files('wulu_geetest_bypass_voice').joinpath('weights', f'{version}.npz')
+    if not path.is_file():
+        raise RuntimeError(
+            f'no voice template for {version!r}; available: {sorted(_available_versions())}'
+        )
     data = np.load(str(path))
     return (
-        data['X'],
+        data[f'X_{lang}'],
         data['y'],
         int(data['sr']),
-        str(data['lang']),
-        data['prompt'],
+        lang,
+        data[f'prompt_{lang}'],
     )
 
 
-def _detect_lang(prompt_feat: np.ndarray) -> str:
+def _available_versions() -> set[str]:
+    root = files('wulu_geetest_bypass_voice').joinpath('weights')
+    return {
+        p.name.removesuffix('.npz') for p in root.iterdir() if p.name.endswith('.npz')
+    }
+
+
+def _detect_lang(version: str, prompt_feat: np.ndarray) -> str:
     best_lang = 'zho'
     best_dist = float('inf')
     for lang in ('zho', 'eng'):
-        _, _, _, _, prompt = _load_templates(lang)
+        _, _, _, _, prompt = _load_templates(version, lang)
         dist = np.linalg.norm(prompt_feat - prompt)
         if dist < best_dist:
             best_dist = dist
