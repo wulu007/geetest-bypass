@@ -7,7 +7,7 @@ members = ["extensions/*"]
 
 [project]
 name = "wulu-geetest-bypass"
-version = "0.5.0b3"
+version = "0.5.0"
 description = "Pure Python Geetest v4 CAPTCHA solver with human-like track simulation, no Node.js or browser"
 readme = "README.md"
 requires-python = ">=3.11"
@@ -37,14 +37,14 @@ Issues = "https://github.com/wulu007/geetest-bypass/issues"
 
 [project.optional-dependencies]
 all = ["wulu-geetest-bypass[voice,slide,svg,icon,phrase,nine,word]"]
-voice = ["wulu-geetest-bypass-voice>=0.1.2"]
-nine = ["wulu-geetest-bypass-nine"]
-word = ["wulu-geetest-bypass-word"]
+voice = ["wulu-geetest-bypass-voice>=0.1.3"]
+nine = ["wulu-geetest-bypass-nine>=0.1.1"]
+word = ["wulu-geetest-bypass-word>=0.1.1"]
 svg = ["pillow>=12.2.0", "resvg-py>=0.3.2", "wulu-geetest-bypass[image]"]
 slide = ["wulu-geetest-bypass[image]"]
 image = ["opencv-python-headless>=4.13.0.92"]
-icon = ["wulu-geetest-bypass-icon"]
-phrase = ["wulu-geetest-bypass-phrase"]
+icon = ["wulu-geetest-bypass-icon>=0.1.1"]
+phrase = ["wulu-geetest-bypass-phrase>=0.1.1"]
 
 [project.scripts]
 gt-pull = "wulu_geetest_bypass.cli:main"

@@ -1,6 +1,6 @@
 [project]
 name = "wulu-geetest-bypass-word"
-version = "0.1.0"
+version = "0.1.1"
 description = "Word CAPTCHA solver for Geetest v4 using YOLO detection and PP-OCR rec embeddings"
 readme = "README.md"
 authors = [{ name = "wulu007", email = "dabaobeix@gmail.com" }]

@@ -1,6 +1,6 @@
 [project]
 name = "wulu-geetest-bypass-phrase"
-version = "0.1.0"
+version = "0.1.1"
 description = "Offline phrase captcha solver for Geetest v4 (detection, OCR, ordering)"
 readme = "README.md"
 authors = [{ name = "wulu007", email = "dabaobeix@gmail.com" }]

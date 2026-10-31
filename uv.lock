@@ -1462,7 +1462,7 @@ wheels = [
 
 [[package]]
 name = "wulu-geetest-bypass"
-version = "0.5.0b3"
+version = "0.5.0"
 source = { editable = "." }
 dependencies = [
     { name = "pooch", extra = ["progress"] },
@@ -1557,7 +1557,7 @@ dev = [
 
 [[package]]
 name = "wulu-geetest-bypass-icon"
-version = "0.1.0"
+version = "0.1.1"
 source = { editable = "extensions/wulu-geetest-bypass-icon" }
 dependencies = [
     { name = "numpy" },
@@ -1576,7 +1576,7 @@ requires-dist = [
 
 [[package]]
 name = "wulu-geetest-bypass-nine"
-version = "0.1.0"
+version = "0.1.1"
 source = { editable = "extensions/wulu-geetest-bypass-nine" }
 dependencies = [
     { name = "numpy" },
@@ -1597,7 +1597,7 @@ requires-dist = [
 
 [[package]]
 name = "wulu-geetest-bypass-phrase"
-version = "0.1.0"
+version = "0.1.1"
 source = { editable = "extensions/wulu-geetest-bypass-phrase" }
 dependencies = [
     { name = "numpy" },
@@ -1635,7 +1635,7 @@ requires-dist = [
 
 [[package]]
 name = "wulu-geetest-bypass-word"
-version = "0.1.0"
+version = "0.1.1"
 source = { editable = "extensions/wulu-geetest-bypass-word" }
 dependencies = [
     { name = "numpy" },
