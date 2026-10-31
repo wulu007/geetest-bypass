@@ -39,7 +39,7 @@ from .solver import (
     solve_svg,
     solve_winlinze,
 )
-from .solver.svg import frame_times
+from .solver.svg import frame_times, grid_cols
 
 
 def _callback() -> str:
@@ -240,11 +240,11 @@ class Geetest:
                 ans['userresponse'] = set_left / 1.0059466666666665 + 2
                 ans['track'], ans['passtime'] = gen_slide_track(set_left)
             case 'svg_seed' | 'svg_icon':
-                layer, point = solver(data['question_path'], data['answer_path'])
+                layer, point, *rest = solver(data['question_path'], data['answer_path'])
                 start, end = frame_times(data['question_path'])[layer]
                 ans['userresponse'] = point
                 ans['passtime'] = random.randint(start + 50, end - 50)
-                cols = 2 if data['captcha_type'] == 'svg_icon' else 3
+                cols = rest[0] if rest else grid_cols(data['question_path'])
                 ans['track'] = gen_svg_track(point, cols, ans['passtime'])
             case 'match':
                 cells = solver(data['ques'])
