@@ -40,7 +40,6 @@ from .solver import (
     solve_svg,
     solve_winlinze,
 )
-from .solver.svg import frame_times, grid_cols
 
 
 class Geetest:
@@ -223,6 +222,8 @@ class Geetest:
                 ans['userresponse'] = set_left / 1.0059466666666665 + 2
                 ans['track'], ans['passtime'] = gen_slide_track(set_left)
             case 'svg_seed' | 'svg_icon':
+                from .solver.svg import frame_times, grid_cols
+
                 layer, point, *rest = solver(data['question_path'], data['answer_path'])
                 start, end = frame_times(data['question_path'])[layer]
                 ans['userresponse'] = point
