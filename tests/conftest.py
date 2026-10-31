@@ -249,7 +249,7 @@ def pass_rate(cid, bench_record, out_dir):
         import asyncio
 
         from wulu_geetest_bypass import Geetest
-        from wulu_geetest_bypass._exceptions import RateLimitError
+        from wulu_geetest_bypass._exceptions import ApiError, RateLimitError
 
         name = record_as or risk_type
         tag = name.upper()
@@ -259,6 +259,7 @@ def pass_rate(cid, bench_record, out_dir):
         g = Geetest(captcha_id=captcha_id or cid, risk_type=risk_type, **options)
 
         hit = attempted = blocked = 0
+        solver_errors = 0
         streak = 0
         dump = os.environ.get('WULU_FAIL_DUMP', '1') != '0'
         failed_dirs: list[Path] = []
@@ -274,11 +275,39 @@ def pass_rate(cid, bench_record, out_dir):
                 print(f'{name}(accuracy): 限流，退避 5s', flush=True)
                 await asyncio.sleep(5.0)
                 continue
-            except Exception as e:  # noqa: BLE001
+            except ApiError as e:
                 streak += 1
-                print(f'{name}(accuracy): {type(e).__name__}: {e}', flush=True)
+                print(f'{name}(accuracy): 接口错误 {type(e).__name__}: {e}', flush=True)
                 if streak >= 3:
-                    print(f'{name}(accuracy): 连续 3 次出错，提前结束', flush=True)
+                    print(f'{name}(accuracy): 连续 3 次接口错误，提前结束', flush=True)
+                    break
+                continue
+            except Exception as e:  # noqa: BLE001
+                if 'curl_cffi' in type(e).__module__ or isinstance(
+                    e, (ConnectionError, TimeoutError)
+                ):
+                    streak += 1
+                    print(
+                        f'{name}(accuracy): 网络错误 {type(e).__name__}: {e}',
+                        flush=True,
+                    )
+                    if streak >= 3:
+                        print(
+                            f'{name}(accuracy): 连续 3 次网络错误，提前结束', flush=True
+                        )
+                        break
+                    continue
+                # 求解器抛错（如检测不到目标）就是这次作答失败，不能从分母里消失
+                streak = 0
+                attempted += 1
+                solver_errors += 1
+                print(
+                    f'{name}(accuracy): {attempted:>3d}/{total} solver-error '
+                    f'{type(e).__name__}: {e}',
+                    flush=True,
+                )
+                if solver_errors >= 5 and hit == 0:
+                    print(f'{name}(accuracy): 连续求解失败，提前结束', flush=True)
                     break
                 continue
             streak = 0
