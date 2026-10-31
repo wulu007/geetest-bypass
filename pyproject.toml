@@ -8,7 +8,7 @@ members = ["extensions/*"]
 [project]
 name = "wulu-geetest-bypass"
 version = "0.5.0"
-description = "Pure Python Geetest v4 CAPTCHA solver with human-like track simulation, no Node.js or browser"
+description = "Pure Python Geetest v4 solver: human-like track simulation, full captcha coverage, production-grade reliability, no Node.js or browser"
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
@@ -111,6 +111,4 @@ dev = [
     "pytest-benchmark>=5.3.0",
     "types-tqdm>=4.70.0.20260906",
 ]
-bench = [
-    "jinja2>=3.1.6",
-]
+bench = ["jinja2>=3.1.6"]

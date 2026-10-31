@@ -38,11 +38,11 @@
 | `svg_seed` | SVG 3×3 图片选择 | `[svg]`    | ✅   |
 | `svg_icon` | SVG 2×2 图标选择 | `[svg]`    | ✅   |
 | `voice`    | 语音验证         | `[voice]`  | ✅   |
-| `icon`     | 方向类图标点选   | `[icon]`   | 🧪   |
+| `icon`     | 方向类图标点选   | `[icon]`   | ✅   |
 |            | 相似类图标点选   | 无         | ❌   |
-| `word`     | 文字点选         | `[word]`   | 🧪   |
+| `word`     | 文字点选         | `[word]`   | ✅   |
 | `nine`     | 九宫格           | `[nine]`   | 🧪   |
-| `phrase`   | 短语语序点选     | `[phrase]` | 🧪   |
+| `phrase`   | 短语语序点选     | `[phrase]` | ✅   |
 | `pencil`   | 涂鸦             | 无         | ❌   |
 | `space`    | 空间推理         | 无         | ❌   |
 
@@ -52,7 +52,7 @@
 - 🧪 — 实验性求解器，尚未充分验证。
 - ❌ — 没有内置求解器，需通过[自定义求解器](#register-custom-solvers)自行注册。
 
-各题型的实测通过率与耗时见 [基准测试](docs/BENCHMARK.zh-CN.md)。
+📊 各题型的实测通过率与耗时见 [基准测试](docs/BENCHMARK.zh-CN.md)。
 
 <a id="installation"></a>
 

@@ -37,11 +37,11 @@
 | `svg_seed` | SVG 3x3 image selection  | `[svg]`    | ✅      |
 | `svg_icon` | SVG 2x2 icon selection   | `[svg]`    | ✅      |
 | `voice`    | Voice verification       | `[voice]`  | ✅      |
-| `icon`     | Direction icon click     | `[icon]`   | 🧪      |
+| `icon`     | Direction icon click     | `[icon]`   | ✅      |
 |            | Similarity icon click    | none       | ❌      |
-| `word`     | Word click               | `[word]`   | 🧪      |
+| `word`     | Word click               | `[word]`   | ✅      |
 | `nine`     | Nine-grid                | `[nine]`   | 🧪      |
-| `phrase`   | Phrase click order       | `[phrase]` | 🧪      |
+| `phrase`   | Phrase click order       | `[phrase]` | ✅      |
 | `pencil`   | Doodle                   | none       | ❌      |
 | `space`    | Spatial reasoning        | none       | ❌      |
 
@@ -51,7 +51,7 @@ The `Dependency` column refers to the [dependency groups](#installation) below.
 - 🧪 — Experimental solver; not fully validated.
 - ❌ — No built-in solver; register your own via [custom solvers](#register-custom-solvers).
 
-Measured pass rate and latency per type: [BENCHMARK](docs/BENCHMARK.md).
+📊 Measured pass rate and latency per type: [BENCHMARK](docs/BENCHMARK.md).
 
 <a id="installation"></a>
 ## 📦 Installation
