@@ -32,6 +32,7 @@ def test_auto_solve_icon_click():
             'imgs': b'x',
             'ques': [b'a', b'b', b'c'],
         }
+        # pyrefly: ignore[bad-argument-type]
         ans = Geetest.auto_solve(data)
         assert ans['userresponse'] == [[7500, 2000], [3000, 5000], [1000, 8000]]
         assert 'track' in ans and 'passtime' in ans
@@ -52,6 +53,15 @@ async def test_slide(cid):
         if isinstance(r, Exception):
             print(f'Task {i} Error: {r}')
     print(f'Success: {success}/{total}')
+
+
+@pytest.mark.accuracy
+@pytest.mark.asyncio
+async def test_slide_pass_rate(pass_rate):
+    pytest.importorskip('cv2')
+    from wulu_geetest_bypass.solver import solve_slide
+
+    await pass_rate('slide', 0.9, lambda d: solve_slide(d['bg'], d['slice'], d['ypos']))
 
 
 test_lang = [
@@ -78,3 +88,35 @@ async def test_voice(lang, cid):
     g = Geetest(captcha_id=cid, risk_type='slide', lang=lang, voice=True)
     result = await g.resolve(1)
     assert result is not None
+
+
+@pytest.mark.accuracy
+@pytest.mark.asyncio
+async def test_voice_pass_rate(pass_rate):
+    pytest.importorskip('miniaudio')
+    pytest.importorskip('wulu_geetest_bypass_voice')
+    from wulu_geetest_bypass_voice import solve_voice
+
+    await pass_rate(
+        'slide',
+        0.8,
+        lambda d: solve_voice(d['voice_audio'], d['voice_path'].split('/')[-2]),
+        record_as='voice',
+        voice=True,
+    )
+
+
+@pytest.mark.accuracy
+@pytest.mark.asyncio
+async def test_match_pass_rate(pass_rate):
+    from wulu_geetest_bypass.solver import solve_match
+
+    await pass_rate('match', 0.9, lambda d: solve_match(d['ques']))
+
+
+@pytest.mark.accuracy
+@pytest.mark.asyncio
+async def test_winlinze_pass_rate(pass_rate):
+    from wulu_geetest_bypass.solver import solve_winlinze
+
+    await pass_rate('winlinze', 0.9, lambda d: solve_winlinze(d['ques']))

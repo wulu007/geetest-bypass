@@ -11,9 +11,6 @@
 
 from __future__ import annotations
 
-import asyncio
-import os
-import time
 from collections.abc import Sequence
 from io import BytesIO
 from pathlib import Path
@@ -22,7 +19,6 @@ import pytest
 from PIL import Image, ImageDraw, ImageFont
 
 from wulu_geetest_bypass import Geetest
-from wulu_geetest_bypass._exceptions import RateLimitError
 from wulu_geetest_bypass.utils import format_userresponse
 
 pytest.importorskip('wulu_geetest_bypass_word')
@@ -202,85 +198,27 @@ async def test_word_draw(cid, out_dir):
 
 @pytest.mark.accuracy
 @pytest.mark.asyncio
-async def test_word_pass_rate(cid, out_dir, bench_record):
+async def test_word_pass_rate(pass_rate):
     """黑盒跑生产链路（load -> auto_solve -> verify），统计首猜通过率并自动捕获失败用例。"""
-    total = int(os.environ.get('WULU_WORD_PASS_SAMPLES', '50'))
-    floor = float(os.environ.get('WULU_WORD_MIN_RATE', '0.9'))
-    fail_dir = out_dir / 'solver_debug' / 'word' / 'failed'
-    fail_dir.mkdir(parents=True, exist_ok=True)
 
-    g = Geetest(captcha_id=cid, risk_type='word')
-    hit = attempted = 0
-    failed_cases: list[str] = []
-    solver_times: list[float] = []
-    e2e_times: list[float] = []
+    def draw_failure(data, case):
+        imgs, ques = data['imgs'], data['ques']
+        clicks = solve_word(imgs, ques)
+        boxes = detect_candidates(imgs, limit=5)
+        _draw(imgs, ques, clicks, boxes, case / 'annotated.png')
 
-    while attempted < total:
-        t_e2e_0 = time.perf_counter()
-        data = await g.load()
-        try:
-            resp = await g.verify(data)
-            e2e_times.append((time.perf_counter() - t_e2e_0) * 1000)
-        except RateLimitError:
-            print('word(accuracy): 限流，退避 5s', flush=True)
-            await asyncio.sleep(5.0)
-            continue
-
-        imgs: bytes = data['imgs']
-        ques: list[bytes] = data['ques']
-        t_solve_0 = time.perf_counter()
-        solve_word(imgs, ques)
-        solver_times.append((time.perf_counter() - t_solve_0) * 1000)
-
-        await asyncio.sleep(0.5)
-        result = resp['data']['result']
-        attempted += 1
-        is_success = result == 'success'
-        hit += is_success
-        print(f'word(accuracy): {attempted:>3d}/{total} {result}', flush=True)
-
-        if not is_success:
-            lot = str(data.get('lot_number', f'{attempted:02d}'))
-            boxes = detect_candidates(imgs, limit=5)
-            clicks = solve_word(imgs, ques)
-
-            # 1. 保存原图以便离线重放
-            case_dir = fail_dir / f'{attempted:02d}_{lot}'
-            case_dir.mkdir(parents=True, exist_ok=True)
-            (case_dir / 'imgs.png').write_bytes(imgs)
-            for i, q in enumerate(ques):
-                (case_dir / f'ques_{i}.png').write_bytes(q)
-
-            # 2. 保存决策标注图：候选框 + 点击徽标
-            annotated_out = fail_dir / f'{attempted:02d}_{lot}_annotated.png'
-            _draw(imgs, ques, clicks, boxes, annotated_out)
-
-            failed_cases.append(f'{attempted:02d}_{lot}')
-            print(f'  [FAIL] 失败现场已保存 -> {annotated_out}', flush=True)
-
-    bench_record(
-        name='word',
-        display_name='文字点选',
-        engine='YOLO + PP-OCR 特征',
-        samples=attempted,
-        passed=hit,
-        solver_times=solver_times,
-        e2e_times=e2e_times,
+    await pass_rate(
+        'word',
+        0.9,
+        lambda d: solve_word(d['imgs'], d['ques']),
+        on_fail=draw_failure,
     )
-
-    rate = hit / attempted if attempted else 0.0
-    print(f'\nword(accuracy): 首猜通过 {hit}/{attempted} = {rate:.1%}', flush=True)
-    if failed_cases:
-        print(
-            f'word(accuracy): 共 {len(failed_cases)} 组失败用例已归档到 {fail_dir}',
-            flush=True,
-        )
-    assert rate >= floor, f'通过率 {rate:.1%} 低于下限 {floor:.0%}'
 
 
 @pytest.mark.perf
 def test_word_perf(benchmark):
     """测试单题在 CPU 上的端到端推理耗时（基于 pytest-benchmark）。"""
     imgs, ques = _load_sample()
+    benchmark.extra_info['type'] = 'word'
     res = benchmark(lambda: solve_word(imgs, ques))
     assert len(res) == len(ques)

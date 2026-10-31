@@ -125,3 +125,13 @@ async def test_icon_draw(out_dir):
     out = out_dir / 'icon.png'
     cv2.imwrite(str(out), canvas)
     print(f'icon: {out}')
+
+
+@pytest.mark.accuracy
+@pytest.mark.asyncio
+async def test_icon_pass_rate(pass_rate):
+    from wulu_geetest_bypass_icon import solve_icon
+
+    await pass_rate(
+        'icon', 0.6, lambda d: solve_icon(d['imgs'], d['ques']), captcha_id=_CID
+    )

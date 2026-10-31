@@ -1,0 +1,79 @@
+{%- macro ms(v, n=1) -%}{{ "%.1f"|format(v) if n > 0 else '–' }}{%- endmacro -%}
+{%- macro tail(v, n) -%}{{ "%.1f"|format(v) if n >= min_tail else '–' }}{%- endmacro -%}
+# Geetest v4 全题型性能与准确率基准 (Benchmark)
+
+[English](BENCHMARK.md) | 简体中文
+
+> 本报告基于真实线上环境全自动连续采样评测，展示 `wulu-geetest-bypass` 各验证码题型的综合识别率与耗时表现。
+> 各题型分批测试，测试时间见总览表；`–` 表示该项未测或样本不足。
+
+---
+
+## 1. 核心指标总览
+
+| 验证码类型 | 测试时间 | 线上样本 | 首猜通过率 | 95% 置信区间 | 重试 1 次（推算） | 算法 P50 | 端到端 P50 |
+| :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
+{% for r in types -%}
+| **{{ r.name }}** ({{ r.display_name }}) | {{ r.tested_at or '–' }} | {{ r.samples if r.samples > 0 else '未测线上' }} | {{ "**%.1f%%**"|format(r.pass_rate) if r.samples > 0 else '–' }} | {{ "%.1f%% ~ %.1f%%"|format(r.ci_low, r.ci_high) if r.samples > 0 else '–' }} | {{ "%.1f%%"|format(r.retry_pass_rate) if r.samples > 0 else '–' }} | {{ (ms(r.live.p50) ~ ' ms') if r.live_n > 0 else '–' }} | {{ (ms(r.e2e.p50) ~ ' ms') if r.e2e_n > 0 else '–' }} |
+{% endfor %}
+> **指标说明**：
+> - **首猜通过率**：无重试的单次提交成功概率 = `通过数 / 总提交数`；**置信区间**为 Wilson 95% 区间，样本越少区间越宽，对比两个题型时请以区间为准。
+> - **重试 1 次（推算）**：按 `1 − (1 − p)²` 推算，并非实测。
+> - **算法 P50**：纯本地 CPU 的图像预处理、模型推理与坐标指派耗时，仅取线上样本（与通过率同一批题目）。离线 benchmark 数据见第 2.2 节，不参与总览。
+> - **端到端 P50**：`load` → `verify` 的完整周期，含网络，随出口 IP 与网络状况波动。
+
+---
+
+## 2. 算法耗时分布 (Solver Latency)
+
+### 2.1 线上样本
+
+单位 ms。真实题目逐题单次计时，含首次调用的冷启动影响；与第 1 节通过率是同一批题目。
+
+| 验证码类型 | 样本数（题） | Min | P50 | P90 | P95 | P99 | Max |
+| :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
+{% for r in types -%}
+{% if r.live_n > 0 -%}
+| **{{ r.name }}** ({{ r.display_name }}) | {{ r.live_n }} | {{ ms(r.live.min) }} | {{ ms(r.live.p50) }} | {{ ms(r.live.p90) }} | {{ ms(r.live.p95) }} | {{ tail(r.live.p99, r.live_n) }} | {{ ms(r.live.max) }} |
+{% endif -%}
+{% endfor %}
+> 样本数不足 {{ min_tail }} 时 P99 不展示（`–`）。
+
+### 2.2 离线基准（回归对照）
+
+单位 ms。固定的**单个样本**经 pytest-benchmark 重复多轮的热数据，不含冷启动。轮数不是独立样本数，也不能与 2.1 横向比较；用途是同一台机器上对比改动前后有没有变慢。
+
+| 验证码类型 | 测试时间 | 轮数 | Min | P50 | P90 | Max |
+| :--- | :---: | :---: | :---: | :---: | :---: | :---: |
+{% for r in types -%}
+{% if r.bench_n > 0 -%}
+| **{{ r.name }}** ({{ r.display_name }}) | {{ r.bench_tested_at or '–' }} | {{ r.bench_n }} | {{ ms(r.bench.min) }} | {{ ms(r.bench.p50) }} | {{ ms(r.bench.p90) }} | {{ ms(r.bench.max) }} |
+{% endif -%}
+{% endfor %}
+
+---
+
+## 3. 端到端耗时分布 (E2E Latency)
+
+单位 ms，包含网络往返，仅统计成功提交（未被限流或风控拦截）的题目。
+
+| 验证码类型 | 样本数 | Min | P50 | P90 | P95 | P99 | Max |
+| :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
+{% for r in types -%}
+{% if r.e2e_n > 0 -%}
+| **{{ r.name }}** ({{ r.display_name }}) | {{ r.e2e_n }} | {{ ms(r.e2e.min) }} | {{ ms(r.e2e.p50) }} | {{ ms(r.e2e.p90) }} | {{ ms(r.e2e.p95) }} | {{ tail(r.e2e.p99, r.e2e_n) }} | {{ ms(r.e2e.max) }} |
+{% endif -%}
+{% endfor %}
+---
+
+## 4. 测试环境与基准硬件
+
+为保证数据真实可复现，所有本地推理均基于纯 CPU 环境实测：
+
+| 配置项 | 规格参数 |
+| :--- | :--- |
+| **测试 CPU** | {{ env.cpu_model }} ({{ env.cpu_cores }} 核) |
+| **操作系统** | {{ env.os_name }} |
+| **Python 版本** | Python {{ env.python_version }} |
+| **推理后端** | ONNX Runtime (`CPUExecutionProvider`) / OpenCV |
+| **环境记录时间** | {{ env.tested_at }}（最近一次跑测试的环境，非各题型采样时间） |

@@ -1,0 +1,79 @@
+{%- macro ms(v, n=1) -%}{{ "%.1f"|format(v) if n > 0 else '–' }}{%- endmacro -%}
+{%- macro tail(v, n) -%}{{ "%.1f"|format(v) if n >= min_tail else '–' }}{%- endmacro -%}
+# Geetest v4 Benchmark: Pass Rate and Latency
+
+English | [简体中文](BENCHMARK.zh-CN.md)
+
+> Measured against the live service with fully automated, continuous sampling. Shows the pass rate and latency of every captcha type in `wulu-geetest-bypass`.
+> Each type is tested in separate batches, so see the test time column in the overview. `–` means not measured or too few samples.
+
+---
+
+## 1. Overview
+
+| Type | Tested at | Live samples | First-try pass rate | 95% CI | With 1 retry (est.) | Solver P50 | E2E P50 |
+| :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
+{% for r in types -%}
+| **{{ r.name }}** | {{ r.tested_at or '–' }} | {{ r.samples if r.samples > 0 else 'not tested live' }} | {{ "**%.1f%%**"|format(r.pass_rate) if r.samples > 0 else '–' }} | {{ "%.1f%% ~ %.1f%%"|format(r.ci_low, r.ci_high) if r.samples > 0 else '–' }} | {{ "%.1f%%"|format(r.retry_pass_rate) if r.samples > 0 else '–' }} | {{ (ms(r.live.p50) ~ ' ms') if r.live_n > 0 else '–' }} | {{ (ms(r.e2e.p50) ~ ' ms') if r.e2e_n > 0 else '–' }} |
+{% endfor %}
+> **Notes**:
+> - **First-try pass rate**: probability that a single submission succeeds with no retry, `passed / submitted`. The **95% CI** is the Wilson interval; the fewer the samples, the wider it is. Compare types by the interval, not the point value.
+> - **With 1 retry (est.)**: estimated as `1 − (1 − p)²`, not measured.
+> - **Solver P50**: local CPU time for image preprocessing, model inference and coordinate assignment, from live samples only (the same batch as the pass rate). Offline benchmark data is in section 2.2 and is not part of the overview.
+> - **E2E P50**: the full `load` → `verify` cycle including network. It varies with exit IP and network conditions.
+
+---
+
+## 2. Solver Latency
+
+### 2.1 Live samples
+
+Unit: ms. Each real challenge is timed once, so first-call cold-start effects are included. These are the same challenges as the pass rate in section 1.
+
+| Type | Samples (challenges) | Min | P50 | P90 | P95 | P99 | Max |
+| :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
+{% for r in types -%}
+{% if r.live_n > 0 -%}
+| **{{ r.name }}** | {{ r.live_n }} | {{ ms(r.live.min) }} | {{ ms(r.live.p50) }} | {{ ms(r.live.p90) }} | {{ ms(r.live.p95) }} | {{ tail(r.live.p99, r.live_n) }} | {{ ms(r.live.max) }} |
+{% endif -%}
+{% endfor %}
+> P99 is hidden (`–`) when there are fewer than {{ min_tail }} samples.
+
+### 2.2 Offline benchmark (regression reference)
+
+Unit: ms. One fixed sample repeated over many rounds with pytest-benchmark; warm data, no cold start. Rounds are not independent samples, and these numbers must not be compared with 2.1. Use them to check whether a change made things slower on the same machine.
+
+| Type | Tested at | Rounds | Min | P50 | P90 | Max |
+| :--- | :---: | :---: | :---: | :---: | :---: | :---: |
+{% for r in types -%}
+{% if r.bench_n > 0 -%}
+| **{{ r.name }}** | {{ r.bench_tested_at or '–' }} | {{ r.bench_n }} | {{ ms(r.bench.min) }} | {{ ms(r.bench.p50) }} | {{ ms(r.bench.p90) }} | {{ ms(r.bench.max) }} |
+{% endif -%}
+{% endfor %}
+
+---
+
+## 3. End-to-End Latency
+
+Unit: ms, including network round trips. Only challenges that were actually submitted are counted (rate-limited or blocked ones are excluded).
+
+| Type | Samples | Min | P50 | P90 | P95 | P99 | Max |
+| :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
+{% for r in types -%}
+{% if r.e2e_n > 0 -%}
+| **{{ r.name }}** | {{ r.e2e_n }} | {{ ms(r.e2e.min) }} | {{ ms(r.e2e.p50) }} | {{ ms(r.e2e.p90) }} | {{ ms(r.e2e.p95) }} | {{ tail(r.e2e.p99, r.e2e_n) }} | {{ ms(r.e2e.max) }} |
+{% endif -%}
+{% endfor %}
+---
+
+## 4. Test Environment
+
+All local inference was measured on CPU only:
+
+| Item | Value |
+| :--- | :--- |
+| **CPU** | {{ env.cpu_model }} ({{ env.cpu_cores }} cores) |
+| **OS** | {{ env.os_name }} |
+| **Python** | Python {{ env.python_version }} |
+| **Inference backend** | ONNX Runtime (`CPUExecutionProvider`) / OpenCV |
+| **Environment recorded at** | {{ env.tested_at }} (the latest test session's environment, not each type's sampling time) |

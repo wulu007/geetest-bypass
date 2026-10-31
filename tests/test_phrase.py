@@ -21,7 +21,6 @@
     WULU_PHRASE_PERF_IMAGES   性能跑多少张语料（默认 40）
 """
 
-import asyncio
 import itertools
 import os
 import time
@@ -32,7 +31,6 @@ import numpy as np
 import pytest
 
 from wulu_geetest_bypass import Geetest
-from wulu_geetest_bypass._exceptions import RateLimitError
 
 pytest.importorskip('wulu_geetest_bypass_phrase')
 
@@ -121,31 +119,14 @@ async def test_phrase_draw(cid, out_dir, cjk_font):
 
 @pytest.mark.accuracy
 @pytest.mark.asyncio
-async def test_phrase_pass_rate(cid):
+async def test_phrase_pass_rate(pass_rate):
     """黑盒跑生产链路（load -> verify，语序由注册的 solver 决定），统计首猜通过率。
 
     走的是 ``Geetest.auto_solve``，所以定位/识别/语序还原/点击换算/轨迹全都覆盖。
     """
-    total = int(os.environ.get('WULU_PHRASE_PASS_SAMPLES', '50'))
-    floor = float(os.environ.get('WULU_PHRASE_MIN_RATE', '0.9'))
-    g = Geetest(captcha_id=cid, risk_type='phrase')
-    hit = attempted = 0
-    while attempted < total:
-        data = await g.load()
-        try:
-            resp = await g.verify(data)
-        except RateLimitError:
-            print('phrase(accuracy): 限流，退避 5s')
-            await asyncio.sleep(5.0)
-            continue
-        await asyncio.sleep(0.5)
-        result = resp['data']['result']
-        attempted += 1
-        hit += result == 'success'
-        print(f'phrase(accuracy): {attempted:>3d}/{total} {result}')
-    rate = hit / attempted
-    print(f'phrase(accuracy): 首猜通过 {hit}/{attempted} = {rate:.1%}')
-    assert rate >= floor, f'通过率 {rate:.1%} 低于下限 {floor:.0%}'
+    from wulu_geetest_bypass_phrase import solve_phrase
+
+    await pass_rate('phrase', 0.9, lambda d: solve_phrase(d['imgs']))
 
 
 @pytest.fixture(scope='session')

@@ -111,3 +111,6 @@ dev = [
     "pytest-benchmark>=5.3.0",
     "types-tqdm>=4.70.0.20260906",
 ]
+bench = [
+    "jinja2>=3.1.6",
+]

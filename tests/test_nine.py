@@ -11,7 +11,6 @@
 
 from __future__ import annotations
 
-import asyncio
 import hashlib
 import os
 import time
@@ -23,7 +22,6 @@ import pytest
 from PIL import Image, ImageDraw, ImageFont
 
 from wulu_geetest_bypass import Geetest
-from wulu_geetest_bypass._exceptions import RateLimitError
 
 pytest.importorskip('wulu_geetest_bypass_nine')
 
@@ -98,41 +96,14 @@ async def test_nine_draw(cid, out_dir):
 
 @pytest.mark.accuracy
 @pytest.mark.asyncio
-async def test_nine_pass_rate(cid):
+async def test_nine_pass_rate(pass_rate):
     """线上首猜通过率：完整链路验证 (load -> solver -> track -> verify)。"""
-    total = int(os.environ.get('WULU_NINE_PASS_SAMPLES', '50'))
-    floor = float(os.environ.get('WULU_NINE_MIN_RATE', '0.5'))
-    g = Geetest(captcha_id=os.environ.get('WULU_NINE_CID', cid), risk_type='nine')
-
-    hit = attempted = blocked = 0
-    while attempted < total:
-        data = await g.load()
-        try:
-            resp = await g.verify(data)
-        except RateLimitError:
-            print('nine(accuracy): 限流，退避 5s')
-            await asyncio.sleep(5.0)
-            continue
-
-        result = resp['data']['result']
-        if result == 'forbidden':
-            blocked += 1
-            print(f'nine(accuracy): forbidden 第 {blocked} 次')
-            if blocked >= 3:
-                print('nine(accuracy): 连续风控，提前结束')
-                break
-            await asyncio.sleep(30.0)
-            continue
-
-        attempted += 1
-        hit += result == 'success'
-        print(f'nine(accuracy): {attempted:>3d}/{total} {result}')
-        await asyncio.sleep(0.5)
-
-    assert attempted, '一题都没提交成功（全被风控或限流）'
-    rate = hit / attempted
-    print(f'nine(accuracy): 首猜通过 {hit}/{attempted} = {rate:.1%}')
-    assert rate >= floor, f'通过率 {rate:.1%} 低于下限 {floor:.0%}'
+    await pass_rate(
+        'nine',
+        0.5,
+        lambda d: solve_nine(d['imgs'], d['ques'], d['nine_nums']),
+        captcha_id=os.environ.get('WULU_NINE_CID'),
+    )
 
 
 @pytest.fixture(scope='session')
@@ -174,6 +145,7 @@ def perf_sample() -> tuple[bytes, list[bytes], int]:
 def test_perf_solve_nine(benchmark, perf_sample):
     """端到端 solve_nine 基准测试（整图 9 格批次裁切 + ONNX 推理 + 排序）"""
     grid_bytes, ques, nine_nums = perf_sample
+    benchmark.extra_info['type'] = 'nine'
     res = benchmark(lambda: solve_nine(grid_bytes, ques, nine_nums))
     assert len(res) == nine_nums
 
