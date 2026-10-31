@@ -266,8 +266,10 @@ class Geetest:
                 # TODO: add track generation for space/pencil captchas
                 # Currently, the track is not generated for these captcha types, but it can be implemented in the future if needed.
             case 'voice':
-                lang = data['voice_path'].split('/')[-2]
-                ans['userresponse'] = solver(data['voice_audio'], lang)
+                parts = data['voice_path'].split('/')
+                lang = parts[-2]
+                version = parts[-3] if len(parts) >= 3 else ''
+                ans['userresponse'] = solver(data['voice_audio'], lang, version)
                 ans['passtime'] = random.randint(20000, 30000)
             case _:
                 raise NotImplementedError(

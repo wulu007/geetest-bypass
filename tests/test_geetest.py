@@ -100,7 +100,11 @@ async def test_voice_pass_rate(pass_rate):
     await pass_rate(
         'slide',
         0.8,
-        lambda d: solve_voice(d['voice_audio'], d['voice_path'].split('/')[-2]),
+        lambda d: solve_voice(
+            d['voice_audio'],
+            d['voice_path'].split('/')[-2],
+            d['voice_path'].split('/')[-3],
+        ),
         record_as='voice',
         voice=True,
     )

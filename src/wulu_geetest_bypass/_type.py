@@ -270,5 +270,5 @@ NineSolver = Callable[[bytes, list[bytes], int], GridIndices]
 """nine: (imgs, ques, nine_nums) -> grid indices, 1-based"""
 DrawSolver = Callable[[bytes], ClickPos | TracePoints]
 """phrase/space/pencil: (imgs) -> normalized click coords or trace points"""
-VoiceSolver = Callable[[bytes, str], str]
-"""voice: (voice_audio, lang) -> digit sequence"""
+VoiceSolver = Callable[[bytes, str, str], str]
+"""voice: (voice_audio, lang, version) -> digit sequence"""
