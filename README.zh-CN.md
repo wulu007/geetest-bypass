@@ -52,6 +52,8 @@
 - 🧪 — 实验性求解器，尚未充分验证。
 - ❌ — 没有内置求解器，需通过[自定义求解器](#register-custom-solvers)自行注册。
 
+各题型的实测通过率与耗时见 [基准测试](docs/BENCHMARK.zh-CN.md)。
+
 <a id="installation"></a>
 
 ## 📦 安装

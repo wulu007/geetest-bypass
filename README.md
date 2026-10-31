@@ -51,6 +51,8 @@ The `Dependency` column refers to the [dependency groups](#installation) below.
 - 🧪 — Experimental solver; not fully validated.
 - ❌ — No built-in solver; register your own via [custom solvers](#register-custom-solvers).
 
+Measured pass rate and latency per type: [BENCHMARK](docs/BENCHMARK.md).
+
 <a id="installation"></a>
 ## 📦 Installation
 
