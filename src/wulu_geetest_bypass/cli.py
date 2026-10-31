@@ -220,12 +220,24 @@ def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog='gt-pull', description='Geetest model asset manager'
     )
+    # 放在子命令上而不是顶层，这样 `gt-pull download --all -e <url>` 才符合直觉
+    common = argparse.ArgumentParser(add_help=False)
+    common.add_argument(
+        '-e',
+        '--endpoint',
+        metavar='URL',
+        help='Model mirror base URL, same as setting HF_ENDPOINT',
+    )
     subparsers = parser.add_subparsers(dest='command')
 
-    p_status = subparsers.add_parser('status', help='Show model cache status')
+    p_status = subparsers.add_parser(
+        'status', help='Show model cache status', parents=[common]
+    )
     p_status.set_defaults(handler=handle_status)
 
-    p_dl = subparsers.add_parser('download', help='Download model assets')
+    p_dl = subparsers.add_parser(
+        'download', help='Download model assets', parents=[common]
+    )
     p_dl.add_argument(
         'plugin', nargs='?', help='Plugin name (omit or use --all to sync all)'
     )
@@ -242,6 +254,9 @@ def main() -> None:
     pooch.get_logger().setLevel(logging.WARNING)
     parser = build_parser()
     args = parser.parse_args()
+    # fetcher 在调用时才读 HF_ENDPOINT，所以必须赶在 handler 之前写进环境
+    if endpoint := getattr(args, 'endpoint', None):
+        os.environ['HF_ENDPOINT'] = endpoint
     handler = getattr(args, 'handler', None)
     handler(args) if handler else parser.print_help()
 
