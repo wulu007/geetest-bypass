@@ -1,6 +1,9 @@
 import cv2
 import numpy as np
 
+# 背景的网点纹理是高频干扰，缺口的边缘很淡；双边滤波保边去噪后淡边才成为主导信号。
+_KERNEL = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))
+
 
 def solve_slide(bg_bytes: bytes, slice_bytes: bytes, ypos: int = 0) -> int:
     bg = cv2.imdecode(np.frombuffer(bg_bytes, np.uint8), cv2.IMREAD_COLOR)
@@ -16,19 +19,18 @@ def solve_slide(bg_bytes: bytes, slice_bytes: bytes, ypos: int = 0) -> int:
     else:
         sl_gray = cv2.cvtColor(sl, cv2.COLOR_BGR2GRAY)
 
-    kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))
-    mg_bg = cv2.morphologyEx(bg_gray, cv2.MORPH_GRADIENT, kernel)
-    mg_sl = cv2.morphologyEx(sl_gray, cv2.MORPH_GRADIENT, kernel)
+    bg_gray = cv2.bilateralFilter(bg_gray, 5, 60, 60)
+    sl_gray = cv2.bilateralFilter(sl_gray, 5, 60, 60)
+    mg_bg = cv2.morphologyEx(bg_gray, cv2.MORPH_GRADIENT, _KERNEL)
+    mg_sl = cv2.morphologyEx(sl_gray, cv2.MORPH_GRADIENT, _KERNEL)
 
     if ypos > 0 and ypos + mg_sl.shape[0] <= mg_bg.shape[0]:
         search_bg = mg_bg[ypos : ypos + mg_sl.shape[0], :]
     else:
         search_bg = mg_bg
 
-    # 5. 模板匹配
     res = cv2.matchTemplate(search_bg, mg_sl, cv2.TM_CCOEFF_NORMED)
-    max_loc = cv2.minMaxLoc(res)[-1]
-    return max_loc[0]
+    return cv2.minMaxLoc(res)[-1][0]
 
 
 # def solve_slide_v2(bg_bytes: bytes, slice_bytes: bytes, ypos: int = 0) -> int:
