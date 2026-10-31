@@ -4,6 +4,14 @@ Parts of this project are third-party material and stay under their original
 licenses. Those licenses cover the items listed below, not the rest of the
 project.
 
+Third-party material that is used by a single workspace member is documented
+inside that member and ships with its own wheel, because members are installed
+independently:
+
+| Member | Own notices |
+| --- | --- |
+| `wulu-geetest-bypass-word` | [`extensions/wulu-geetest-bypass-word/NOTICE`](extensions/wulu-geetest-bypass-word/NOTICE) — PP-OCRv6 small rec (Apache-2.0), LibreYOLO9t base weights (MIT) |
+
 ## icon_yolo.onnx
 
 | | |
