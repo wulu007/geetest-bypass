@@ -8,7 +8,6 @@ from platformdirs import user_cache_dir
 
 # ==================== 1. 统一的基础配置 ====================
 DEFAULT_ENDPOINT = 'https://huggingface.co'
-ENDPOINT = os.environ.get('HF_ENDPOINT', DEFAULT_ENDPOINT).rstrip('/')
 DEFAULT_BASE_CACHE = user_cache_dir('wulu-geetest-bypass', appauthor=False)
 BASE_CACHE = Path(os.environ.get('WULU_CACHE_DIR', DEFAULT_BASE_CACHE))
 ROOT = Path(__file__).resolve().parents[4]
@@ -25,13 +24,14 @@ def _get_downloader(progressbar: bool = True) -> pooch.HTTPDownloader:
 
 
 def get_fetcher() -> pooch.Pooch:
+    endpoint = os.environ.get('HF_ENDPOINT', DEFAULT_ENDPOINT).rstrip('/')
     return pooch.create(
         path=BASE_CACHE,
         base_url='',
         registry={
             MODEL_PATH: 'SHA256:d08f8c4468a581ea1390c63e70c5a7e49406975dbbd6db52d7af36f1e5831090'
         },
-        urls={MODEL_PATH: f'{ENDPOINT}/wulu007/gt2/resolve/main/{MODEL_PATH}'},
+        urls={MODEL_PATH: f'{endpoint}/wulu007/gt2/resolve/main/{MODEL_PATH}'},
     )
 
 

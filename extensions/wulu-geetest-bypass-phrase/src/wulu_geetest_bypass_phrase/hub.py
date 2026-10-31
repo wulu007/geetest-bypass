@@ -29,7 +29,7 @@ def _get_downloader(progressbar: bool = True) -> pooch.HTTPDownloader:
 
 
 def get_fetcher() -> pooch.Pooch:
-    ENDPOINT = os.environ.get('HF_ENDPOINT', DEFAULT_ENDPOINT).rstrip('/')
+    endpoint = os.environ.get('HF_ENDPOINT', DEFAULT_ENDPOINT).rstrip('/')
     return pooch.create(
         path=BASE_CACHE,
         base_url='',
@@ -40,10 +40,10 @@ def get_fetcher() -> pooch.Pooch:
             DICT_PATH: 'SHA256:672510c09114f4f6cb338731ad0c22efbb629ff8dbe4e6f291f04c2296b258a9',
         },
         urls={
-            ORDER_PATH: f'{ENDPOINT}/wulu007/gt/resolve/main/{ORDER_PATH}',
-            DETECT_PATH: f'{ENDPOINT}/wulu007/gt/resolve/main/{DETECT_PATH}',
-            TOKENIZER_PATH: f'{ENDPOINT}/wulu007/gt/resolve/main/{TOKENIZER_PATH}',
-            DICT_PATH: f'{ENDPOINT}/wulu007/gt/resolve/main/{DICT_PATH}',
+            ORDER_PATH: f'{endpoint}/wulu007/gt/resolve/main/{ORDER_PATH}',
+            DETECT_PATH: f'{endpoint}/wulu007/gt/resolve/main/{DETECT_PATH}',
+            TOKENIZER_PATH: f'{endpoint}/wulu007/gt/resolve/main/{TOKENIZER_PATH}',
+            DICT_PATH: f'{endpoint}/wulu007/gt/resolve/main/{DICT_PATH}',
         },
     )
 

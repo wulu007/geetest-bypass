@@ -24,14 +24,14 @@ def _get_downloader(progressbar: bool = True) -> pooch.HTTPDownloader:
 
 
 def get_fetcher() -> pooch.Pooch:
-    ENDPOINT = os.environ.get('HF_ENDPOINT', DEFAULT_ENDPOINT).rstrip('/')
+    endpoint = os.environ.get('HF_ENDPOINT', DEFAULT_ENDPOINT).rstrip('/')
     return pooch.create(
         path=BASE_CACHE,
         base_url='',
         registry={
             MODEL_PATH: 'SHA256:eedbfd46480c347a7901cad6d06637d5e4e10336bd8c496c02b3df2a1d9112c8'
         },
-        urls={MODEL_PATH: f'{ENDPOINT}/wulu007/gt/resolve/main/{MODEL_PATH}'},
+        urls={MODEL_PATH: f'{endpoint}/wulu007/gt/resolve/main/{MODEL_PATH}'},
     )
 
 

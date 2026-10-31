@@ -8,7 +8,6 @@ from platformdirs import user_cache_dir
 
 # ==================== 1. 统一的基础配置 ====================
 DEFAULT_ENDPOINT = 'https://huggingface.co'
-ENDPOINT = os.environ.get('HF_ENDPOINT', DEFAULT_ENDPOINT).rstrip('/')
 DEFAULT_BASE_CACHE = user_cache_dir('wulu-geetest-bypass', appauthor=False)
 BASE_CACHE = Path(os.environ.get('WULU_CACHE_DIR', DEFAULT_BASE_CACHE))
 ROOT = Path(__file__).resolve().parents[4]
@@ -26,6 +25,7 @@ def _get_downloader(progressbar: bool = True) -> pooch.HTTPDownloader:
 
 
 def get_fetcher() -> pooch.Pooch:
+    endpoint = os.environ.get('HF_ENDPOINT', DEFAULT_ENDPOINT).rstrip('/')
     return pooch.create(
         path=BASE_CACHE,
         base_url='',
@@ -34,8 +34,8 @@ def get_fetcher() -> pooch.Pooch:
             REC_REL_PATH: 'SHA256:5435fd747c9e0efe15a96d0b378d5bd157e9492ed8fd80edf08f30d02fa24634',
         },
         urls={
-            LOCATE_REL_PATH: f'{ENDPOINT}/wulu007/gt/resolve/main/{LOCATE_REL_PATH}',
-            REC_REL_PATH: f'{ENDPOINT}/PaddlePaddle/PP-OCRv6_small_rec_onnx/resolve/main/inference.onnx',
+            LOCATE_REL_PATH: f'{endpoint}/wulu007/gt/resolve/main/{LOCATE_REL_PATH}',
+            REC_REL_PATH: f'{endpoint}/PaddlePaddle/PP-OCRv6_small_rec_onnx/resolve/main/inference.onnx',
         },
     )
 
