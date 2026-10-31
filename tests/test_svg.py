@@ -166,3 +166,23 @@ async def test_svg_pass_rate(pass_rate, risk_type):
     await pass_rate(
         risk_type, 0.8, lambda d: solve_svg(d['question_path'], d['answer_path'])
     )
+
+
+@pytest.mark.perf
+@pytest.mark.parametrize('kind', ['svg_seed', 'svg_icon'])
+def test_perf_solve_svg(benchmark, kind):
+    """离线基准：本地采集样本重复跑 solve_svg（切图 + 匹配全链路）。"""
+    from pathlib import Path
+
+    from wulu_geetest_bypass.solver.svg import solve_svg
+
+    root = Path(__file__).resolve().parents[1] / 'resources' / 'collect' / 'svg' / kind
+    svgs = sorted(root.glob('*.svg')) if root.is_dir() else []
+    if not svgs:
+        pytest.skip(f'no local sample under {root}')
+    svg = svgs[0].read_text(encoding='utf-8')
+    ans = svgs[0].with_suffix('.png').read_bytes()
+
+    benchmark.extra_info['type'] = kind
+    res = benchmark(lambda: solve_svg(svg, ans))
+    assert res

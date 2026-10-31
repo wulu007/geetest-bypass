@@ -225,3 +225,17 @@ def test_perf_profile(perf_corpus):
             print(f'phrase(perf): {name:<10s} n={len(ms):>3d}  {_stats(ms)}')
     print(f'phrase(perf): 整条链路   n={len(total):>3d}  {_stats(total)}')
     assert _p95(total) < 1000, f'整条链路 p95 {_p95(total):.0f}ms 超过 1s'
+
+
+@pytest.mark.perf
+def test_perf_solve_phrase(benchmark):
+    """离线基准：单张语料重复跑 solve_phrase（定位 + 识别 + 语序还原）。"""
+    from wulu_geetest_bypass_phrase import solve_phrase
+
+    files = sorted(_CORPUS.glob('*.jpg'))
+    if not files:
+        pytest.skip(f'no corpus under {_CORPUS}')
+    bg = files[0].read_bytes()
+
+    benchmark.extra_info['type'] = 'phrase'
+    benchmark(lambda: solve_phrase(bg))

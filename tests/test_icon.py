@@ -135,3 +135,34 @@ async def test_icon_pass_rate(pass_rate):
     await pass_rate(
         'icon', 0.6, lambda d: solve_icon(d['imgs'], d['ques']), captcha_id=_CID
     )
+
+
+@pytest.mark.perf
+def test_perf_solve_icon(benchmark):
+    """离线基准：本地背景图重复跑「检测 + 方向匹配」。
+
+    本地 hint 与当前 DIR_HASHES 对不上（旧版本采集），所以跳过了 hint→方向的
+    md5 查表，只测真正的计算部分。
+    """
+    from wulu_geetest_bypass_icon.solver import _detect, _match_direction
+
+    bgs = sorted(
+        (
+            Path(__file__).resolve().parents[1]
+            / 'resources'
+            / 'collect'
+            / 'icon'
+            / 'bg'
+        ).glob('*.jpg')
+    )
+    if not bgs:
+        pytest.skip('no local icon sample')
+    bg = cv2.imdecode(np.frombuffer(bgs[0].read_bytes(), np.uint8), cv2.IMREAD_COLOR)
+    direction = next(iter(DIR_HASHES.values()))
+    h, w = bg.shape[:2]
+
+    def run():
+        return _match_direction(direction, _detect(bg), set(), h, w)
+
+    benchmark.extra_info['type'] = 'icon'
+    benchmark(run)
