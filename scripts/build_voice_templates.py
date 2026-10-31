@@ -1,9 +1,12 @@
-"""Voice template builder.
+"""Voice 数据准备（旧流程，训练已迁走）。
+
+训练请用 `scripts/voice/train.py`：它按音色版本打包到 `weights/<version>.npz`，
+本脚本原来的 `train` 会写 `{lang}.npz` 到包目录，新 solver 已不再读取。
+
 Usage:
   uv run python scripts/build_voice_templates.py fetch      <lang>  # 下载20个样本
   uv run python scripts/build_voice_templates.py transcribe <lang>  # Whisper 转写（一次）
   uv run python scripts/build_voice_templates.py verify     <lang>  # 分割验证（不用模型）
-  uv run python scripts/build_voice_templates.py train      <lang>  # 训练模板
 """
 
 import asyncio
@@ -12,11 +15,9 @@ import os
 import sys
 from pathlib import Path
 
-import numpy as np
 from faster_whisper import WhisperModel
 from wulu_geetest_bypass_voice.solver import (
     _load_audio,
-    _mfcc_feature,
     _split_by_silence,
 )
 
@@ -25,236 +26,9 @@ from wulu_geetest_bypass import Geetest
 CAPTCHA_ID = '54088bb07d2df3c46b79f80300b0abbe'
 RAW_DIR = Path('resources/voice/raw')
 TRANS_DIR = Path('resources/voice/transcripts')
-OUT_DIR = Path('extensions/wulu-geetest-bypass-voice/src/wulu_geetest_bypass_voice')
 SR = 16000
 
-WHISPER_LANG = {
-    'zho': 'zh',
-    'eng': 'en',
-    'jpn': 'ja',
-    'ind': 'id',
-    'kor': 'ko',
-    'rus': 'ru',
-    'ara': 'ar',
-    'spa': 'es',
-    'fra': 'fr',
-    'deu': 'de',
-    'zho-hk': 'yue',
-    'por': 'pt',
-}
-
-WORD_MAP = {
-    'zho': {
-        '零': '0',
-        '一': '1',
-        '二': '2',
-        '三': '3',
-        '四': '4',
-        '五': '5',
-        '六': '6',
-        '七': '7',
-        '八': '8',
-        '九': '9',
-        '幺': '1',
-        '两': '2',
-    },
-    'zho-hk': {
-        '零': '0',
-        '一': '1',
-        '二': '2',
-        '三': '3',
-        '四': '4',
-        '五': '5',
-        '六': '6',
-        '七': '7',
-        '八': '8',
-        '九': '9',
-        '幺': '1',
-        '两': '2',
-    },
-    'eng': {
-        'zero': '0',
-        'one': '1',
-        'two': '2',
-        'three': '3',
-        'four': '4',
-        'five': '5',
-        'six': '6',
-        'seven': '7',
-        'eight': '8',
-        'nine': '9',
-        'oh': '0',
-    },
-    'deu': {
-        'null': '0',
-        'eins': '1',
-        'ein': '1',
-        'zwei': '2',
-        'drei': '3',
-        'vier': '4',
-        'fuenf': '5',
-        'fünf': '5',
-        'sechs': '6',
-        'sieben': '7',
-        'acht': '8',
-        'neun': '9',
-    },
-    'fra': {
-        'zero': '0',
-        'un': '1',
-        'deux': '2',
-        'trois': '3',
-        'quatre': '4',
-        'cinq': '5',
-        'six': '6',
-        'sept': '7',
-        'huit': '8',
-        'neuf': '9',
-    },
-    'rus': {
-        'ноль': '0',
-        'один': '1',
-        'раз': '1',
-        'два': '2',
-        'три': '3',
-        'четыре': '4',
-        'пять': '5',
-        'шесть': '6',
-        'семь': '7',
-        'восемь': '8',
-        'девять': '9',
-    },
-    'ara': {
-        'صفر': '0',
-        'واحد': '1',
-        'اثنان': '2',
-        'تو': '2',
-        'ثلاثة': '3',
-        'أربعة': '4',
-        'اربعة': '4',
-        'خمسة': '5',
-        'خامس': '5',
-        'ستة': '6',
-        'سبعة': '7',
-        'بسبعة': '7',
-        'ثمانية': '8',
-        'تسعة': '9',
-    },
-    'ind': {
-        'nol': '0',
-        'no': '0',
-        'satu': '1',
-        'dua': '2',
-        'tiga': '3',
-        'empat': '4',
-        'lima': '5',
-        'enam': '6',
-        'endnam': '6',
-        'tujuh': '7',
-        'delapan': '8',
-        'sembilan': '9',
-    },
-    'spa': {
-        'cero': '0',
-        'uno': '1',
-        'dos': '2',
-        'tres': '3',
-        'cuatro': '4',
-        'cinco': '5',
-        'seis': '6',
-        'siete': '7',
-        'ocho': '8',
-        'nueve': '9',
-    },
-    'jpn': {
-        'いち': '1',
-        'に': '2',
-        'さん': '3',
-        'よん': '4',
-        'し': '4',
-        'ご': '5',
-        'ろく': '6',
-        'なな': '7',
-        'しち': '7',
-        'はち': '8',
-        'きゅう': '9',
-        'く': '9',
-        'れい': '0',
-        'ゼロ': '0',
-        'イチ': '1',
-        'ニ': '2',
-        'サン': '3',
-        'ヨン': '4',
-        'ゴ': '5',
-        'ロク': '6',
-        'ナナ': '7',
-        'ハチ': '8',
-        'キュウ': '9',
-        'ク': '9',
-        'ロック': '6',
-        'オ': '5',
-        'イ': '1',
-        'マナ': '7',
-        'バナ': '7',
-        'ペロ': '0',
-        'お': '5',
-    },
-    'kor': {
-        '일': '1',
-        '이': '2',
-        '삼': '3',
-        '사': '4',
-        '오': '5',
-        '육': '6',
-        '칠': '7',
-        '팔': '8',
-        '구': '9',
-        '영': '0',
-        '공': '0',
-        '하나': '1',
-        '한': '1',
-        '둘': '2',
-        '두': '2',
-        '셋': '3',
-        '세': '3',
-        '넷': '4',
-        '네': '4',
-        '다섯': '5',
-        '하섯': '5',
-        '여섯': '6',
-        '일곱': '7',
-        '여덟': '8',
-        '아홉': '9',
-    },
-    'por': {
-        'zero': '0',
-        'um': '1',
-        'dois': '2',
-        'tres': '3',
-        'quatro': '4',
-        'cinco': '5',
-        'seis': '6',
-        'sete': '7',
-        'oito': '8',
-        'nove': '9',
-    },
-}
-
-
-def extract(text: str, wm: dict[str, str]) -> str:
-    text = text.lower()
-    digits = []
-    for token in (
-        text.lower().replace('-', ' ').replace('.', ' ').replace(',', ' ').split()
-    ):
-        token = token.strip('!?;:')
-        if token.isdigit():
-            digits.extend(token)
-        elif token in wm:
-            digits.append(wm[token])
-        if len(digits) >= 6:
-            break
-    return ''.join(digits[-6:])
+from voice.digits import WHISPER_LANG, WORD_MAP, extract  # noqa: E402
 
 
 async def fetch(lang: str):
@@ -413,69 +187,6 @@ def verify(lang: str):
         )
 
 
-def train(lang: str):
-    trans_path = TRANS_DIR / (lang + '.json')
-    if not trans_path.exists():
-        print('No transcript found, run verify first')
-        return
-
-    with open(str(trans_path)) as f:
-        results = json.load(f)
-
-    valid = [r for r in results if r['digits_ok'] and r['seg_ok']]
-    if len(valid) < 3:
-        print('Only ' + str(len(valid)) + ' valid samples, need at least 3')
-        return
-
-    all_feats, all_labels, all_prompts = [], [], []
-    for r in valid:
-        mp3 = (RAW_DIR / r['file']).read_bytes()
-        y = _load_audio(mp3, SR)
-        segs = _split_by_silence(y, SR)
-        all_prompts.append(_mfcc_feature(segs[0], SR))
-        for seg, d in zip(segs[1:7], r['digits'], strict=False):
-            all_feats.append(_mfcc_feature(seg, SR))
-            all_labels.append(int(d))
-
-    feats = np.array(all_feats)
-    labels = np.array(all_labels)
-    centroids = np.array([feats[labels == i].mean(axis=0) for i in range(10)])
-    digits_arr = np.arange(10)
-
-    correct = sum(
-        1
-        for f, label in zip(feats, labels, strict=False)
-        if digits_arr[np.linalg.norm(centroids - f, axis=1).argmin()] == label
-    )
-    acc = correct / len(labels)
-    print(
-        'Accuracy: '
-        + str(correct)
-        + '/'
-        + str(len(labels))
-        + ' ('
-        + str(int(100 * acc))
-        + '%)'
-    )
-
-    if acc < 0.6:
-        print('Too low, skip saving')
-        return
-
-    prompt = np.array(all_prompts).mean(axis=0)
-    OUT_DIR.mkdir(parents=True, exist_ok=True)
-    out_path = OUT_DIR / (lang + '.npz')
-    np.savez(
-        str(out_path),
-        X=centroids.astype(np.float32),
-        y=digits_arr,
-        sr=SR,
-        lang=lang,
-        prompt=prompt.astype(np.float32),
-    )
-    print('Saved to ' + str(out_path))
-
-
 def main():
     if len(sys.argv) < 3:
         print(__doc__)
@@ -489,7 +200,7 @@ def main():
     elif cmd == 'verify':
         verify(lang)
     elif cmd == 'train':
-        train(lang)
+        print('train 已迁移到 scripts/voice/train.py（按音色版本打包到 weights/）')
     else:
         print('Unknown command: ' + cmd)
         print(__doc__)
