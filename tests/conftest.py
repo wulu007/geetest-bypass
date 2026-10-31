@@ -164,7 +164,7 @@ def bench_record():
             # 线上真实题目、verify 之后单次计时；与 pytest-benchmark 的热数据分开存放
             'solver_live_times': [round(t, 2) for t in solver_times],
             # 线上采样完成时间；各题型分批测试，不能共用一个全局时间
-            'tested_at': time.strftime('%Y-%m-%d %H:%M'),
+            'tested_at': time.strftime('%Y-%m-%d'),
             'e2e_times': [round(t, 2) for t in e2e_times]
             if e2e_times is not None
             else [],
@@ -389,7 +389,7 @@ def pytest_sessionfinish(session):
             },
         )
         rec['solver_bench_times'] = timings
-        rec['bench_tested_at'] = time.strftime('%Y-%m-%d %H:%M')
+        rec['bench_tested_at'] = time.strftime('%Y-%m-%d')
 
     mach = bs.get_machine_info() if bs else {}
     cpu_info = mach.get('cpu') or {}
@@ -412,7 +412,7 @@ def pytest_sessionfinish(session):
             'cpu_cores': cpu_cores,
             'os_name': os_name,
             'python_version': python_version,
-            'tested_at': time.strftime('%Y-%m-%d %H:%M:%S'),
+            'tested_at': time.strftime('%Y-%m-%d'),
         },
         'records': records,
     }
