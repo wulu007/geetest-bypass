@@ -50,15 +50,7 @@ phrase = ["wulu-geetest-bypass-phrase>=0.1.1"]
 gt-pull = "wulu_geetest_bypass.cli:main"
 
 [tool.hatch.build.targets.sdist]
-include = [
-    "src/wulu_geetest_bypass",
-    "scripts/hatch_build.py",
-    "README.md",
-    "README.zh-CN.md",
-    "LICENSE",
-    "THIRD_PARTY_NOTICES.md",
-]
-exclude = ["extensions/", "repo/", "tests/"]
+exclude = ["repo/", "tests/"]
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/wulu_geetest_bypass"]
