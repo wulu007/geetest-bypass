@@ -1,4 +1,10 @@
-# wulu-geetest-bypass
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/banner.svg" />
+    <source media="(prefers-color-scheme: light)" srcset="docs/banner.svg" />
+    <img src="https://raw.githubusercontent.com/wulu007/geetest-bypass/main/docs/banner.svg" alt="wulu-geetest-bypass banner" />
+  </picture>
+</p>
 
 <p align="center">
   <a href="https://github.com/wulu007/geetest-bypass/actions"><img alt="GitHub Actions Workflow Status" src="https://img.shields.io/github/actions/workflow/status/wulu007/geetest-bypass/ci.yml?label=CI&logo=github"></a>

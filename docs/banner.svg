@@ -1,0 +1,1132 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 740 156" width="740" height="156">
+  <style>
+    .shard {
+      animation: crack-shift 5.5s cubic-bezier(0.16, 1, 0.3, 1) infinite;
+      will-change: transform;
+    }
+    @keyframes crack-shift {
+      0%, 15% { transform: translate(0px, 0px) rotate(0deg); }
+      22%, 78% { transform: translate(var(--tx), var(--ty)) rotate(var(--rot)); }
+      90%, 100% { transform: translate(0px, 0px) rotate(0deg); }
+    }
+    .cracks-overlay {
+      animation: crack-fade 5.5s ease-out infinite;
+    }
+    @keyframes crack-fade {
+      0%, 15% { opacity: 0; }
+      20%, 78% { opacity: 1; }
+      90%, 100% { opacity: 0; }
+    }
+    .impact-flash {
+      animation: flash 5.5s ease-out infinite;
+      transform-origin: 172.0px 148.0px;
+    }
+    @keyframes flash {
+      0%, 14% { opacity: 0; transform: scale(0.2); }
+      17% { opacity: 0.75; transform: scale(1.0); }
+      24%, 100% { opacity: 0; transform: scale(1.6); }
+    }
+
+    /* 默认浅色主题配色（透明背景直接融入 GitHub 页面） */
+    .title-text {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      font-weight: 800;
+      font-size: 36px;
+      letter-spacing: -0.5px;
+      fill: #1F2328;
+    }
+    .title-accent {
+      fill: url(#accent-light);
+    }
+    .subtitle-text {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      font-weight: 400;
+      font-size: 15.5px;
+      fill: #59636E;
+    }
+    .pill-bg {
+      fill: #EFF6FF;
+      stroke: #BFDBFE;
+      stroke-width: 1;
+    }
+    .pill-text {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-weight: 600;
+      font-size: 12px;
+      fill: #1D4ED8;
+    }
+    .glow-circle {
+      opacity: 0.22;
+    }
+
+    /* 深色主题自动适配 */
+    @media (prefers-color-scheme: dark) {
+      .title-text { fill: #F0F6FC; }
+      .title-accent { fill: url(#accent-dark); }
+      .subtitle-text { fill: #8B949E; }
+      .pill-bg {
+        fill: rgba(52, 126, 255, 0.16);
+        stroke: rgba(96, 165, 250, 0.38);
+      }
+      .pill-text { fill: #93C5FD; }
+      .glow-circle { opacity: 0.38; }
+    }
+  </style>
+
+  <defs>
+    <radialGradient id="icon-glow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#347EFF" stop-opacity="0.8" />
+      <stop offset="100%" stop-color="#347EFF" stop-opacity="0" />
+    </radialGradient>
+
+    <linearGradient id="accent-light" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#2563EB" />
+      <stop offset="100%" stop-color="#0EA5E9" />
+    </linearGradient>
+
+    <linearGradient id="accent-dark" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#60A5FA" />
+      <stop offset="100%" stop-color="#38BDF8" />
+    </linearGradient>
+
+    <filter id="icon-shadow" x="-10%" y="-10%" width="125%" height="125%">
+      <feDropShadow dx="0" dy="3" stdDeviation="3.5" flood-color="#001a4d" flood-opacity="0.22" />
+    </filter>
+
+    <clipPath id="rounded-bounds">
+      <rect x="0" y="0" width="320" height="320" rx="28" ry="28" />
+    </clipPath>
+
+    <g id="icon-art">
+      <rect x="0" y="0" width="320" height="320" fill="#347EFF" />
+      <g filter="url(#icon-shadow)" fill="none" stroke="#FFFFFF">
+        <path d="M 211.2 70.5 A 98.5 98.5 0 1 0 257.5 154" stroke-width="17" stroke-linecap="butt" />
+        <line x1="189" y1="154" x2="266" y2="154" stroke-width="17" stroke-linecap="butt" />
+        <circle cx="159" cy="154" r="31" stroke-width="16.5" />
+        <circle cx="229" cy="85" r="22.5" stroke-width="18" />
+      </g>
+    </g>
+    <clipPath id="c0"><polygon points="172.0,148.0 195.8,147.6 199.5,158.5" /></clipPath>
+    <clipPath id="c1"><polygon points="172.0,148.0 199.5,158.5 187.2,168.1" /></clipPath>
+    <clipPath id="c2"><polygon points="172.0,148.0 187.2,168.1 179.7,169.1" /></clipPath>
+    <clipPath id="c3"><polygon points="172.0,148.0 179.7,169.1 170.3,172.3" /></clipPath>
+    <clipPath id="c4"><polygon points="172.0,148.0 170.3,172.3 161.4,168.5" /></clipPath>
+    <clipPath id="c5"><polygon points="172.0,148.0 161.4,168.5 151.1,167.3" /></clipPath>
+    <clipPath id="c6"><polygon points="172.0,148.0 151.1,167.3 145.9,153.1" /></clipPath>
+    <clipPath id="c7"><polygon points="172.0,148.0 145.9,153.1 147.2,144.7" /></clipPath>
+    <clipPath id="c8"><polygon points="172.0,148.0 147.2,144.7 152.9,135.9" /></clipPath>
+    <clipPath id="c9"><polygon points="172.0,148.0 152.9,135.9 159.0,128.2" /></clipPath>
+    <clipPath id="c10"><polygon points="172.0,148.0 159.0,128.2 166.9,123.1" /></clipPath>
+    <clipPath id="c11"><polygon points="172.0,148.0 166.9,123.1 179.8,122.5" /></clipPath>
+    <clipPath id="c12"><polygon points="172.0,148.0 179.8,122.5 190.0,131.5" /></clipPath>
+    <clipPath id="c13"><polygon points="172.0,148.0 190.0,131.5 195.9,134.4" /></clipPath>
+    <clipPath id="c14"><polygon points="172.0,148.0 195.9,134.4 195.8,147.6" /></clipPath>
+    <clipPath id="c15"><polygon points="195.8,147.6 199.5,158.5 236.0,173.8 235.4,146.2" /></clipPath>
+    <clipPath id="c16"><polygon points="199.5,158.5 187.2,168.1 207.1,194.3 236.0,173.8" /></clipPath>
+    <clipPath id="c17"><polygon points="187.2,168.1 179.7,169.1 193.4,198.5 207.1,194.3" /></clipPath>
+    <clipPath id="c18"><polygon points="179.7,169.1 170.3,172.3 167.4,214.6 193.4,198.5" /></clipPath>
+    <clipPath id="c19"><polygon points="170.3,172.3 161.4,168.5 145.4,203.8 167.4,214.6" /></clipPath>
+    <clipPath id="c20"><polygon points="161.4,168.5 151.1,167.3 121.2,188.8 145.4,203.8" /></clipPath>
+    <clipPath id="c21"><polygon points="151.1,167.3 145.9,153.1 109.5,158.3 121.2,188.8" /></clipPath>
+    <clipPath id="c22"><polygon points="145.9,153.1 147.2,144.7 114.1,139.3" /></clipPath>
+    <clipPath id="c23"><polygon points="145.9,153.1 114.1,139.3 109.5,158.3" /></clipPath>
+    <clipPath id="c24"><polygon points="147.2,144.7 152.9,135.9 120.3,110.6 114.1,139.3" /></clipPath>
+    <clipPath id="c25"><polygon points="152.9,135.9 159.0,128.2 139.5,96.2" /></clipPath>
+    <clipPath id="c26"><polygon points="152.9,135.9 139.5,96.2 120.3,110.6" /></clipPath>
+    <clipPath id="c27"><polygon points="159.0,128.2 166.9,123.1 159.3,78.9" /></clipPath>
+    <clipPath id="c28"><polygon points="159.0,128.2 159.3,78.9 139.5,96.2" /></clipPath>
+    <clipPath id="c29"><polygon points="166.9,123.1 179.8,122.5 188.0,84.9 159.3,78.9" /></clipPath>
+    <clipPath id="c30"><polygon points="179.8,122.5 190.0,131.5 219.6,102.6" /></clipPath>
+    <clipPath id="c31"><polygon points="179.8,122.5 219.6,102.6 188.0,84.9" /></clipPath>
+    <clipPath id="c32"><polygon points="190.0,131.5 195.9,134.4 236.1,117.2 219.6,102.6" /></clipPath>
+    <clipPath id="c33"><polygon points="195.9,134.4 195.8,147.6 235.4,146.2" /></clipPath>
+    <clipPath id="c34"><polygon points="195.9,134.4 235.4,146.2 236.1,117.2" /></clipPath>
+    <clipPath id="c35"><polygon points="235.4,146.2 236.0,173.8 280.4,181.4 272.9,143.4" /></clipPath>
+    <clipPath id="c36"><polygon points="236.0,173.8 207.1,194.3 244.4,226.4 280.4,181.4" /></clipPath>
+    <clipPath id="c37"><polygon points="207.1,194.3 193.4,198.5 213.1,234.3 244.4,226.4" /></clipPath>
+    <clipPath id="c38"><polygon points="193.4,198.5 167.4,214.6 164.2,264.4 213.1,234.3" /></clipPath>
+    <clipPath id="c39"><polygon points="167.4,214.6 145.4,203.8 125.3,236.2 164.2,264.4" /></clipPath>
+    <clipPath id="c40"><polygon points="145.4,203.8 121.2,188.8 84.8,230.5 125.3,236.2" /></clipPath>
+    <clipPath id="c41"><polygon points="121.2,188.8 109.5,158.3 67.8,169.4" /></clipPath>
+    <clipPath id="c42"><polygon points="121.2,188.8 67.8,169.4 84.8,230.5" /></clipPath>
+    <clipPath id="c43"><polygon points="109.5,158.3 114.1,139.3 53.2,128.3" /></clipPath>
+    <clipPath id="c44"><polygon points="109.5,158.3 53.2,128.3 67.8,169.4" /></clipPath>
+    <clipPath id="c45"><polygon points="114.1,139.3 120.3,110.6 72.4,81.4 53.2,128.3" /></clipPath>
+    <clipPath id="c46"><polygon points="120.3,110.6 139.5,96.2 111.0,62.2 72.4,81.4" /></clipPath>
+    <clipPath id="c47"><polygon points="139.5,96.2 159.3,78.9 157.2,28.5" /></clipPath>
+    <clipPath id="c48"><polygon points="139.5,96.2 157.2,28.5 111.0,62.2" /></clipPath>
+    <clipPath id="c49"><polygon points="159.3,78.9 188.0,84.9 197.0,54.6" /></clipPath>
+    <clipPath id="c50"><polygon points="159.3,78.9 197.0,54.6 157.2,28.5" /></clipPath>
+    <clipPath id="c51"><polygon points="188.0,84.9 219.6,102.6 240.4,76.0 197.0,54.6" /></clipPath>
+    <clipPath id="c52"><polygon points="219.6,102.6 236.1,117.2 267.6,98.7" /></clipPath>
+    <clipPath id="c53"><polygon points="219.6,102.6 267.6,98.7 240.4,76.0" /></clipPath>
+    <clipPath id="c54"><polygon points="236.1,117.2 235.4,146.2 272.9,143.4 267.6,98.7" /></clipPath>
+    <clipPath id="c55"><polygon points="272.9,143.4 280.4,181.4 321.0,200.8" /></clipPath>
+    <clipPath id="c56"><polygon points="272.9,143.4 321.0,200.8 321.8,134.3" /></clipPath>
+    <clipPath id="c57"><polygon points="280.4,181.4 244.4,226.4 272.2,279.4 321.0,200.8" /></clipPath>
+    <clipPath id="c58"><polygon points="244.4,226.4 213.1,234.3 237.0,306.4 272.2,279.4" /></clipPath>
+    <clipPath id="c59"><polygon points="213.1,234.3 164.2,264.4 149.9,314.2 237.0,306.4" /></clipPath>
+    <clipPath id="c60"><polygon points="164.2,264.4 125.3,236.2 99.0,267.8" /></clipPath>
+    <clipPath id="c61"><polygon points="164.2,264.4 99.0,267.8 149.9,314.2" /></clipPath>
+    <clipPath id="c62"><polygon points="125.3,236.2 84.8,230.5 33.6,256.1 99.0,267.8" /></clipPath>
+    <clipPath id="c63"><polygon points="84.8,230.5 67.8,169.4 -0.2,186.7" /></clipPath>
+    <clipPath id="c64"><polygon points="84.8,230.5 -0.2,186.7 33.6,256.1" /></clipPath>
+    <clipPath id="c65"><polygon points="67.8,169.4 53.2,128.3 15.4,135.7" /></clipPath>
+    <clipPath id="c66"><polygon points="67.8,169.4 15.4,135.7 -0.2,186.7" /></clipPath>
+    <clipPath id="c67"><polygon points="53.2,128.3 72.4,81.4 29.6,57.9" /></clipPath>
+    <clipPath id="c68"><polygon points="53.2,128.3 29.6,57.9 15.4,135.7" /></clipPath>
+    <clipPath id="c69"><polygon points="72.4,81.4 111.0,62.2 88.3,34.6" /></clipPath>
+    <clipPath id="c70"><polygon points="72.4,81.4 88.3,34.6 29.6,57.9" /></clipPath>
+    <clipPath id="c71"><polygon points="111.0,62.2 157.2,28.5 143.4,5.2" /></clipPath>
+    <clipPath id="c72"><polygon points="111.0,62.2 143.4,5.2 88.3,34.6" /></clipPath>
+    <clipPath id="c73"><polygon points="157.2,28.5 197.0,54.6 205.4,11.8 143.4,5.2" /></clipPath>
+    <clipPath id="c74"><polygon points="197.0,54.6 240.4,76.0 270.2,41.3 205.4,11.8" /></clipPath>
+    <clipPath id="c75"><polygon points="240.4,76.0 267.6,98.7 305.0,67.6" /></clipPath>
+    <clipPath id="c76"><polygon points="240.4,76.0 305.0,67.6 270.2,41.3" /></clipPath>
+    <clipPath id="c77"><polygon points="267.6,98.7 272.9,143.4 321.8,134.3" /></clipPath>
+    <clipPath id="c78"><polygon points="267.6,98.7 321.8,134.3 305.0,67.6" /></clipPath>
+    <clipPath id="c79"><polygon points="321.8,134.3 321.0,200.8 392.3,222.6 461.2,142.8" /></clipPath>
+    <clipPath id="c80"><polygon points="321.0,200.8 272.2,279.4 336.0,334.2 392.3,222.6" /></clipPath>
+    <clipPath id="c81"><polygon points="272.2,279.4 237.0,306.4 250.9,364.7 336.0,334.2" /></clipPath>
+    <clipPath id="c82"><polygon points="237.0,306.4 149.9,314.2 140.1,444.8 250.9,364.7" /></clipPath>
+    <clipPath id="c83"><polygon points="149.9,314.2 99.0,267.8 59.5,381.0 140.1,444.8" /></clipPath>
+    <clipPath id="c84"><polygon points="99.0,267.8 33.6,256.1 0.9,300.1 59.5,381.0" /></clipPath>
+    <clipPath id="c85"><polygon points="33.6,256.1 -0.2,186.7 -66.2,188.6 0.9,300.1" /></clipPath>
+    <clipPath id="c86"><polygon points="-0.2,186.7 15.4,135.7 -61.0,131.9 -66.2,188.6" /></clipPath>
+    <clipPath id="c87"><polygon points="15.4,135.7 29.6,57.9 -68.3,-23.5 -61.0,131.9" /></clipPath>
+    <clipPath id="c88"><polygon points="29.6,57.9 88.3,34.6 41.6,-44.4 -68.3,-23.5" /></clipPath>
+    <clipPath id="c89"><polygon points="88.3,34.6 143.4,5.2 133.2,-71.7" /></clipPath>
+    <clipPath id="c90"><polygon points="88.3,34.6 133.2,-71.7 41.6,-44.4" /></clipPath>
+    <clipPath id="c91"><polygon points="143.4,5.2 205.4,11.8 272.3,-131.9" /></clipPath>
+    <clipPath id="c92"><polygon points="143.4,5.2 272.3,-131.9 133.2,-71.7" /></clipPath>
+    <clipPath id="c93"><polygon points="205.4,11.8 270.2,41.3 362.3,-50.9" /></clipPath>
+    <clipPath id="c94"><polygon points="205.4,11.8 362.3,-50.9 272.3,-131.9" /></clipPath>
+    <clipPath id="c95"><polygon points="270.2,41.3 305.0,67.6 387.8,22.6" /></clipPath>
+    <clipPath id="c96"><polygon points="270.2,41.3 387.8,22.6 362.3,-50.9" /></clipPath>
+    <clipPath id="c97"><polygon points="305.0,67.6 321.8,134.3 461.2,142.8 387.8,22.6" /></clipPath>
+  </defs>
+
+  <!-- 左侧图标柔和蓝光光晕 -->
+  <circle class="glow-circle" cx="84" cy="78" r="76" fill="url(#icon-glow)" />
+
+  <!-- 左侧碎裂动画图标 (112x112) -->
+  <g transform="translate(28, 22) scale(0.35)">
+    <g clip-path="url(#rounded-bounds)">
+      <rect x="0" y="0" width="320" height="320" fill="#1B4BB5" />
+      <g class="shard" style="transform-origin:189.1px 151.4px;--tx:3.58px;--ty:0.71px;--rot:0.08deg;animation-delay:0.000s">
+        <g clip-path="url(#c0)">
+          <use href="#icon-art" />
+          <g class="cracks-overlay">
+            <polygon points="172.0,148.0 195.8,147.6 199.5,158.5" fill="#FFFFFF" fill-opacity="0.08" />
+            <polygon points="172.0,148.0 195.8,147.6 199.5,158.5" fill="none" stroke="#FFFFFF" stroke-opacity="0.7" stroke-width="1.2" />
+          </g>
+        </g>
+      </g>
+      <g class="shard" style="transform-origin:186.3px 158.2px;--tx:1.97px;--ty:1.41px;--rot:0.81deg;animation-delay:0.000s">
+        <g clip-path="url(#c1)">
+          <use href="#icon-art" />
+          <g class="cracks-overlay">
+            <polygon points="172.0,148.0 199.5,158.5 187.2,168.1" fill="#FFFFFF" fill-opacity="0.13" />
+            <polygon points="172.0,148.0 199.5,158.5 187.2,168.1" fill="none" stroke="#FFFFFF" stroke-opacity="0.7" stroke-width="1.2" />
+          </g>
+        </g>
+      </g>
+      <g class="shard" style="transform-origin:179.6px 161.7px;--tx:1.81px;--ty:3.26px;--rot:0.83deg;animation-delay:0.000s">
+        <g clip-path="url(#c2)">
+          <use href="#icon-art" />
+          <g class="cracks-overlay">
+            <polygon points="172.0,148.0 187.2,168.1 179.7,169.1" fill="#FFFFFF" fill-opacity="0.06" />
+            <polygon points="172.0,148.0 187.2,168.1 179.7,169.1" fill="none" stroke="#FFFFFF" stroke-opacity="0.7" stroke-width="1.2" />
+          </g>
+        </g>
+      </g>
+      <g class="shard" style="transform-origin:174.0px 163.1px;--tx:0.40px;--ty:3.05px;--rot:-0.38deg;animation-delay:0.000s">
+        <g clip-path="url(#c3)">
+          <use href="#icon-art" />
+          <g class="cracks-overlay">
+            <polygon points="172.0,148.0 179.7,169.1 170.3,172.3" fill="#00143D" fill-opacity="0.04" />
+            <polygon points="172.0,148.0 179.7,169.1 170.3,172.3" fill="none" stroke="#FFFFFF" stroke-opacity="0.7" stroke-width="1.2" />
+          </g>
+        </g>
+      </g>
+      <g class="shard" style="transform-origin:167.9px 162.9px;--tx:-0.67px;--ty:2.46px;--rot:-0.63deg;animation-delay:0.000s">
+        <g clip-path="url(#c4)">
+          <use href="#icon-art" />
+          <g class="cracks-overlay">
+            <polygon points="172.0,148.0 170.3,172.3 161.4,168.5" fill="#FFFFFF" fill-opacity="0.15" />
+            <polygon points="172.0,148.0 170.3,172.3 161.4,168.5" fill="none" stroke="#FFFFFF" stroke-opacity="0.7" stroke-width="1.2" />
+          </g>
+        </g>
+      </g>
+      <g class="shard" style="transform-origin:161.5px 161.3px;--tx:-1.81px;--ty:2.29px;--rot:1.14deg;animation-delay:0.000s">
+        <g clip-path="url(#c5)">
+          <use href="#icon-art" />
+          <g class="cracks-overlay">
+            <polygon points="172.0,148.0 161.4,168.5 151.1,167.3" fill="#FFFFFF" fill-opacity="0.15" />
+            <polygon points="172.0,148.0 161.4,168.5 151.1,167.3" fill="none" stroke="#FFFFFF" stroke-opacity="0.7" stroke-width="1.2" />
+          </g>
+        </g>
+      </g>
+      <g class="shard" style="transform-origin:156.3px 156.1px;--tx:-2.43px;--ty:1.26px;--rot:-0.73deg;animation-delay:0.000s">
+        <g clip-path="url(#c6)">
+          <use href="#icon-art" />
+          <g class="cracks-overlay">
+            <polygon points="172.0,148.0 151.1,167.3 145.9,153.1" fill="#00143D" fill-opacity="0.06" />
+            <polygon points="172.0,148.0 151.1,167.3 145.9,153.1" fill="none" stroke="#FFFFFF" stroke-opacity="0.7" stroke-width="1.2" />
+          </g>
+        </g>
+      </g>
+      <g class="shard" style="transform-origin:155.0px 148.6px;--tx:-2.38px;--ty:0.08px;--rot:0.32deg;animation-delay:0.000s">
+        <g clip-path="url(#c7)">
+          <use href="#icon-art" />
+          <g class="cracks-overlay">
+            <polygon points="172.0,148.0 145.9,153.1 147.2,144.7" fill="#FFFFFF" fill-opacity="0.13" />
+            <polygon points="172.0,148.0 145.9,153.1 147.2,144.7" fill="none" stroke="#FFFFFF" stroke-opacity="0.7" stroke-width="1.2" />
+          </g>
+        </g>
+      </g>
+      <g class="shard" style="transform-origin:157.4px 142.9px;--tx:-2.83px;--ty:-0.99px;--rot:0.40deg;animation-delay:0.000s">
+        <g clip-path="url(#c8)">
+          <use href="#icon-art" />
+          <g class="cracks-overlay">
+            <polygon points="172.0,148.0 147.2,144.7 152.9,135.9" fill="#FFFFFF" fill-opacity="0.05" />
+            <polygon points="172.0,148.0 147.2,144.7 152.9,135.9" fill="none" stroke="#FFFFFF" stroke-opacity="0.7" stroke-width="1.2" />
+          </g>
+        </g>
+      </g>
+      <g class="shard" style="transform-origin:161.3px 137.4px;--tx:-2.41px;--ty:-2.40px;--rot:1.07deg;animation-delay:0.000s">
+        <g clip-path="url(#c9)">
+          <use href="#icon-art" />
+          <g class="cracks-overlay">
+            <polygon points="172.0,148.0 152.9,135.9 159.0,128.2" fill="#FFFFFF" fill-opacity="0.12" />
+            <polygon points="172.0,148.0 152.9,135.9 159.0,128.2" fill="none" stroke="#FFFFFF" stroke-opacity="0.7" stroke-width="1.2" />
+          </g>
+        </g>
+      </g>
+      <g class="shard" style="transform-origin:166.0px 133.1px;--tx:-1.12px;--ty:-2.77px;--rot:-0.84deg;animation-delay:0.000s">
+        <g clip-path="url(#c10)">
+          <use href="#icon-art" />
+          <g class="cracks-overlay">
+            <polygon points="172.0,148.0 159.0,128.2 166.9,123.1" fill="#FFFFFF" fill-opacity="0.08" />
+            <polygon points="172.0,148.0 159.0,128.2 166.9,123.1" fill="none" stroke="#FFFFFF" stroke-opacity="0.7" stroke-width="1.2" />
+          </g>
+        </g>
+      </g>
+      <g class="shard" style="transform-origin:172.9px 131.2px;--tx:0.20px;--ty:-3.71px;--rot:1.23deg;animation-delay:0.000s">
+        <g clip-path="url(#c11)">
+          <use href="#icon-art" />
+          <g class="cracks-overlay">
+            <polygon points="172.0,148.0 166.9,123.1 179.8,122.5" fill="#00143D" fill-opacity="0.08" />
+            <polygon points="172.0,148.0 166.9,123.1 179.8,122.5" fill="none" stroke="#FFFFFF" stroke-opacity="0.7" stroke-width="1.2" />
+          </g>
+        </g>
+      </g>
+      <g class="shard" style="transform-origin:180.6px 134.0px;--tx:2.11px;--ty:-3.45px;--rot:0.58deg;animation-delay:0.000s">
+        <g clip-path="url(#c12)">
+          <use href="#icon-art" />
+          <g class="cracks-overlay">
+            <polygon points="172.0,148.0 179.8,122.5 190.0,131.5" fill="#00143D" fill-opacity="0.05" />
+            <polygon points="172.0,148.0 179.8,122.5 190.0,131.5" fill="none" stroke="#FFFFFF" stroke-opacity="0.7" stroke-width="1.2" />
+          </g>
+        </g>
+      </g>
+      <g class="shard" style="transform-origin:186.0px 137.9px;--tx:1.83px;--ty:-1.32px;--rot:1.05deg;animation-delay:0.000s">
+        <g clip-path="url(#c13)">
+          <use href="#icon-art" />
+          <g class="cracks-overlay">
+            <polygon points="172.0,148.0 190.0,131.5 195.9,134.4" fill="#FFFFFF" fill-opacity="0.06" />
+            <polygon points="172.0,148.0 190.0,131.5 195.9,134.4" fill="none" stroke="#FFFFFF" stroke-opacity="0.7" stroke-width="1.2" />
+          </g>
+        </g>
+      </g>
+      <g class="shard" style="transform-origin:187.9px 143.3px;--tx:3.62px;--ty:-1.06px;--rot:1.25deg;animation-delay:0.000s">
+        <g clip-path="url(#c14)">
+          <use href="#icon-art" />
+          <g class="cracks-overlay">
+            <polygon points="172.0,148.0 195.9,134.4 195.8,147.6" fill="#FFFFFF" fill-opacity="0.08" />
+            <polygon points="172.0,148.0 195.9,134.4 195.8,147.6" fill="none" stroke="#FFFFFF" stroke-opacity="0.7" stroke-width="1.2" />
+          </g>
+        </g>
+      </g>
+      <g class="shard" style="transform-origin:216.7px 156.5px;--tx:1.83px;--ty:0.35px;--rot:-1.07deg;animation-delay:0.040s">
+        <g clip-path="url(#c15)">
+          <use href="#icon-art" />
+          <g class="cracks-overlay">
+            <polygon points="195.8,147.6 199.5,158.5 236.0,173.8 235.4,146.2" fill="#FFFFFF" fill-opacity="0.11" />
+            <polygon points="195.8,147.6 199.5,158.5 236.0,173.8 235.4,146.2" fill="none" stroke="#FFFFFF" stroke-opacity="0.7" stroke-width="1.2" />
+          </g>
+        </g>
+      </g>
+      <g class="shard" style="transform-origin:207.4px 173.7px;--tx:2.74px;--ty:1.99px;--rot:-0.15deg;animation-delay:0.040s">
+        <g clip-path="url(#c16)">
+          <use href="#icon-art" />
+          <g class="cracks-overlay">
+            <polygon points="199.5,158.5 187.2,168.1 207.1,194.3 236.0,173.8" fill="#FFFFFF" fill-opacity="0.13" />
+            <polygon points="199.5,158.5 187.2,168.1 207.1,194.3 236.0,173.8" fill="none" stroke="#FFFFFF" stroke-opacity="0.7" stroke-width="1.2" />
+          </g>
+        </g>
+      </g>
+      <g class="shard" style="transform-origin:191.8px 182.5px;--tx:1.04px;--ty:1.82px;--rot:-0.46deg;animation-delay:0.040s">
+        <g clip-path="url(#c17)">
+          <use href="#icon-art" />
+          <g class="cracks-overlay">
+            <polygon points="187.2,168.1 179.7,169.1 193.4,198.5 207.1,194.3" fill="#00143D" fill-opacity="0.10" />
+            <polygon points="187.2,168.1 179.7,169.1 193.4,198.5 207.1,194.3" fill="none" stroke="#FFFFFF" stroke-opacity="0.7" stroke-width="1.2" />
+          </g>
+        </g>
+      </g>
+      <g class="shard" style="transform-origin:177.7px 188.6px;--tx:0.33px;--ty:2.39px;--rot:-0.81deg;animation-delay:0.040s">
+        <g clip-path="url(#c18)">
+          <use href="#icon-art" />
+          <g class="cracks-overlay">
+            <polygon points="179.7,169.1 170.3,172.3 167.4,214.6 193.4,198.5" fill="#FFFFFF" fill-opacity="0.08" />
+            <polygon points="179.7,169.1 170.3,172.3 167.4,214.6 193.4,198.5" fill="none" stroke="#FFFFFF" stroke-opacity="0.7" stroke-width="1.2" />
+          </g>
+        </g>
+      </g>
+      <g class="shard" style="transform-origin:161.1px 189.8px;--tx:-0.68px;--ty:2.64px;--rot:0.89deg;animation-delay:0.040s">
+        <g clip-path="url(#c19)">
+          <use href="#icon-art" />
+          <g class="cracks-overlay">
+            <polygon points="170.3,172.3 161.4,168.5 145.4,203.8 167.4,214.6" fill="#00143D" fill-opacity="0.14" />
+            <polygon points="170.3,172.3 161.4,168.5 145.4,203.8 167.4,214.6" fill="none" stroke="#FFFFFF" stroke-opacity="0.7" stroke-width="1.2" />
+          </g>
+        </g>
+      </g>
+      <g class="shard" style="transform-origin:144.8px 182.1px;--tx:-1.64px;--ty:2.05px;--rot:0.05deg;animation-delay:0.040s">
+        <g clip-path="url(#c20)">
+          <use href="#icon-art" />
+          <g class="cracks-overlay">
+            <polygon points="161.4,168.5 151.1,167.3 121.2,188.8 145.4,203.8" fill="#00143D" fill-opacity="0.09" />
+            <polygon points="161.4,168.5 151.1,167.3 121.2,188.8 145.4,203.8" fill="none" stroke="#FFFFFF" stroke-opacity="0.7" stroke-width="1.2" />
+          </g>
+        </g>
+      </g>
+      <g class="shard" style="transform-origin:131.9px 166.9px;--tx:-1.47px;--ty:0.69px;--rot:0.66deg;animation-delay:0.040s">
+        <g clip-path="url(#c21)">
+          <use href="#icon-art" />
+          <g class="cracks-overlay">
+            <polygon points="151.1,167.3 145.9,153.1 109.5,158.3 121.2,188.8" fill="#00143D" fill-opacity="0.09" />
+            <polygon points="151.1,167.3 145.9,153.1 109.5,158.3 121.2,188.8" fill="none" stroke="#FFFFFF" stroke-opacity="0.7" stroke-width="1.2" />
+          </g>
+        </g>
+      </g>
+      <g class="shard" style="transform-origin:135.7px 145.7px;--tx:-2.67px;--ty:-0.17px;--rot:-0.38deg;animation-delay:0.040s">
+        <g clip-path="url(#c22)">
+          <use href="#icon-art" />
+          <g class="cracks-overlay">
+            <polygon points="145.9,153.1 147.2,144.7 114.1,139.3" fill="#FFFFFF" fill-opacity="0.10" />
+            <polygon points="145.9,153.1 147.2,144.7 114.1,139.3" fill="none" stroke="#FFFFFF" stroke-opacity="0.7" stroke-width="1.2" />
+          </g>
+        </g>
+      </g>
+      <g class="shard" style="transform-origin:123.2px 150.2px;--tx:-3.10px;--ty:0.14px;--rot:-0.87deg;animation-delay:0.040s">
+        <g clip-path="url(#c23)">
+          <use href="#icon-art" />
+          <g class="cracks-overlay">
+            <polygon points="145.9,153.1 114.1,139.3 109.5,158.3" fill="#FFFFFF" fill-opacity="0.07" />
+            <polygon points="145.9,153.1 114.1,139.3 109.5,158.3" fill="none" stroke="#FFFFFF" stroke-opacity="0.7" stroke-width="1.2" />
+          </g>
+        </g>
+      </g>
+      <g class="shard" style="transform-origin:133.6px 132.6px;--tx:-2.86px;--ty:-1.14px;--rot:0.02deg;animation-delay:0.040s">
+        <g clip-path="url(#c24)">
+          <use href="#icon-art" />
+          <g class="cracks-overlay">
+            <polygon points="147.2,144.7 152.9,135.9 120.3,110.6 114.1,139.3" fill="#FFFFFF" fill-opacity="0.12" />
+            <polygon points="147.2,144.7 152.9,135.9 120.3,110.6 114.1,139.3" fill="none" stroke="#FFFFFF" stroke-opacity="0.7" stroke-width="1.2" />
+          </g>
+        </g>
+      </g>
+      <g class="shard" style="transform-origin:150.5px 120.1px;--tx:-1.50px;--ty:-1.95px;--rot:0.25deg;animation-delay:0.040s">
+        <g clip-path="url(#c25)">
+          <use href="#icon-art" />
+          <g class="cracks-overlay">
+            <polygon points="152.9,135.9 159.0,128.2 139.5,96.2" fill="#FFFFFF" fill-opacity="0.10" />
+            <polygon points="152.9,135.9 159.0,128.2 139.5,96.2" fill="none" stroke="#FFFFFF" stroke-opacity="0.7" stroke-width="1.2" />
+          </g>
+        </g>
+      </g>
+      <g class="shard" style="transform-origin:137.6px 114.2px;--tx:-2.09px;--ty:-2.05px;--rot:-0.10deg;animation-delay:0.040s">
+        <g clip-path="url(#c26)">
+          <use href="#icon-art" />
+          <g class="cracks-overlay">
+            <polygon points="152.9,135.9 139.5,96.2 120.3,110.6" fill="#FFFFFF" fill-opacity="0.09" />
+            <polygon points="152.9,135.9 139.5,96.2 120.3,110.6" fill="none" stroke="#FFFFFF" stroke-opacity="0.7" stroke-width="1.2" />
+          </g>
+        </g>
+      </g>
+      <g class="shard" style="transform-origin:161.8px 110.0px;--tx:-0.77px;--ty:-2.84px;--rot:0.83deg;animation-delay:0.040s">
+        <g clip-path="url(#c27)">
+          <use href="#icon-art" />
+          <g class="cracks-overlay">
+            <polygon points="159.0,128.2 166.9,123.1 159.3,78.9" fill="#FFFFFF" fill-opacity="0.07" />
+            <polygon points="159.0,128.2 166.9,123.1 159.3,78.9" fill="none" stroke="#FFFFFF" stroke-opacity="0.7" stroke-width="1.2" />
+          </g>
+        </g>
+      </g>
+      <g class="shard" style="transform-origin:152.6px 101.1px;--tx:-1.02px;--ty:-2.47px;--rot:0.98deg;animation-delay:0.040s">
+        <g clip-path="url(#c28)">
+          <use href="#icon-art" />
+          <g class="cracks-overlay">
+            <polygon points="159.0,128.2 159.3,78.9 139.5,96.2" fill="#FFFFFF" fill-opacity="0.06" />
+            <polygon points="159.0,128.2 159.3,78.9 139.5,96.2" fill="none" stroke="#FFFFFF" stroke-opacity="0.7" stroke-width="1.2" />
+          </g>
+        </g>
+      </g>
+      <g class="shard" style="transform-origin:173.5px 102.3px;--tx:0.08px;--ty:-2.45px;--rot:-0.94deg;animation-delay:0.040s">
+        <g clip-path="url(#c29)">
+          <use href="#icon-art" />
+          <g class="cracks-overlay">
+            <polygon points="166.9,123.1 179.8,122.5 188.0,84.9 159.3,78.9" fill="#00143D" fill-opacity="0.05" />
+            <polygon points="166.9,123.1 179.8,122.5 188.0,84.9 159.3,78.9" fill="none" stroke="#FFFFFF" stroke-opacity="0.7" stroke-width="1.2" />
+          </g>
+        </g>
+      </g>
+      <g class="shard" style="transform-origin:196.4px 118.9px;--tx:1.99px;--ty:-2.38px;--rot:0.87deg;animation-delay:0.040s">
+        <g clip-path="url(#c30)">
+          <use href="#icon-art" />
+          <g class="cracks-overlay">
+            <polygon points="179.8,122.5 190.0,131.5 219.6,102.6" fill="#00143D" fill-opacity="0.12" />
+            <polygon points="179.8,122.5 190.0,131.5 219.6,102.6" fill="none" stroke="#FFFFFF" stroke-opacity="0.7" stroke-width="1.2" />
+          </g>
+        </g>
+      </g>
+      <g class="shard" style="transform-origin:195.8px 103.4px;--tx:1.35px;--ty:-2.53px;--rot:-0.79deg;animation-delay:0.040s">
+        <g clip-path="url(#c31)">
+          <use href="#icon-art" />
+          <g class="cracks-overlay">
+            <polygon points="179.8,122.5 219.6,102.6 188.0,84.9" fill="#FFFFFF" fill-opacity="0.15" />
+            <polygon points="179.8,122.5 219.6,102.6 188.0,84.9" fill="none" stroke="#FFFFFF" stroke-opacity="0.7" stroke-width="1.2" />
+          </g>
+        </g>
+      </g>
+      <g class="shard" style="transform-origin:210.4px 121.4px;--tx:2.81px;--ty:-1.95px;--rot:-0.22deg;animation-delay:0.040s">
+        <g clip-path="url(#c32)">
+          <use href="#icon-art" />
+          <g class="cracks-overlay">
+            <polygon points="190.0,131.5 195.9,134.4 236.1,117.2 219.6,102.6" fill="#FFFFFF" fill-opacity="0.15" />
+            <polygon points="190.0,131.5 195.9,134.4 236.1,117.2 219.6,102.6" fill="none" stroke="#FFFFFF" stroke-opacity="0.7" stroke-width="1.2" />
+          </g>
+        </g>
+      </g>
+      <g class="shard" style="transform-origin:209.0px 142.7px;--tx:1.91px;--ty:-0.27px;--rot:-0.15deg;animation-delay:0.040s">
+        <g clip-path="url(#c33)">
+          <use href="#icon-art" />
+          <g class="cracks-overlay">
+            <polygon points="195.9,134.4 195.8,147.6 235.4,146.2" fill="#FFFFFF" fill-opacity="0.08" />
+            <polygon points="195.9,134.4 195.8,147.6 235.4,146.2" fill="none" stroke="#FFFFFF" stroke-opacity="0.7" stroke-width="1.2" />
+          </g>
+        </g>
+      </g>
+      <g class="shard" style="transform-origin:222.5px 132.6px;--tx:1.90px;--ty:-0.58px;--rot:-0.40deg;animation-delay:0.040s">
+        <g clip-path="url(#c34)">
+          <use href="#icon-art" />
+          <g class="cracks-overlay">
+            <polygon points="195.9,134.4 235.4,146.2 236.1,117.2" fill="#FFFFFF" fill-opacity="0.04" />
+            <polygon points="195.9,134.4 235.4,146.2 236.1,117.2" fill="none" stroke="#FFFFFF" stroke-opacity="0.7" stroke-width="1.2" />
+          </g>
+        </g>
+      </g>
+      <g class="shard" style="transform-origin:256.2px 161.2px;--tx:1.97px;--ty:0.31px;--rot:-0.87deg;animation-delay:0.080s">
+        <g clip-path="url(#c35)">
+          <use href="#icon-art" />
+          <g class="cracks-overlay">
+            <polygon points="235.4,146.2 236.0,173.8 280.4,181.4 272.9,143.4" fill="#00143D" fill-opacity="0.11" />
+            <polygon points="235.4,146.2 236.0,173.8 280.4,181.4 272.9,143.4" fill="none" stroke="#FFFFFF" stroke-opacity="0.7" stroke-width="1.2" />
+          </g>
+        </g>
+      </g>
+      <g class="shard" style="transform-origin:242.0px 194.0px;--tx:1.19px;--ty:0.78px;--rot:0.87deg;animation-delay:0.080s">
+        <g clip-path="url(#c36)">
+          <use href="#icon-art" />
+          <g class="cracks-overlay">
+            <polygon points="236.0,173.8 207.1,194.3 244.4,226.4 280.4,181.4" fill="#FFFFFF" fill-opacity="0.15" />
+            <polygon points="236.0,173.8 207.1,194.3 244.4,226.4 280.4,181.4" fill="none" stroke="#FFFFFF" stroke-opacity="0.7" stroke-width="1.2" />
+          </g>
+        </g>
+      </g>
+      <g class="shard" style="transform-origin:214.5px 213.4px;--tx:0.94px;--ty:1.45px;--rot:-0.83deg;animation-delay:0.080s">
+        <g clip-path="url(#c37)">
+          <use href="#icon-art" />
+          <g class="cracks-overlay">
+            <polygon points="207.1,194.3 193.4,198.5 213.1,234.3 244.4,226.4" fill="#FFFFFF" fill-opacity="0.07" />
+            <polygon points="207.1,194.3 193.4,198.5 213.1,234.3 244.4,226.4" fill="none" stroke="#FFFFFF" stroke-opacity="0.7" stroke-width="1.2" />
+          </g>
+        </g>
+      </g>
+      <g class="shard" style="transform-origin:184.5px 228.0px;--tx:0.30px;--ty:1.95px;--rot:0.74deg;animation-delay:0.080s">
+        <g clip-path="url(#c38)">
+          <use href="#icon-art" />
+          <g class="cracks-overlay">
+            <polygon points="193.4,198.5 167.4,214.6 164.2,264.4 213.1,234.3" fill="#FFFFFF" fill-opacity="0.07" />
+            <polygon points="193.4,198.5 167.4,214.6 164.2,264.4 213.1,234.3" fill="none" stroke="#FFFFFF" stroke-opacity="0.7" stroke-width="1.2" />
+          </g>
+        </g>
+      </g>
+      <g class="shard" style="transform-origin:150.6px 229.8px;--tx:-0.69px;--ty:2.65px;--rot:0.13deg;animation-delay:0.080s">
+        <g clip-path="url(#c39)">
+          <use href="#icon-art" />
+          <g class="cracks-overlay">
+            <polygon points="167.4,214.6 145.4,203.8 125.3,236.2 164.2,264.4" fill="#FFFFFF" fill-opacity="0.05" />
+            <polygon points="167.4,214.6 145.4,203.8 125.3,236.2 164.2,264.4" fill="none" stroke="#FFFFFF" stroke-opacity="0.7" stroke-width="1.2" />
+          </g>
+        </g>
+      </g>
+      <g class="shard" style="transform-origin:119.2px 214.8px;--tx:-1.48px;--ty:1.87px;--rot:-0.13deg;animation-delay:0.080s">
+        <g clip-path="url(#c40)">
+          <use href="#icon-art" />
+          <g class="cracks-overlay">
+            <polygon points="145.4,203.8 121.2,188.8 84.8,230.5 125.3,236.2" fill="#00143D" fill-opacity="0.14" />
+            <polygon points="145.4,203.8 121.2,188.8 84.8,230.5 125.3,236.2" fill="none" stroke="#FFFFFF" stroke-opacity="0.7" stroke-width="1.2" />
+          </g>
+        </g>
+      </g>
+      <g class="shard" style="transform-origin:99.5px 172.1px;--tx:-2.42px;--ty:0.81px;--rot:-0.75deg;animation-delay:0.080s">
+        <g clip-path="url(#c41)">
+          <use href="#icon-art" />
+          <g class="cracks-overlay">
+            <polygon points="121.2,188.8 109.5,158.3 67.8,169.4" fill="#FFFFFF" fill-opacity="0.05" />
+            <polygon points="121.2,188.8 109.5,158.3 67.8,169.4" fill="none" stroke="#FFFFFF" stroke-opacity="0.7" stroke-width="1.2" />
+          </g>
+        </g>
+      </g>
+      <g class="shard" style="transform-origin:91.3px 196.2px;--tx:-2.27px;--ty:1.36px;--rot:-0.08deg;animation-delay:0.080s">
+        <g clip-path="url(#c42)">
+          <use href="#icon-art" />
+          <g class="cracks-overlay">
+            <polygon points="121.2,188.8 67.8,169.4 84.8,230.5" fill="#00143D" fill-opacity="0.10" />
+            <polygon points="121.2,188.8 67.8,169.4 84.8,230.5" fill="none" stroke="#FFFFFF" stroke-opacity="0.7" stroke-width="1.2" />
+          </g>
+        </g>
+      </g>
+      <g class="shard" style="transform-origin:92.3px 141.9px;--tx:-1.73px;--ty:-0.13px;--rot:-0.67deg;animation-delay:0.080s">
+        <g clip-path="url(#c43)">
+          <use href="#icon-art" />
+          <g class="cracks-overlay">
+            <polygon points="109.5,158.3 114.1,139.3 53.2,128.3" fill="#FFFFFF" fill-opacity="0.07" />
+            <polygon points="109.5,158.3 114.1,139.3 53.2,128.3" fill="none" stroke="#FFFFFF" stroke-opacity="0.7" stroke-width="1.2" />
+          </g>
+        </g>
+      </g>
+      <g class="shard" style="transform-origin:76.8px 152.0px;--tx:-1.49px;--ty:0.06px;--rot:-0.61deg;animation-delay:0.080s">
+        <g clip-path="url(#c44)">
+          <use href="#icon-art" />
+          <g class="cracks-overlay">
+            <polygon points="109.5,158.3 53.2,128.3 67.8,169.4" fill="#00143D" fill-opacity="0.06" />
+            <polygon points="109.5,158.3 53.2,128.3 67.8,169.4" fill="none" stroke="#FFFFFF" stroke-opacity="0.7" stroke-width="1.2" />
+          </g>
+        </g>
+      </g>
+      <g class="shard" style="transform-origin:90.0px 114.9px;--tx:-1.66px;--ty:-0.67px;--rot:0.47deg;animation-delay:0.080s">
+        <g clip-path="url(#c45)">
+          <use href="#icon-art" />
+          <g class="cracks-overlay">
+            <polygon points="114.1,139.3 120.3,110.6 72.4,81.4 53.2,128.3" fill="#00143D" fill-opacity="0.10" />
+            <polygon points="114.1,139.3 120.3,110.6 72.4,81.4 53.2,128.3" fill="none" stroke="#FFFFFF" stroke-opacity="0.7" stroke-width="1.2" />
+          </g>
+        </g>
+      </g>
+      <g class="shard" style="transform-origin:110.8px 87.6px;--tx:-1.32px;--ty:-1.30px;--rot:-0.87deg;animation-delay:0.080s">
+        <g clip-path="url(#c46)">
+          <use href="#icon-art" />
+          <g class="cracks-overlay">
+            <polygon points="120.3,110.6 139.5,96.2 111.0,62.2 72.4,81.4" fill="#00143D" fill-opacity="0.04" />
+            <polygon points="120.3,110.6 139.5,96.2 111.0,62.2 72.4,81.4" fill="none" stroke="#FFFFFF" stroke-opacity="0.7" stroke-width="1.2" />
+          </g>
+        </g>
+      </g>
+      <g class="shard" style="transform-origin:152.0px 67.8px;--tx:-0.53px;--ty:-2.10px;--rot:-0.56deg;animation-delay:0.080s">
+        <g clip-path="url(#c47)">
+          <use href="#icon-art" />
+          <g class="cracks-overlay">
+            <polygon points="139.5,96.2 159.3,78.9 157.2,28.5" fill="#FFFFFF" fill-opacity="0.14" />
+            <polygon points="139.5,96.2 159.3,78.9 157.2,28.5" fill="none" stroke="#FFFFFF" stroke-opacity="0.7" stroke-width="1.2" />
+          </g>
+        </g>
+      </g>
+      <g class="shard" style="transform-origin:135.9px 62.3px;--tx:-0.58px;--ty:-1.37px;--rot:0.57deg;animation-delay:0.080s">
+        <g clip-path="url(#c48)">
+          <use href="#icon-art" />
+          <g class="cracks-overlay">
+            <polygon points="139.5,96.2 157.2,28.5 111.0,62.2" fill="#00143D" fill-opacity="0.09" />
+            <polygon points="139.5,96.2 157.2,28.5 111.0,62.2" fill="none" stroke="#FFFFFF" stroke-opacity="0.7" stroke-width="1.2" />
+          </g>
+        </g>
+      </g>
+      <g class="shard" style="transform-origin:181.4px 72.8px;--tx:0.24px;--ty:-1.91px;--rot:0.01deg;animation-delay:0.080s">
+        <g clip-path="url(#c49)">
+          <use href="#icon-art" />
+          <g class="cracks-overlay">
+            <polygon points="159.3,78.9 188.0,84.9 197.0,54.6" fill="#FFFFFF" fill-opacity="0.15" />
+            <polygon points="159.3,78.9 188.0,84.9 197.0,54.6" fill="none" stroke="#FFFFFF" stroke-opacity="0.7" stroke-width="1.2" />
+          </g>
+        </g>
+      </g>
+      <g class="shard" style="transform-origin:171.2px 54.0px;--tx:-0.02px;--ty:-1.85px;--rot:0.60deg;animation-delay:0.080s">
+        <g clip-path="url(#c50)">
+          <use href="#icon-art" />
+          <g class="cracks-overlay">
+            <polygon points="159.3,78.9 197.0,54.6 157.2,28.5" fill="#FFFFFF" fill-opacity="0.11" />
+            <polygon points="159.3,78.9 197.0,54.6 157.2,28.5" fill="none" stroke="#FFFFFF" stroke-opacity="0.7" stroke-width="1.2" />
+          </g>
+        </g>
+      </g>
+      <g class="shard" style="transform-origin:211.2px 79.5px;--tx:0.92px;--ty:-1.61px;--rot:-0.80deg;animation-delay:0.080s">
+        <g clip-path="url(#c51)">
+          <use href="#icon-art" />
+          <g class="cracks-overlay">
+            <polygon points="188.0,84.9 219.6,102.6 240.4,76.0 197.0,54.6" fill="#00143D" fill-opacity="0.05" />
+            <polygon points="188.0,84.9 219.6,102.6 240.4,76.0 197.0,54.6" fill="none" stroke="#FFFFFF" stroke-opacity="0.7" stroke-width="1.2" />
+          </g>
+        </g>
+      </g>
+      <g class="shard" style="transform-origin:241.1px 106.2px;--tx:1.47px;--ty:-0.89px;--rot:-0.61deg;animation-delay:0.080s">
+        <g clip-path="url(#c52)">
+          <use href="#icon-art" />
+          <g class="cracks-overlay">
+            <polygon points="219.6,102.6 236.1,117.2 267.6,98.7" fill="#00143D" fill-opacity="0.13" />
+            <polygon points="219.6,102.6 236.1,117.2 267.6,98.7" fill="none" stroke="#FFFFFF" stroke-opacity="0.7" stroke-width="1.2" />
+          </g>
+        </g>
+      </g>
+      <g class="shard" style="transform-origin:242.5px 92.5px;--tx:2.09px;--ty:-1.65px;--rot:0.31deg;animation-delay:0.080s">
+        <g clip-path="url(#c53)">
+          <use href="#icon-art" />
+          <g class="cracks-overlay">
+            <polygon points="219.6,102.6 267.6,98.7 240.4,76.0" fill="#00143D" fill-opacity="0.07" />
+            <polygon points="219.6,102.6 267.6,98.7 240.4,76.0" fill="none" stroke="#FFFFFF" stroke-opacity="0.7" stroke-width="1.2" />
+          </g>
+        </g>
+      </g>
+      <g class="shard" style="transform-origin:253.0px 126.4px;--tx:1.96px;--ty:-0.52px;--rot:-0.62deg;animation-delay:0.080s">
+        <g clip-path="url(#c54)">
+          <use href="#icon-art" />
+          <g class="cracks-overlay">
+            <polygon points="236.1,117.2 235.4,146.2 272.9,143.4 267.6,98.7" fill="#00143D" fill-opacity="0.07" />
+            <polygon points="236.1,117.2 235.4,146.2 272.9,143.4 267.6,98.7" fill="none" stroke="#FFFFFF" stroke-opacity="0.7" stroke-width="1.2" />
+          </g>
+        </g>
+      </g>
+      <g class="shard" style="transform-origin:291.5px 175.2px;--tx:2.12px;--ty:0.48px;--rot:0.07deg;animation-delay:0.120s">
+        <g clip-path="url(#c55)">
+          <use href="#icon-art" />
+          <g class="cracks-overlay">
+            <polygon points="272.9,143.4 280.4,181.4 321.0,200.8" fill="#00143D" fill-opacity="0.15" />
+            <polygon points="272.9,143.4 280.4,181.4 321.0,200.8" fill="none" stroke="#FFFFFF" stroke-opacity="0.7" stroke-width="1.2" />
+          </g>
+        </g>
+      </g>
+      <g class="shard" style="transform-origin:305.3px 159.5px;--tx:1.38px;--ty:0.12px;--rot:-0.20deg;animation-delay:0.120s">
+        <g clip-path="url(#c56)">
+          <use href="#icon-art" />
+          <g class="cracks-overlay">
+            <polygon points="272.9,143.4 321.0,200.8 321.8,134.3" fill="#00143D" fill-opacity="0.08" />
+            <polygon points="272.9,143.4 321.0,200.8 321.8,134.3" fill="none" stroke="#FFFFFF" stroke-opacity="0.7" stroke-width="1.2" />
+          </g>
+        </g>
+      </g>
+      <g class="shard" style="transform-origin:279.5px 222.0px;--tx:1.33px;--ty:0.92px;--rot:-0.42deg;animation-delay:0.120s">
+        <g clip-path="url(#c57)">
+          <use href="#icon-art" />
+          <g class="cracks-overlay">
+            <polygon points="280.4,181.4 244.4,226.4 272.2,279.4 321.0,200.8" fill="#FFFFFF" fill-opacity="0.04" />
+            <polygon points="280.4,181.4 244.4,226.4 272.2,279.4 321.0,200.8" fill="none" stroke="#FFFFFF" stroke-opacity="0.7" stroke-width="1.2" />
+          </g>
+        </g>
+      </g>
+      <g class="shard" style="transform-origin:241.7px 261.6px;--tx:0.59px;--ty:0.96px;--rot:-0.14deg;animation-delay:0.120s">
+        <g clip-path="url(#c58)">
+          <use href="#icon-art" />
+          <g class="cracks-overlay">
+            <polygon points="244.4,226.4 213.1,234.3 237.0,306.4 272.2,279.4" fill="#00143D" fill-opacity="0.04" />
+            <polygon points="244.4,226.4 213.1,234.3 237.0,306.4 272.2,279.4" fill="none" stroke="#FFFFFF" stroke-opacity="0.7" stroke-width="1.2" />
+          </g>
+        </g>
+      </g>
+      <g class="shard" style="transform-origin:191.0px 279.9px;--tx:0.19px;--ty:1.28px;--rot:0.12deg;animation-delay:0.120s">
+        <g clip-path="url(#c59)">
+          <use href="#icon-art" />
+          <g class="cracks-overlay">
+            <polygon points="213.1,234.3 164.2,264.4 149.9,314.2 237.0,306.4" fill="#FFFFFF" fill-opacity="0.12" />
+            <polygon points="213.1,234.3 164.2,264.4 149.9,314.2 237.0,306.4" fill="none" stroke="#FFFFFF" stroke-opacity="0.7" stroke-width="1.2" />
+          </g>
+        </g>
+      </g>
+      <g class="shard" style="transform-origin:129.5px 256.2px;--tx:-0.68px;--ty:1.74px;--rot:0.53deg;animation-delay:0.120s">
+        <g clip-path="url(#c60)">
+          <use href="#icon-art" />
+          <g class="cracks-overlay">
+            <polygon points="164.2,264.4 125.3,236.2 99.0,267.8" fill="#00143D" fill-opacity="0.08" />
+            <polygon points="164.2,264.4 125.3,236.2 99.0,267.8" fill="none" stroke="#FFFFFF" stroke-opacity="0.7" stroke-width="1.2" />
+          </g>
+        </g>
+      </g>
+      <g class="shard" style="transform-origin:137.7px 282.2px;--tx:-0.54px;--ty:2.12px;--rot:-0.49deg;animation-delay:0.120s">
+        <g clip-path="url(#c61)">
+          <use href="#icon-art" />
+          <g class="cracks-overlay">
+            <polygon points="164.2,264.4 99.0,267.8 149.9,314.2" fill="#FFFFFF" fill-opacity="0.11" />
+            <polygon points="164.2,264.4 99.0,267.8 149.9,314.2" fill="none" stroke="#FFFFFF" stroke-opacity="0.7" stroke-width="1.2" />
+          </g>
+        </g>
+      </g>
+      <g class="shard" style="transform-origin:85.7px 247.7px;--tx:-1.32px;--ty:1.52px;--rot:0.55deg;animation-delay:0.120s">
+        <g clip-path="url(#c62)">
+          <use href="#icon-art" />
+          <g class="cracks-overlay">
+            <polygon points="125.3,236.2 84.8,230.5 33.6,256.1 99.0,267.8" fill="#FFFFFF" fill-opacity="0.12" />
+            <polygon points="125.3,236.2 84.8,230.5 33.6,256.1 99.0,267.8" fill="none" stroke="#FFFFFF" stroke-opacity="0.7" stroke-width="1.2" />
+          </g>
+        </g>
+      </g>
+      <g class="shard" style="transform-origin:50.8px 195.5px;--tx:-1.10px;--ty:0.43px;--rot:0.03deg;animation-delay:0.120s">
+        <g clip-path="url(#c63)">
+          <use href="#icon-art" />
+          <g class="cracks-overlay">
+            <polygon points="84.8,230.5 67.8,169.4 -0.2,186.7" fill="#FFFFFF" fill-opacity="0.13" />
+            <polygon points="84.8,230.5 67.8,169.4 -0.2,186.7" fill="none" stroke="#FFFFFF" stroke-opacity="0.7" stroke-width="1.2" />
+          </g>
+        </g>
+      </g>
+      <g class="shard" style="transform-origin:39.4px 224.4px;--tx:-1.71px;--ty:0.99px;--rot:0.46deg;animation-delay:0.120s">
+        <g clip-path="url(#c64)">
+          <use href="#icon-art" />
+          <g class="cracks-overlay">
+            <polygon points="84.8,230.5 -0.2,186.7 33.6,256.1" fill="#FFFFFF" fill-opacity="0.14" />
+            <polygon points="84.8,230.5 -0.2,186.7 33.6,256.1" fill="none" stroke="#FFFFFF" stroke-opacity="0.7" stroke-width="1.2" />
+          </g>
+        </g>
+      </g>
+      <g class="shard" style="transform-origin:45.5px 144.4px;--tx:-1.84px;--ty:-0.05px;--rot:-0.38deg;animation-delay:0.120s">
+        <g clip-path="url(#c65)">
+          <use href="#icon-art" />
+          <g class="cracks-overlay">
+            <polygon points="67.8,169.4 53.2,128.3 15.4,135.7" fill="#00143D" fill-opacity="0.05" />
+            <polygon points="67.8,169.4 53.2,128.3 15.4,135.7" fill="none" stroke="#FFFFFF" stroke-opacity="0.7" stroke-width="1.2" />
+          </g>
+        </g>
+      </g>
+      <g class="shard" style="transform-origin:27.7px 163.9px;--tx:-1.44px;--ty:0.16px;--rot:-0.55deg;animation-delay:0.120s">
+        <g clip-path="url(#c66)">
+          <use href="#icon-art" />
+          <g class="cracks-overlay">
+            <polygon points="67.8,169.4 15.4,135.7 -0.2,186.7" fill="#FFFFFF" fill-opacity="0.10" />
+            <polygon points="67.8,169.4 15.4,135.7 -0.2,186.7" fill="none" stroke="#FFFFFF" stroke-opacity="0.7" stroke-width="1.2" />
+          </g>
+        </g>
+      </g>
+      <g class="shard" style="transform-origin:51.7px 89.2px;--tx:-1.59px;--ty:-0.78px;--rot:0.25deg;animation-delay:0.120s">
+        <g clip-path="url(#c67)">
+          <use href="#icon-art" />
+          <g class="cracks-overlay">
+            <polygon points="53.2,128.3 72.4,81.4 29.6,57.9" fill="#FFFFFF" fill-opacity="0.04" />
+            <polygon points="53.2,128.3 72.4,81.4 29.6,57.9" fill="none" stroke="#FFFFFF" stroke-opacity="0.7" stroke-width="1.2" />
+          </g>
+        </g>
+      </g>
+      <g class="shard" style="transform-origin:32.7px 107.3px;--tx:-1.89px;--ty:-0.55px;--rot:0.35deg;animation-delay:0.120s">
+        <g clip-path="url(#c68)">
+          <use href="#icon-art" />
+          <g class="cracks-overlay">
+            <polygon points="53.2,128.3 29.6,57.9 15.4,135.7" fill="#FFFFFF" fill-opacity="0.10" />
+            <polygon points="53.2,128.3 29.6,57.9 15.4,135.7" fill="none" stroke="#FFFFFF" stroke-opacity="0.7" stroke-width="1.2" />
+          </g>
+        </g>
+      </g>
+      <g class="shard" style="transform-origin:90.6px 59.4px;--tx:-0.74px;--ty:-0.81px;--rot:0.33deg;animation-delay:0.120s">
+        <g clip-path="url(#c69)">
+          <use href="#icon-art" />
+          <g class="cracks-overlay">
+            <polygon points="72.4,81.4 111.0,62.2 88.3,34.6" fill="#00143D" fill-opacity="0.05" />
+            <polygon points="72.4,81.4 111.0,62.2 88.3,34.6" fill="none" stroke="#FFFFFF" stroke-opacity="0.7" stroke-width="1.2" />
+          </g>
+        </g>
+      </g>
+      <g class="shard" style="transform-origin:63.4px 58.0px;--tx:-1.03px;--ty:-0.85px;--rot:0.32deg;animation-delay:0.120s">
+        <g clip-path="url(#c70)">
+          <use href="#icon-art" />
+          <g class="cracks-overlay">
+            <polygon points="72.4,81.4 88.3,34.6 29.6,57.9" fill="#00143D" fill-opacity="0.12" />
+            <polygon points="72.4,81.4 88.3,34.6 29.6,57.9" fill="none" stroke="#FFFFFF" stroke-opacity="0.7" stroke-width="1.2" />
+          </g>
+        </g>
+      </g>
+      <g class="shard" style="transform-origin:137.2px 32.0px;--tx:-0.46px;--ty:-1.54px;--rot:-0.16deg;animation-delay:0.120s">
+        <g clip-path="url(#c71)">
+          <use href="#icon-art" />
+          <g class="cracks-overlay">
+            <polygon points="111.0,62.2 157.2,28.5 143.4,5.2" fill="#FFFFFF" fill-opacity="0.12" />
+            <polygon points="111.0,62.2 157.2,28.5 143.4,5.2" fill="none" stroke="#FFFFFF" stroke-opacity="0.7" stroke-width="1.2" />
+          </g>
+        </g>
+      </g>
+      <g class="shard" style="transform-origin:114.2px 34.0px;--tx:-0.87px;--ty:-1.72px;--rot:0.16deg;animation-delay:0.120s">
+        <g clip-path="url(#c72)">
+          <use href="#icon-art" />
+          <g class="cracks-overlay">
+            <polygon points="111.0,62.2 143.4,5.2 88.3,34.6" fill="#FFFFFF" fill-opacity="0.05" />
+            <polygon points="111.0,62.2 143.4,5.2 88.3,34.6" fill="none" stroke="#FFFFFF" stroke-opacity="0.7" stroke-width="1.2" />
+          </g>
+        </g>
+      </g>
+      <g class="shard" style="transform-origin:175.8px 25.0px;--tx:0.04px;--ty:-1.32px;--rot:0.34deg;animation-delay:0.120s">
+        <g clip-path="url(#c73)">
+          <use href="#icon-art" />
+          <g class="cracks-overlay">
+            <polygon points="157.2,28.5 197.0,54.6 205.4,11.8 143.4,5.2" fill="#00143D" fill-opacity="0.10" />
+            <polygon points="157.2,28.5 197.0,54.6 205.4,11.8 143.4,5.2" fill="none" stroke="#FFFFFF" stroke-opacity="0.7" stroke-width="1.2" />
+          </g>
+        </g>
+      </g>
+      <g class="shard" style="transform-origin:228.3px 45.9px;--tx:0.53px;--ty:-0.96px;--rot:-0.32deg;animation-delay:0.120s">
+        <g clip-path="url(#c74)">
+          <use href="#icon-art" />
+          <g class="cracks-overlay">
+            <polygon points="197.0,54.6 240.4,76.0 270.2,41.3 205.4,11.8" fill="#FFFFFF" fill-opacity="0.12" />
+            <polygon points="197.0,54.6 240.4,76.0 270.2,41.3 205.4,11.8" fill="none" stroke="#FFFFFF" stroke-opacity="0.7" stroke-width="1.2" />
+          </g>
+        </g>
+      </g>
+      <g class="shard" style="transform-origin:271.0px 80.8px;--tx:1.13px;--ty:-0.77px;--rot:0.02deg;animation-delay:0.120s">
+        <g clip-path="url(#c75)">
+          <use href="#icon-art" />
+          <g class="cracks-overlay">
+            <polygon points="240.4,76.0 267.6,98.7 305.0,67.6" fill="#FFFFFF" fill-opacity="0.09" />
+            <polygon points="240.4,76.0 267.6,98.7 305.0,67.6" fill="none" stroke="#FFFFFF" stroke-opacity="0.7" stroke-width="1.2" />
+          </g>
+        </g>
+      </g>
+      <g class="shard" style="transform-origin:271.9px 61.6px;--tx:0.88px;--ty:-0.76px;--rot:0.55deg;animation-delay:0.120s">
+        <g clip-path="url(#c76)">
+          <use href="#icon-art" />
+          <g class="cracks-overlay">
+            <polygon points="240.4,76.0 305.0,67.6 270.2,41.3" fill="#00143D" fill-opacity="0.15" />
+            <polygon points="240.4,76.0 305.0,67.6 270.2,41.3" fill="none" stroke="#FFFFFF" stroke-opacity="0.7" stroke-width="1.2" />
+          </g>
+        </g>
+      </g>
+      <g class="shard" style="transform-origin:287.4px 125.5px;--tx:1.02px;--ty:-0.20px;--rot:-0.06deg;animation-delay:0.120s">
+        <g clip-path="url(#c77)">
+          <use href="#icon-art" />
+          <g class="cracks-overlay">
+            <polygon points="267.6,98.7 272.9,143.4 321.8,134.3" fill="#FFFFFF" fill-opacity="0.15" />
+            <polygon points="267.6,98.7 272.9,143.4 321.8,134.3" fill="none" stroke="#FFFFFF" stroke-opacity="0.7" stroke-width="1.2" />
+          </g>
+        </g>
+      </g>
+      <g class="shard" style="transform-origin:298.1px 100.2px;--tx:1.45px;--ty:-0.55px;--rot:-0.32deg;animation-delay:0.120s">
+        <g clip-path="url(#c78)">
+          <use href="#icon-art" />
+          <g class="cracks-overlay">
+            <polygon points="267.6,98.7 321.8,134.3 305.0,67.6" fill="#00143D" fill-opacity="0.14" />
+            <polygon points="267.6,98.7 321.8,134.3 305.0,67.6" fill="none" stroke="#FFFFFF" stroke-opacity="0.7" stroke-width="1.2" />
+          </g>
+        </g>
+      </g>
+      <g class="shard" style="transform-origin:374.1px 175.1px;--tx:1.20px;--ty:0.16px;--rot:-0.36deg;animation-delay:0.160s">
+        <g clip-path="url(#c79)">
+          <use href="#icon-art" />
+          <g class="cracks-overlay">
+            <polygon points="321.8,134.3 321.0,200.8 392.3,222.6 461.2,142.8" fill="#FFFFFF" fill-opacity="0.14" />
+            <polygon points="321.8,134.3 321.0,200.8 392.3,222.6 461.2,142.8" fill="none" stroke="#FFFFFF" stroke-opacity="0.7" stroke-width="1.2" />
+          </g>
+        </g>
+      </g>
+      <g class="shard" style="transform-origin:330.4px 259.2px;--tx:1.15px;--ty:0.81px;--rot:0.01deg;animation-delay:0.160s">
+        <g clip-path="url(#c80)">
+          <use href="#icon-art" />
+          <g class="cracks-overlay">
+            <polygon points="321.0,200.8 272.2,279.4 336.0,334.2 392.3,222.6" fill="#FFFFFF" fill-opacity="0.12" />
+            <polygon points="321.0,200.8 272.2,279.4 336.0,334.2 392.3,222.6" fill="none" stroke="#FFFFFF" stroke-opacity="0.7" stroke-width="1.2" />
+          </g>
+        </g>
+      </g>
+      <g class="shard" style="transform-origin:274.0px 321.2px;--tx:0.75px;--ty:1.27px;--rot:-0.01deg;animation-delay:0.160s">
+        <g clip-path="url(#c81)">
+          <use href="#icon-art" />
+          <g class="cracks-overlay">
+            <polygon points="272.2,279.4 237.0,306.4 250.9,364.7 336.0,334.2" fill="#00143D" fill-opacity="0.04" />
+            <polygon points="272.2,279.4 237.0,306.4 250.9,364.7 336.0,334.2" fill="none" stroke="#FFFFFF" stroke-opacity="0.7" stroke-width="1.2" />
+          </g>
+        </g>
+      </g>
+      <g class="shard" style="transform-origin:194.5px 357.5px;--tx:0.12px;--ty:1.09px;--rot:-0.20deg;animation-delay:0.160s">
+        <g clip-path="url(#c82)">
+          <use href="#icon-art" />
+          <g class="cracks-overlay">
+            <polygon points="237.0,306.4 149.9,314.2 140.1,444.8 250.9,364.7" fill="#00143D" fill-opacity="0.08" />
+            <polygon points="237.0,306.4 149.9,314.2 140.1,444.8 250.9,364.7" fill="none" stroke="#FFFFFF" stroke-opacity="0.7" stroke-width="1.2" />
+          </g>
+        </g>
+      </g>
+      <g class="shard" style="transform-origin:112.1px 352.0px;--tx:-0.40px;--ty:1.37px;--rot:-0.50deg;animation-delay:0.160s">
+        <g clip-path="url(#c83)">
+          <use href="#icon-art" />
+          <g class="cracks-overlay">
+            <polygon points="149.9,314.2 99.0,267.8 59.5,381.0 140.1,444.8" fill="#FFFFFF" fill-opacity="0.13" />
+            <polygon points="149.9,314.2 99.0,267.8 59.5,381.0 140.1,444.8" fill="none" stroke="#FFFFFF" stroke-opacity="0.7" stroke-width="1.2" />
+          </g>
+        </g>
+      </g>
+      <g class="shard" style="transform-origin:48.2px 301.3px;--tx:-0.94px;--ty:1.17px;--rot:0.21deg;animation-delay:0.160s">
+        <g clip-path="url(#c84)">
+          <use href="#icon-art" />
+          <g class="cracks-overlay">
+            <polygon points="99.0,267.8 33.6,256.1 0.9,300.1 59.5,381.0" fill="#FFFFFF" fill-opacity="0.07" />
+            <polygon points="99.0,267.8 33.6,256.1 0.9,300.1 59.5,381.0" fill="none" stroke="#FFFFFF" stroke-opacity="0.7" stroke-width="1.2" />
+          </g>
+        </g>
+      </g>
+      <g class="shard" style="transform-origin:-8.0px 232.9px;--tx:-0.95px;--ty:0.45px;--rot:0.50deg;animation-delay:0.160s">
+        <g clip-path="url(#c85)">
+          <use href="#icon-art" />
+          <g class="cracks-overlay">
+            <polygon points="33.6,256.1 -0.2,186.7 -66.2,188.6 0.9,300.1" fill="#FFFFFF" fill-opacity="0.08" />
+            <polygon points="33.6,256.1 -0.2,186.7 -66.2,188.6 0.9,300.1" fill="none" stroke="#FFFFFF" stroke-opacity="0.7" stroke-width="1.2" />
+          </g>
+        </g>
+      </g>
+      <g class="shard" style="transform-origin:-28.0px 160.7px;--tx:-0.95px;--ty:0.06px;--rot:-0.45deg;animation-delay:0.160s">
+        <g clip-path="url(#c86)">
+          <use href="#icon-art" />
+          <g class="cracks-overlay">
+            <polygon points="-0.2,186.7 15.4,135.7 -61.0,131.9 -66.2,188.6" fill="#00143D" fill-opacity="0.13" />
+            <polygon points="-0.2,186.7 15.4,135.7 -61.0,131.9 -66.2,188.6" fill="none" stroke="#FFFFFF" stroke-opacity="0.7" stroke-width="1.2" />
+          </g>
+        </g>
+      </g>
+      <g class="shard" style="transform-origin:-21.1px 75.5px;--tx:-1.41px;--ty:-0.53px;--rot:-0.25deg;animation-delay:0.160s">
+        <g clip-path="url(#c87)">
+          <use href="#icon-art" />
+          <g class="cracks-overlay">
+            <polygon points="15.4,135.7 29.6,57.9 -68.3,-23.5 -61.0,131.9" fill="#00143D" fill-opacity="0.10" />
+            <polygon points="15.4,135.7 29.6,57.9 -68.3,-23.5 -61.0,131.9" fill="none" stroke="#FFFFFF" stroke-opacity="0.7" stroke-width="1.2" />
+          </g>
+        </g>
+      </g>
+      <g class="shard" style="transform-origin:22.8px 6.2px;--tx:-0.75px;--ty:-0.71px;--rot:0.46deg;animation-delay:0.160s">
+        <g clip-path="url(#c88)">
+          <use href="#icon-art" />
+          <g class="cracks-overlay">
+            <polygon points="29.6,57.9 88.3,34.6 41.6,-44.4 -68.3,-23.5" fill="#FFFFFF" fill-opacity="0.13" />
+            <polygon points="29.6,57.9 88.3,34.6 41.6,-44.4 -68.3,-23.5" fill="none" stroke="#FFFFFF" stroke-opacity="0.7" stroke-width="1.2" />
+          </g>
+        </g>
+      </g>
+      <g class="shard" style="transform-origin:121.6px -10.6px;--tx:-0.45px;--ty:-1.42px;--rot:0.44deg;animation-delay:0.160s">
+        <g clip-path="url(#c89)">
+          <use href="#icon-art" />
+          <g class="cracks-overlay">
+            <polygon points="88.3,34.6 143.4,5.2 133.2,-71.7" fill="#FFFFFF" fill-opacity="0.12" />
+            <polygon points="88.3,34.6 143.4,5.2 133.2,-71.7" fill="none" stroke="#FFFFFF" stroke-opacity="0.7" stroke-width="1.2" />
+          </g>
+        </g>
+      </g>
+      <g class="shard" style="transform-origin:87.7px -27.2px;--tx:-0.33px;--ty:-0.69px;--rot:0.23deg;animation-delay:0.160s">
+        <g clip-path="url(#c90)">
+          <use href="#icon-art" />
+          <g class="cracks-overlay">
+            <polygon points="88.3,34.6 133.2,-71.7 41.6,-44.4" fill="#FFFFFF" fill-opacity="0.12" />
+            <polygon points="88.3,34.6 133.2,-71.7 41.6,-44.4" fill="none" stroke="#FFFFFF" stroke-opacity="0.7" stroke-width="1.2" />
+          </g>
+        </g>
+      </g>
+      <g class="shard" style="transform-origin:207.1px -38.3px;--tx:0.18px;--ty:-0.94px;--rot:-0.45deg;animation-delay:0.160s">
+        <g clip-path="url(#c91)">
+          <use href="#icon-art" />
+          <g class="cracks-overlay">
+            <polygon points="143.4,5.2 205.4,11.8 272.3,-131.9" fill="#FFFFFF" fill-opacity="0.05" />
+            <polygon points="143.4,5.2 205.4,11.8 272.3,-131.9" fill="none" stroke="#FFFFFF" stroke-opacity="0.7" stroke-width="1.2" />
+          </g>
+        </g>
+      </g>
+      <g class="shard" style="transform-origin:183.0px -66.1px;--tx:0.06px;--ty:-1.12px;--rot:-0.16deg;animation-delay:0.160s">
+        <g clip-path="url(#c92)">
+          <use href="#icon-art" />
+          <g class="cracks-overlay">
+            <polygon points="143.4,5.2 272.3,-131.9 133.2,-71.7" fill="#00143D" fill-opacity="0.12" />
+            <polygon points="143.4,5.2 272.3,-131.9 133.2,-71.7" fill="none" stroke="#FFFFFF" stroke-opacity="0.7" stroke-width="1.2" />
+          </g>
+        </g>
+      </g>
+      <g class="shard" style="transform-origin:279.3px 0.7px;--tx:0.55px;--ty:-0.76px;--rot:0.16deg;animation-delay:0.160s">
+        <g clip-path="url(#c93)">
+          <use href="#icon-art" />
+          <g class="cracks-overlay">
+            <polygon points="205.4,11.8 270.2,41.3 362.3,-50.9" fill="#00143D" fill-opacity="0.10" />
+            <polygon points="205.4,11.8 270.2,41.3 362.3,-50.9" fill="none" stroke="#FFFFFF" stroke-opacity="0.7" stroke-width="1.2" />
+          </g>
+        </g>
+      </g>
+      <g class="shard" style="transform-origin:280.0px -57.0px;--tx:0.49px;--ty:-0.93px;--rot:-0.33deg;animation-delay:0.160s">
+        <g clip-path="url(#c94)">
+          <use href="#icon-art" />
+          <g class="cracks-overlay">
+            <polygon points="205.4,11.8 362.3,-50.9 272.3,-131.9" fill="#00143D" fill-opacity="0.06" />
+            <polygon points="205.4,11.8 362.3,-50.9 272.3,-131.9" fill="none" stroke="#FFFFFF" stroke-opacity="0.7" stroke-width="1.2" />
+          </g>
+        </g>
+      </g>
+      <g class="shard" style="transform-origin:321.0px 43.8px;--tx:0.93px;--ty:-0.65px;--rot:-0.28deg;animation-delay:0.160s">
+        <g clip-path="url(#c95)">
+          <use href="#icon-art" />
+          <g class="cracks-overlay">
+            <polygon points="270.2,41.3 305.0,67.6 387.8,22.6" fill="#FFFFFF" fill-opacity="0.15" />
+            <polygon points="270.2,41.3 305.0,67.6 387.8,22.6" fill="none" stroke="#FFFFFF" stroke-opacity="0.7" stroke-width="1.2" />
+          </g>
+        </g>
+      </g>
+      <g class="shard" style="transform-origin:340.1px 4.3px;--tx:0.83px;--ty:-0.71px;--rot:-0.36deg;animation-delay:0.160s">
+        <g clip-path="url(#c96)">
+          <use href="#icon-art" />
+          <g class="cracks-overlay">
+            <polygon points="270.2,41.3 387.8,22.6 362.3,-50.9" fill="#00143D" fill-opacity="0.05" />
+            <polygon points="270.2,41.3 387.8,22.6 362.3,-50.9" fill="none" stroke="#FFFFFF" stroke-opacity="0.7" stroke-width="1.2" />
+          </g>
+        </g>
+      </g>
+      <g class="shard" style="transform-origin:368.9px 91.8px;--tx:0.77px;--ty:-0.22px;--rot:-0.26deg;animation-delay:0.160s">
+        <g clip-path="url(#c97)">
+          <use href="#icon-art" />
+          <g class="cracks-overlay">
+            <polygon points="305.0,67.6 321.8,134.3 461.2,142.8 387.8,22.6" fill="#00143D" fill-opacity="0.10" />
+            <polygon points="305.0,67.6 321.8,134.3 461.2,142.8 387.8,22.6" fill="none" stroke="#FFFFFF" stroke-opacity="0.7" stroke-width="1.2" />
+          </g>
+        </g>
+      </g>
+      <g class="cracks-overlay" fill="none" stroke="#FFFFFF" stroke-opacity="0.6" stroke-width="0.9" stroke-linecap="round">
+        <polyline points="195.8,147.6 221.0,150.4 241.5,149.9" />
+        <polyline points="187.2,168.1 197.5,179.5 206.0,185.7" />
+        <polyline points="170.3,172.3 165.7,200.0 156.2,223.5" />
+        <polyline points="151.1,167.3 138.0,183.1 117.5,194.8" />
+        <polyline points="147.2,144.7 127.1,140.6 106.0,145.4" />
+        <polyline points="159.0,128.2 154.1,117.4 137.5,95.2" />
+        <polyline points="179.8,122.5 186.8,109.2 193.0,93.4" />
+        <polyline points="195.9,134.4 209.1,124.3 233.4,119.4" />
+      </g>
+      <circle class="impact-flash" cx="172.0" cy="148.0" r="24" fill="#FFFFFF" />
+    </g>
+  </g>
+
+  <!-- 右侧标题与标签（透明背景，自适应明暗主题） -->
+  <g transform="translate(172, 0)">
+    <text x="0" y="60" class="title-text">
+      wulu-geetest-<tspan class="title-accent">bypass</tspan>
+    </text>
+    <text x="2" y="92" class="subtitle-text">
+      Pure Python · Geetest Behavioral CAPTCHA v4 Solver
+    </text>
+
+    <g transform="translate(0, 110)">
+      <rect x="0" y="0" width="112" height="26" rx="13" class="pill-bg" />
+      <text x="56" y="17" text-anchor="middle" class="pill-text">Zero Node.js</text>
+
+      <rect x="124" y="0" width="124" height="26" rx="13" class="pill-bg" />
+      <text x="186" y="17" text-anchor="middle" class="pill-text">10+ Risk Types</text>
+
+      <rect x="260" y="0" width="146" height="26" rx="13" class="pill-bg" />
+      <text x="333" y="17" text-anchor="middle" class="pill-text">Human-like Tracks</text>
+    </g>
+  </g>
+</svg>
