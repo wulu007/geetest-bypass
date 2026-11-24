@@ -7,7 +7,7 @@ import uuid
 from collections.abc import Callable
 from typing import ClassVar, Unpack
 
-from wreq import Client, Emulation
+from wreq import Client
 
 from wulu_geetest_bypass.crypto import gen_td_sign
 from wulu_geetest_bypass.fp import gen_ce
@@ -20,7 +20,12 @@ from wulu_geetest_bypass.track import (
     gen_winlinze_track,
     track_zip,
 )
-from wulu_geetest_bypass.utils import format_userresponse, gt_callback, unwrap_jsonp
+from wulu_geetest_bypass.utils import (
+    format_userresponse,
+    gt_callback,
+    random_emulation,
+    unwrap_jsonp,
+)
 
 from ._exceptions import ApiError, RateLimitError, VerifyError
 from ._type import (
@@ -77,11 +82,12 @@ class Geetest:
         self.track_enable = kwargs.get('track_enable')  # None = follow the served build
         if 'client' in kwargs:
             self.client = kwargs['client']
+            self.emulation = None
         else:
             client_options = kwargs.get('client_options', {}).copy()
             user_headers = client_options.get('headers', {})
             client_options['headers'] = {**self.default_headers, **user_headers}  # type: ignore
-            client_options.setdefault('emulation', Emulation.Chrome147)
+            self.emulation = client_options.setdefault('emulation', random_emulation())
             self.client = Client(**client_options)
 
     async def load(self):

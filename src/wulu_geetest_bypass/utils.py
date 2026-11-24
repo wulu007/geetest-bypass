@@ -1,5 +1,20 @@
 import json
+import random
 import time
+
+from wreq import Emulation, Platform, Profile
+
+CHROME_PROFILES: tuple[Profile, ...] = tuple(
+    p
+    for browser in ('Chrome', 'Edge')
+    for ver in range(140, 148)
+    if (p := getattr(Profile, f'{browser}{ver}', None)) is not None
+)
+
+
+def random_emulation(platform: Platform = Platform.Windows) -> Emulation:
+    """Pick a random modern Chrome profile paired with ``platform``."""
+    return Emulation(random.choice(CHROME_PROFILES), platform)
 
 
 def format_userresponse(clicks: list[tuple[float, float]]) -> list[list[int]]:
