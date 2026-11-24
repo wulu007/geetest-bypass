@@ -21,6 +21,11 @@ body = """
             {{ commit.message | upper_first }}\
     {% endfor %}
 {% endfor %}
+{% if version %}
+---
+
+{% if previous.version %}[![Compare {{ previous.version }}...{{ version }}](https://img.shields.io/badge/Compare-{{ previous.version }}...{{ version }}_%E2%86%97-blue?style=for-the-badge&logo=github)](https://github.com/wulu007/geetest-bypass/compare/{{ previous.version }}...{{ version }}) {% endif %}[![PyPI {{ version | trim_start_matches(pat="v") }}](https://img.shields.io/badge/PyPI-{{ version | trim_start_matches(pat="v") }}_%E2%86%97-3775A9?style=for-the-badge&logo=pypi&logoColor=white)](https://pypi.org/project/wulu-geetest-bypass/{{ version | trim_start_matches(pat="v") }}/)
+{% endif %}
 """
 # Remove leading and trailing whitespaces from the changelog's body.
 trim = true
