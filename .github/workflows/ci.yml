@@ -2,10 +2,10 @@ name: CI
 
 on:
   push:
-    branches: [main, "release/**"]
+    branches: [main]
     tags: ["v[0-9]*"]
   pull_request:
-    branches: [main, "release/**"]
+    branches: [main]
 
 permissions:
   contents: read
@@ -15,6 +15,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
       - uses: astral-sh/setup-uv@v9.0.0
         with:
           enable-cache: true
@@ -35,6 +37,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
       - uses: astral-sh/setup-uv@v9.0.0
         with:
           enable-cache: true
@@ -75,17 +79,12 @@ jobs:
             echo "make_latest=true" >> $GITHUB_OUTPUT
           fi
 
-      - name: Prepare Release Notes
-        id: notes
-        run: |
-          MSG="$(git log -1 --pretty=%s)"
-          if [[ "$MSG" == "chore: update geetest config to "* ]]; then
-            GEETEST_VER="${MSG#chore: update geetest config to }"
-            GEETEST_VER="${GEETEST_VER% [auto]}"
-            echo "body=Config updated to Geetest $GEETEST_VER" >> "$GITHUB_OUTPUT"
-          else
-            echo "body=" >> "$GITHUB_OUTPUT"
-          fi
+      - name: Generate Release Notes
+        id: git_cliff
+        uses: orhun/git-cliff-action@v4
+        with:
+          config: cliff.toml
+          args: --latest --strip header
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v3
@@ -93,7 +92,6 @@ jobs:
           files: |
             dist/*.whl
             dist/*.tar.gz
-          body: ${{ steps.notes.outputs.body }}
-          generate_release_notes: true
+          body: ${{ steps.git_cliff.outputs.content }}
           prerelease: ${{ steps.check_pre.outputs.is_prerelease == 'true' }}
           make_latest: ${{ steps.check_pre.outputs.make_latest == 'true' }}
