@@ -10,6 +10,7 @@ from typing import ClassVar, Unpack
 from wreq import Client, Emulation
 
 from wulu_geetest_bypass.crypto import gen_td_sign
+from wulu_geetest_bypass.fp import gen_ce
 from wulu_geetest_bypass.track import (
     gen_click_track,
     gen_match_track,
@@ -196,6 +197,8 @@ class Geetest:
             'nd': Config.nd,
             'tc': Config.tc,
             'tz': self.tz,
+            'cd': Config.cd,
+            'ce': gen_ce(),
             **{k: v for k, v in ans.items() if k != 'track'},
         }
         if 'track' in ans and ans['track'] is not None:

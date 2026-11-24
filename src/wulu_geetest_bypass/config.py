@@ -51,6 +51,9 @@ class Config:
     # NotSupportedError. Whoever shipped this never ran it once: it measures nothing.
     tc: ClassVar = {'mtp': 0, 'te': False, 'ts': False}
 
+    # DevTools/CDP probe vector (v1.9.10+): all zero (MISS) for a clean browser.
+    cd: ClassVar = [0, 0, 0]
+
     _patrols: ClassVar[dict[str, Patrol]] = {}
 
     @staticmethod
