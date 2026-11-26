@@ -7,6 +7,7 @@ from wulu_geetest_bypass import Geetest
 test_risk = ['ai', 'slide', 'match', 'winlinze', 'svg_seed', 'svg_icon']
 
 
+@pytest.mark.integration
 @pytest.mark.asyncio
 @pytest.mark.parametrize('risk_type', test_risk)
 async def test_risk_type(risk_type, cid):
@@ -41,6 +42,7 @@ def test_auto_solve_icon_click():
         del Geetest._solvers['icon']
 
 
+@pytest.mark.integration
 @pytest.mark.asyncio
 async def test_slide(cid):
     g = Geetest(captcha_id=cid, risk_type='slide')
@@ -80,6 +82,7 @@ test_lang = [
 ]
 
 
+@pytest.mark.integration
 @pytest.mark.asyncio
 @pytest.mark.parametrize('lang', test_lang)
 async def test_voice(lang, cid):

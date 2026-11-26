@@ -26,8 +26,21 @@ jobs:
           uvx ruff check
           uvx ruff format --check
 
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v9.0.0
+        with:
+          enable-cache: true
+          python-version: "3.11"
+      - name: Install dependencies
+        run: uv sync --locked
+      - name: Run offline tests
+        run: uv run pytest tests/ extensions/ -m "not integration and not draw and not accuracy and not perf and not slow"
+
   publish:
-    needs: lint
+    needs: [lint, test]
     if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
     runs-on: ubuntu-latest
 

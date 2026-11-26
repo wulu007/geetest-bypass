@@ -123,6 +123,7 @@ async def _load_svg_resources(cid, risk_type):
     return svg, hint
 
 
+@pytest.mark.integration
 @pytest.mark.asyncio
 @pytest.mark.parametrize('risk_type', ['svg_seed', 'svg_icon'])
 async def test_frame_times(cid, risk_type):
@@ -135,6 +136,8 @@ async def test_frame_times(cid, risk_type):
         assert e2 > e1
 
 
+@pytest.mark.integration
+@pytest.mark.draw
 @pytest.mark.asyncio
 @pytest.mark.parametrize(
     ('risk_type', 'n_cols'),

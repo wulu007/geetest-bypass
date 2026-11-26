@@ -108,6 +108,7 @@ def _draw(bg, detections, clicks, ques):
     return np.vstack([_ques_bar(ques, w, max(24, min(72, h // 4))), canvas])
 
 
+@pytest.mark.draw
 @pytest.mark.asyncio
 async def test_icon_draw(out_dir):
     imgs, *ques = await _load_icon()

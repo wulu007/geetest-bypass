@@ -132,9 +132,6 @@ def test_gen_time():
         .end()
         .build()
     )
-    for i in t:
-        print(i)
-    print(f'len={len(t)}')
     stamps = [p[0] for p in t]
     assert len(stamps) > 2
     assert all(b > a for a, b in pairwise(stamps)), stamps

@@ -132,6 +132,7 @@ def _draw(
     canvas.save(out)
 
 
+@pytest.mark.slow
 def test_solve_word_offline():
     imgs, ques = _load_sample()
     clicks = solve_word(imgs, ques)
@@ -149,6 +150,7 @@ def test_solve_word_offline():
         assert 0 <= coord[1] <= 10000
 
 
+@pytest.mark.slow
 def test_word_auto_solve():
     imgs, ques = _load_sample()
     payload = {
