@@ -71,6 +71,7 @@ commit_parsers = [
     { message = "^doc", group = "<!-- 3 -->📚 Documentation" },
     { message = "^perf", group = "<!-- 4 -->⚡ Performance" },
     { message = "^refactor", group = "<!-- 2 -->♻️ Refactor" },
+    { message = "^chore: update geetest config.*\\[auto\\]", group = "<!-- 7 -->🔄 Config Updates" },
     { message = "^chore|^ci|^test|^style", skip = true },
     { body = ".*security", group = "<!-- 5 -->🛡️ Security" },
     { message = "^revert", group = "<!-- 6 -->⏪ Revert" },
